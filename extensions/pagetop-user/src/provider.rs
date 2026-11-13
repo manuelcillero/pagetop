@@ -236,9 +236,19 @@ pub trait AuthProvider: Send + Sync + 'static {
     /// Ver la sección *Seguridad* de [`ProviderHandle`].
     fn attach(&self, handle: ProviderHandle);
 
-    /// Si el proveedor renuncia a gestionar la cuenta, que entonces puede entrar con su contraseña
-    /// local aunque `"local"` no esté en `sources` (ver
-    /// [`LocalFallback::Released`]). Por defecto, no.
+    /// Si el proveedor renuncia a gestionar una cuenta vinculada a él. Por defecto, no.
+    ///
+    /// Una cuenta liberada se trata como local:
+    ///
+    /// - **Al iniciar sesión**, con [`LocalFallback::Released`], puede entrar con su contraseña
+    ///   local aunque `"local"` no esté en `sources`.
+    /// - **Al confirmar una operación sensible** (cambiar el email o la contraseña), se comprueba
+    ///   su contraseña local en lugar de llamar a [`reauthenticate()`](Self::reauthenticate).
+    ///
+    /// Sirve, por ejemplo, para que un administrador saque una cuenta de la gestión de un
+    /// directorio y le dé una contraseña local con la que su titular entre y confirme sus cambios.
+    /// Mientras no tenga contraseña local, una cuenta liberada no puede entrar ni confirmar nada
+    /// por esta vía.
     async fn releases(&self, _user: &UserRef) -> bool {
         false
     }

@@ -376,8 +376,14 @@ pub(crate) async fn change_own_password(
 // tuviera una sesión robada podría adivinar la contraseña desde estos formularios sin límite, y
 // pedirla no protegería el cambio de la contraseña ni el del email.
 //
-// La de una cuenta que gestiona un proveedor la comprueba el proveedor
-// (`AuthProvider::reauthenticate()`), con los mismos contadores de fallos.
+// Si la cuenta la gestiona un proveedor, la comprueba él (`AuthProvider::reauthenticate()`; en un
+// directorio LDAP, un *bind* con el DN de la persona), con los mismos contadores de fallos. Si el
+// proveedor la libera (`AuthProvider::releases()`), se trata como local y vale su contraseña local,
+// igual que al iniciar sesión. Por ejemplo, un administrador excluye una cuenta del directorio y
+// le da una contraseña local: su titular entra con ella y, al cambiar su email, confirma con esa
+// misma contraseña, no con la del directorio, que ya no gestiona su cuenta. Una cuenta liberada sin
+// contraseña local no puede confirmar nada (cada intento cuenta como un fallo) hasta que un
+// administrador le dé una.
 async fn checked_user(user_id: i32, password: &util::SecretStr) -> Result<user::Model, AuthError> {
     let user_model = user::Entity::find_by_id(user_id)
         .one(dbconn())
@@ -389,16 +395,16 @@ async fn checked_user(user_id: i32, password: &util::SecretStr) -> Result<user::
     {
         return Err(AuthError::AccountLocked);
     }
+    let user_ref = UserRef::from(&user_model);
     let valid = match provider::managing_provider(user_id).await? {
-        Some(p) => match p
-            .reauthenticate(&UserRef::from(&user_model), password)
-            .await
-        {
-            ReauthOutcome::Valid => true,
-            ReauthOutcome::Invalid => false,
-            ReauthOutcome::Unavailable => return Err(AuthError::ExternalUnavailable),
-        },
-        None => password::verify_password_async(password.expose(), &user_model.password_hash).await,
+        Some(p) if !p.releases(&user_ref).await => {
+            match p.reauthenticate(&user_ref, password).await {
+                ReauthOutcome::Valid => true,
+                ReauthOutcome::Invalid => false,
+                ReauthOutcome::Unavailable => return Err(AuthError::ExternalUnavailable),
+            }
+        }
+        _ => password::verify_password_async(password.expose(), &user_model.password_hash).await,
     };
     if !valid {
         register_failed_login(&user_model, now).await?;

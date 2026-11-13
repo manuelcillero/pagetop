@@ -511,33 +511,33 @@ impl ProviderHandle {
                     }
                     .update(txn)
                     .await?;
-                    user::Entity::update_many()
-                        .col_expr(user::Column::PasswordHash, Expr::value(UNUSABLE_HASH))
-                        .col_expr(
-                            user::Column::PendingEmail,
-                            Expr::value(Option::<String>::None),
-                        )
-                        .col_expr(user::Column::UpdatedAt, Expr::value(now))
-                        .filter(user::Column::Id.eq(user_id))
-                        .exec(txn)
-                        .await?;
-                    session::Entity::delete_many()
-                        .filter(session::Column::UserId.eq(user_id))
-                        .exec(txn)
-                        .await?;
-                    user_token::Entity::update_many()
-                        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
-                        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
-                        .filter(user_token::Column::UserId.eq(user_id))
-                        .filter(user_token::Column::ConsumedAt.is_null())
-                        .exec(txn)
-                        .await?;
-                    Ok(())
+                    take_over(txn, user_id, now).await
                 })
             })
             .await
             .map_err(flatten_txn_err)?;
         trace::info!("Provider \"{}\" linked user {user_id}", self.provider);
+        Ok(())
+    }
+
+    /// Anula la contraseña local de una cuenta vinculada a este proveedor, como al vincularla:
+    /// cierra sus sesiones, descarta su cambio de email pendiente y anula todos sus enlaces sin
+    /// usar (recuperación, verificación y cambio de email). Para cuando el proveedor vuelve a
+    /// gestionar una cuenta que había liberado
+    /// ([`AuthProvider::releases()`](super::AuthProvider::releases)) y que mientras tanto recibió
+    /// una contraseña local.
+    pub async fn disable_password(&self, user_id: i32) -> Result<(), AuthError> {
+        self.owned(user_id).await?;
+        dbconn()
+            .transaction::<_, _, AuthError>(|txn| {
+                Box::pin(async move { take_over(txn, user_id, Utc::now()).await })
+            })
+            .await
+            .map_err(flatten_txn_err)?;
+        trace::info!(
+            "Provider \"{}\" disabled the local password of user {user_id}",
+            self.provider
+        );
         Ok(())
     }
 
@@ -875,6 +875,37 @@ impl ProviderHandle {
             .await?
             .ok_or(AuthError::NotOwnedByProvider)
     }
+}
+
+// Deja la cuenta sólo en manos del proveedor: sin contraseña local, sin sesiones y sin cambio de
+// email ni enlaces pendientes, que valían para la cuenta local.
+async fn take_over(
+    txn: &DatabaseTransaction,
+    user_id: i32,
+    now: DateTime<Utc>,
+) -> Result<(), AuthError> {
+    user::Entity::update_many()
+        .col_expr(user::Column::PasswordHash, Expr::value(UNUSABLE_HASH))
+        .col_expr(
+            user::Column::PendingEmail,
+            Expr::value(Option::<String>::None),
+        )
+        .col_expr(user::Column::UpdatedAt, Expr::value(now))
+        .filter(user::Column::Id.eq(user_id))
+        .exec(txn)
+        .await?;
+    session::Entity::delete_many()
+        .filter(session::Column::UserId.eq(user_id))
+        .exec(txn)
+        .await?;
+    user_token::Entity::update_many()
+        .col_expr(user_token::Column::ConsumedAt, Expr::value(now))
+        .col_expr(user_token::Column::UpdatedAt, Expr::value(now))
+        .filter(user_token::Column::UserId.eq(user_id))
+        .filter(user_token::Column::ConsumedAt.is_null())
+        .exec(txn)
+        .await?;
+    Ok(())
 }
 
 // **< Identidades pendientes >*********************************************************************

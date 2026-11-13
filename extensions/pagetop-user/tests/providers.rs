@@ -25,6 +25,7 @@ const PEOPLE: &[(&str, &str, &str)] = &[
     ("eva", "eva@example.com", "eva-dir"),
     ("rejected", "rejected@example.com", "rejected-dir"),
     ("admin", "admin@example.com", "admin-dir"),
+    ("released", "released@example.com", "released-dir"),
 ];
 
 static HANDLE: OnceLock<ProviderHandle> = OnceLock::new();
@@ -126,7 +127,11 @@ impl AuthProvider for Fake {
         }
     }
 
-    async fn account_policy(&self, _user: &UserRef) -> Option<AccountPolicy> {
+    async fn account_policy(&self, user: &UserRef) -> Option<AccountPolicy> {
+        // A released account is treated as local.
+        if self.releases(user).await {
+            return None;
+        }
         let staff = STAFF.load(Ordering::SeqCst);
         Some(
             AccountPolicy::new(Lc::n("Fake directory"))
@@ -344,6 +349,7 @@ async fn provider_flows() {
     managed_roles_survive_the_administration_form(&client, &admin).await;
     actions_reach_other_extensions(&client, &admin).await;
     unlinking_closes_the_sessions(&client).await;
+    released_accounts_are_local_until_taken_back(&client).await;
 }
 
 async fn directory_people_get_a_linked_account(client: &Client) {
@@ -544,6 +550,10 @@ async fn the_handle_only_acts_on_its_own_accounts() {
         Err(AuthError::NotOwnedByProvider)
     ));
     assert!(matches!(
+        handle().disable_password(admin).await,
+        Err(AuthError::NotOwnedByProvider)
+    ));
+    assert!(matches!(
         handle()
             .link_identity(admin, &["admin"], "admin", "fake:admin")
             .await,
@@ -710,4 +720,31 @@ async fn unlinking_closes_the_sessions(client: &Client) {
         .await
         .unwrap();
     assert_ne!(client.get("/user", Some(&session)).await.status, Status::OK);
+}
+
+async fn released_accounts_are_local_until_taken_back(client: &Client) {
+    assert!(client.login("released", "released-dir").await.is_some());
+    let released = user_id("released").await;
+    // An administrator gives it a local password (the administrator's own hash, to skip Argon2).
+    dbconn()
+        .execute_unprepared(&format!(
+            "UPDATE users SET password_hash = \
+             (SELECT password_hash FROM users WHERE username_key = 'admin') WHERE id = {released}"
+        ))
+        .await
+        .unwrap();
+    let session = client.login("released", "admin-password").await.unwrap();
+    // Sensitive changes are confirmed with the local password, not with the provider's.
+    let change = form(&[
+        ("email", "released.new@example.com"),
+        ("current_password", "admin-password"),
+    ]);
+    client.post("/user/email", &change, Some(&session)).await;
+    mail_to("released.new@example.com").await;
+
+    // Taken back by the provider: no local password and no sessions.
+    handle().disable_password(released).await.unwrap();
+    assert_eq!(client.login("released", "admin-password").await, None);
+    assert_ne!(client.get("/user", Some(&session)).await.status, Status::OK);
+    assert!(client.login("released", "released-dir").await.is_some());
 }
