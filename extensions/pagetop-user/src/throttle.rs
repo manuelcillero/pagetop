@@ -4,7 +4,7 @@
 
 use pagetop::prelude::*;
 
-use crate::config::SETTINGS;
+use crate::config;
 
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
@@ -53,8 +53,8 @@ pub(crate) fn allow(request: &HttpRequest) -> bool {
         &mut lock(&REQUESTS),
         network(ip),
         Instant::now(),
-        SETTINGS.max_ip_requests,
-        window(SETTINGS.ip_request_window_secs),
+        config::SETTINGS.max_ip_requests,
+        window(config::SETTINGS.ip_request_window_secs),
     );
     if !allowed {
         trace::warn!("Request limit reached for address {ip}");
@@ -95,20 +95,20 @@ impl LoginKeys {
 /// se anota en ningún límite.
 pub(crate) fn allow_login(keys: &LoginKeys) -> bool {
     let now = Instant::now();
-    let ip_window = window(SETTINGS.ip_failed_login_window_secs);
+    let ip_window = window(config::SETTINGS.ip_failed_login_window_secs);
     let ip_allowed = match keys.ip {
         Some(ip) => allow_at(
             &mut lock(&FAILED_LOGINS),
             ip,
             now,
-            SETTINGS.max_ip_failed_logins,
+            config::SETTINGS.max_ip_failed_logins,
             ip_window,
         ),
         None if keys.anywhere => allow_at(
             &mut lock(&FAILED_ANYWHERE),
             (),
             now,
-            SETTINGS.max_ip_failed_logins,
+            config::SETTINGS.max_ip_failed_logins,
             ip_window,
         ),
         None => true,
@@ -120,13 +120,13 @@ pub(crate) fn allow_login(keys: &LoginKeys) -> bool {
         }
         return false;
     }
-    let max = u32::try_from(SETTINGS.max_failed_logins).unwrap_or(0);
+    let max = u32::try_from(config::SETTINGS.max_failed_logins).unwrap_or(0);
     let identifier_allowed = allow_at(
         &mut lock(&FAILED_IDENTIFIERS),
         keys.identifier.clone(),
         now,
         max,
-        window(SETTINGS.failed_login_window_secs),
+        window(config::SETTINGS.failed_login_window_secs),
     );
     if !identifier_allowed {
         trace::warn!("Failed login limit reached for an identifier");

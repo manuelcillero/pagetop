@@ -4,7 +4,7 @@ use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
 use crate::actions::AfterUserStatusChanged;
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::{role, session, user, user_identity, user_role, user_token};
 use crate::error::AuthError;
 use crate::identity::{self, Email, Username};
@@ -22,7 +22,8 @@ use crate::service::user_admin::{
 /// Aplica la política de identidad configurada ([`IdentityPolicy`](crate::config::IdentityPolicy))
 /// y lo devuelve normalizado, tal como se guardaría. No comprueba si está en uso.
 pub fn validate_username(username: &str) -> Result<String, AuthError> {
-    identity::username(username, SETTINGS.identity_policy, None).map(|u| u.value().to_owned())
+    identity::username(username, config::SETTINGS.identity_policy, None)
+        .map(|u| u.value().to_owned())
 }
 
 /// Comprueba que `email` es una dirección válida y la devuelve tal como se guardaría.
@@ -375,7 +376,7 @@ impl ProviderHandle {
         ) {
             return Err(AuthError::InvalidStatus);
         }
-        let username = identity::username(&data.username, SETTINGS.identity_policy, None)?;
+        let username = identity::username(&data.username, config::SETTINGS.identity_policy, None)?;
         let email = identity::email(&data.email)?;
         ensure_username_available(&username, None).await?;
         ensure_email_available(&email, None).await?;
@@ -723,7 +724,7 @@ impl ProviderHandle {
         let current = find_user(user_id).await?;
         let username: Username = identity::username(
             new_username,
-            SETTINGS.identity_policy,
+            config::SETTINGS.identity_policy,
             Some(&current.username_key),
         )?;
         ensure_username_available(&username, Some(user_id)).await?;

@@ -13,7 +13,7 @@ use crate::component::admin::{
     AdminPasswordForm, USER_ADMIN_FORM_ID, UserForm, UserFormMode, UserTable,
 };
 use crate::component::{cancel_link, user_details};
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::{role, user};
 use crate::error::AuthError;
 use crate::handlers::account::managed_or;
@@ -51,7 +51,7 @@ pub(crate) async fn list_get(
         sort: UserSortField::from_query(query.sort.as_deref()),
         dir: SortDir::from_query(query.dir.as_deref()),
         page: query.page.unwrap_or(1).max(1),
-        per_page: SETTINGS.admin.list_page_size,
+        per_page: config::SETTINGS.admin.list_page_size,
     };
 
     let result = match user_admin::list_users(&params).await {

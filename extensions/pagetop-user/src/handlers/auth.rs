@@ -7,7 +7,7 @@ use pagetop_htmx::prelude::*;
 
 use crate::auth;
 use crate::component::{LoginForm, PasswordResetConfirmForm, PasswordResetForm, RegisterForm};
-use crate::config::SETTINGS;
+use crate::config;
 use crate::error::AuthError;
 use crate::handlers::admin::map_auth_error;
 use crate::handlers::{confirm_page, message_page, no_referrer};
@@ -195,7 +195,7 @@ pub async fn logout_post(request: HttpRequest) -> Response {
 
 /// GET /user/register - Formulario de registro de cuenta.
 pub async fn register_get(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    if !SETTINGS.allow_registration {
+    if !config::SETTINGS.allow_registration {
         return Err(ErrorPage::NotFound(request));
     }
     Page::new(request)
@@ -212,7 +212,7 @@ pub async fn register_post(
     request: HttpRequest,
     web::Form(form): web::Form<RegisterFormData>,
 ) -> Response {
-    if !SETTINGS.allow_registration {
+    if !config::SETTINGS.allow_registration {
         return ErrorPage::NotFound(request).into_response();
     }
     let cx = Context::new(request.clone());
@@ -228,7 +228,7 @@ pub async fn register_post(
         Err(AuthError::TooManyRequests)
     };
     match result {
-        Ok(user_id) if SETTINGS.require_email_verification => {
+        Ok(user_id) if config::SETTINGS.require_email_verification => {
             send_verification_mail(&request, user_id).await;
             let title = Lc::t("title-register", &LOCALES_USER);
             message_page(

@@ -10,7 +10,7 @@ use rand_core::OsRng;
 
 use std::sync::LazyLock;
 
-use crate::config::SETTINGS;
+use crate::config;
 use crate::error::AuthError;
 
 // Lo que se guarda como contraseña de una cuenta sin contraseña local (las que gestiona un
@@ -22,9 +22,9 @@ pub(crate) const UNUSABLE_HASH: &str = "!external";
 /// Genera el hash PHC de una contraseña usando Argon2id con los parámetros configurados.
 pub fn hash_password(plain: &str) -> Result<String, AuthError> {
     let params = ParamsBuilder::new()
-        .m_cost(SETTINGS.password.argon2_m_cost)
-        .t_cost(SETTINGS.password.argon2_t_cost)
-        .p_cost(SETTINGS.password.argon2_p_cost)
+        .m_cost(config::SETTINGS.password.argon2_m_cost)
+        .t_cost(config::SETTINGS.password.argon2_t_cost)
+        .p_cost(config::SETTINGS.password.argon2_p_cost)
         .build()
         .map_err(|e| AuthError::PasswordHash(e.to_string()))?;
 
@@ -85,7 +85,7 @@ pub fn needs_rehash(phc: &str) -> bool {
         return true;
     };
     let cost = |name: &str| parsed.params.get_decimal(name);
-    let password = &SETTINGS.password;
+    let password = &config::SETTINGS.password;
     parsed.algorithm != argon2::Algorithm::Argon2id.ident()
         || cost("m") != Some(password.argon2_m_cost)
         || cost("t") != Some(password.argon2_t_cost)
@@ -94,7 +94,7 @@ pub fn needs_rehash(phc: &str) -> bool {
 
 /// Valida la longitud mínima, en caracteres, y devuelve error si no se cumple.
 pub fn validate_strength(plain: &str) -> Result<(), AuthError> {
-    let min = SETTINGS.password.min_length;
+    let min = config::SETTINGS.password.min_length;
     if plain.chars().count() < min {
         Err(AuthError::PasswordTooShort(min))
     } else {

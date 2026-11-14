@@ -13,7 +13,7 @@ use pagetop::prelude::*;
 
 use crate::account::{Account, PermissionSet};
 use crate::actions::AfterSessionResolved;
-use crate::config::SETTINGS;
+use crate::config;
 use crate::session;
 
 // Permisos del rol "anonymous", insertados en las peticiones sin sesión. Un tipo propio para que no
@@ -62,7 +62,7 @@ pub(crate) async fn session_middleware(
     // sesión). Las demás (mensajes, estado de un listado) conviven con la renovación: si la
     // impidieran, la cookie caducaría en el navegador antes que la sesión.
     if let Some(cookie) = renewed_cookie
-        && !sets_cookie(response.headers(), &SETTINGS.session.cookie_name)
+        && !sets_cookie(response.headers(), &config::SETTINGS.session.cookie_name)
     {
         match web::http::HeaderValue::try_from(cookie) {
             Ok(value) => {

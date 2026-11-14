@@ -5,7 +5,7 @@ use pagetop::prelude::*;
 use crate::LOCALES_USER;
 use crate::REGISTER_PATH;
 use crate::component::{PasswordConfirm, error_banner};
-use crate::config::SETTINGS;
+use crate::config;
 use crate::identity::{EMAIL_MAX_CHARS, USERNAME_MIN_CHARS, username_help, username_max_chars};
 
 /// Formulario de registro de una cuenta nueva.
@@ -37,9 +37,9 @@ impl Component for RegisterForm {
                     .with_name("username")
                     .with_value(&self.username)
                     .with_label(Lc::t("field-username-admin", &LOCALES_USER))
-                    .with_help_text(username_help(SETTINGS.identity_policy))
+                    .with_help_text(username_help(config::SETTINGS.identity_policy))
                     .with_minlength(USERNAME_MIN_CHARS)
-                    .with_maxlength(username_max_chars(SETTINGS.identity_policy))
+                    .with_maxlength(username_max_chars(config::SETTINGS.identity_policy))
                     .with_autocomplete(Some(form::Autocomplete::username()))
                     .with_autofocus(true)
                     .with_required(true),

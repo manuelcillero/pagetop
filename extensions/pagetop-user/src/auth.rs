@@ -5,7 +5,7 @@ use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::{role_permission, user, user_identity};
 use crate::error::AuthError;
 use crate::identity::{self, Email, Username};
@@ -101,7 +101,7 @@ pub(crate) async fn login(
         _ => Vec::new(),
     };
 
-    let fallback = SETTINGS.login.local_fallback;
+    let fallback = config::SETTINGS.login.local_fallback;
     let mut released = false;
     if let Some(user) = local
         .as_ref()
@@ -288,7 +288,7 @@ pub async fn register(
     plain_password: &str,
     confirm_password: &str,
 ) -> Result<i32, AuthError> {
-    let username = identity::username(username, SETTINGS.identity_policy, None)?;
+    let username = identity::username(username, config::SETTINGS.identity_policy, None)?;
     let email = identity::email(email)?;
     password::validate_strength(plain_password)?;
     password::passwords_match(plain_password, confirm_password)?;
@@ -297,7 +297,7 @@ pub async fn register(
 
     let hash = password::hash_password_async(plain_password).await?;
     let now = Utc::now();
-    let status = if SETTINGS.require_email_verification {
+    let status = if config::SETTINGS.require_email_verification {
         UserStatus::Pending
     } else {
         UserStatus::Active
@@ -556,9 +556,9 @@ async fn register_failed_login(
         user_model.failed_login_at,
         now,
         FailedLoginPolicy {
-            max: SETTINGS.max_failed_logins,
-            window: Duration::seconds(SETTINGS.failed_login_window_secs),
-            locked_for: Duration::seconds(SETTINGS.locked_for_secs),
+            max: config::SETTINGS.max_failed_logins,
+            window: Duration::seconds(config::SETTINGS.failed_login_window_secs),
+            locked_for: Duration::seconds(config::SETTINGS.locked_for_secs),
         },
     );
     user::ActiveModel {
@@ -617,8 +617,8 @@ fn failed_login_outcome(
 /// Falla con [`AuthError::InvalidSetting`] si el nombre de usuario o el email configurados no son
 /// válidos, aunque ya existan usuarios, como cualquier otro ajuste no válido.
 pub(crate) async fn seed_initial_data() -> Result<(), AuthError> {
-    let cfg = &SETTINGS.seed;
-    let username = identity::username(&cfg.admin_username, SETTINGS.identity_policy, None)
+    let cfg = &config::SETTINGS.seed;
+    let username = identity::username(&cfg.admin_username, config::SETTINGS.identity_policy, None)
         .map_err(|err| invalid_setting("user.seed.admin_username", err))?;
     let email = identity::email(&cfg.admin_email)
         .map_err(|err| invalid_setting("user.seed.admin_email", err))?;
@@ -639,7 +639,7 @@ async fn do_seed(username: Username, email: Email) {
         return;
     }
 
-    let cfg = &SETTINGS.seed;
+    let cfg = &config::SETTINGS.seed;
     let (admin_password, generated) = match &cfg.admin_password {
         Some(p) if !p.is_empty() => (p.clone(), false),
         _ => {

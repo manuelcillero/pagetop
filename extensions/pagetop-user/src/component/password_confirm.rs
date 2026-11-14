@@ -4,7 +4,7 @@
 use pagetop::prelude::*;
 
 use crate::LOCALES_USER;
-use crate::config::SETTINGS;
+use crate::config;
 
 /// Campos de contraseña y confirmación, compuestos a partir de
 /// [`form::input::Field::password()`] del core. No valida en ningún momento que ambos valores
@@ -35,7 +35,7 @@ impl Component for PasswordConfirm {
         // `minlength` cuenta unidades UTF-16 y el servidor caracteres: con caracteres fuera del
         // plano básico (emojis) el navegador puede aceptar una contraseña que el servidor rechaza,
         // pero nunca al revés.
-        let min_length = SETTINGS.password.min_length;
+        let min_length = config::SETTINGS.password.min_length;
         let mut password = form::input::Field::password()
             .with_name("password")
             .with_label(self.password_label().clone())

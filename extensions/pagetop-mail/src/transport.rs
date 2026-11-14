@@ -2,7 +2,7 @@
 
 use pagetop::prelude::*;
 
-use crate::config::{self, MailTransport, SmtpSecurity, SmtpSettings};
+use crate::config;
 use crate::{Email, MailError, Mailbox, outbox};
 
 use lettre::Transport as _;
@@ -289,22 +289,28 @@ impl Mailer {
         #[cfg(feature = "queue")]
         crate::queue::check_settings()?;
         let slots = match settings.transport {
-            MailTransport::Smtp => slots("mail.smtp.pool_max_size", settings.smtp.pool_max_size)?,
-            MailTransport::Sendmail => slots(
+            config::MailTransport::Smtp => {
+                slots("mail.smtp.pool_max_size", settings.smtp.pool_max_size)?
+            }
+            config::MailTransport::Sendmail => slots(
                 "mail.sendmail.max_concurrent",
                 settings.sendmail.max_concurrent,
             )?,
-            MailTransport::File => slots("mail.file.max_concurrent", settings.file.max_concurrent)?,
+            config::MailTransport::File => {
+                slots("mail.file.max_concurrent", settings.file.max_concurrent)?
+            }
             // Sin turnos: se entregan al momento.
-            MailTransport::Log | MailTransport::Memory => 1,
+            config::MailTransport::Log | config::MailTransport::Memory => 1,
         };
         let transport = match settings.transport {
-            MailTransport::Smtp => Transport::Smtp(smtp_transport(&settings.smtp)?),
-            MailTransport::Sendmail => Transport::Sendmail(match &settings.sendmail.command {
-                Some(command) => AsyncSendmailTransport::new_with_command(command),
-                None => AsyncSendmailTransport::new(),
-            }),
-            MailTransport::File => {
+            config::MailTransport::Smtp => Transport::Smtp(smtp_transport(&settings.smtp)?),
+            config::MailTransport::Sendmail => {
+                Transport::Sendmail(match &settings.sendmail.command {
+                    Some(command) => AsyncSendmailTransport::new_with_command(command),
+                    None => AsyncSendmailTransport::new(),
+                })
+            }
+            config::MailTransport::File => {
                 let dir = PathBuf::from(&settings.file.dir);
                 std::fs::create_dir_all(&dir).map_err(|source| MailError::CreateDir {
                     path: dir.clone(),
@@ -312,8 +318,8 @@ impl Mailer {
                 })?;
                 Transport::File(AsyncFileTransport::new(dir))
             }
-            MailTransport::Log => Transport::Log,
-            MailTransport::Memory => Transport::Memory,
+            config::MailTransport::Log => Transport::Log,
+            config::MailTransport::Memory => Transport::Memory,
         };
         let redirect_to = match settings.redirect_to.as_deref().and_then(util::non_blank) {
             Some(address) => Some(address.parse::<Address>().map_err(|source| {
@@ -410,7 +416,7 @@ fn tickets(slots: usize, max_waiting: u32) -> usize {
         .min(Semaphore::MAX_PERMITS)
 }
 
-fn smtp_transport(smtp: &SmtpSettings) -> Result<SmtpTransport, MailError> {
+fn smtp_transport(smtp: &config::SmtpSettings) -> Result<SmtpTransport, MailError> {
     let tls_parameters = || {
         TlsParameters::builder(smtp.host.clone())
             .dangerous_accept_invalid_certs(smtp.accept_invalid_certs)
@@ -418,10 +424,10 @@ fn smtp_transport(smtp: &SmtpSettings) -> Result<SmtpTransport, MailError> {
             .map_err(|err| invalid_setting("mail.smtp", MailError::Smtp(err)))
     };
     let (tls, default_port) = match smtp.security {
-        SmtpSecurity::None => (Tls::None, 25),
-        SmtpSecurity::Opportunistic => (Tls::Opportunistic(tls_parameters()?), 25),
-        SmtpSecurity::StartTls => (Tls::Required(tls_parameters()?), 587),
-        SmtpSecurity::Tls => (Tls::Wrapper(tls_parameters()?), 465),
+        config::SmtpSecurity::None => (Tls::None, 25),
+        config::SmtpSecurity::Opportunistic => (Tls::Opportunistic(tls_parameters()?), 25),
+        config::SmtpSecurity::StartTls => (Tls::Required(tls_parameters()?), 587),
+        config::SmtpSecurity::Tls => (Tls::Wrapper(tls_parameters()?), 465),
     };
     let mut builder = SmtpTransport::builder_dangerous(&smtp.host)
         .port(smtp.port.unwrap_or(default_port))

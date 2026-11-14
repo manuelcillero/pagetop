@@ -1,6 +1,6 @@
 //! Nombre de usuario y email que identifican una cuenta: normalización y validación.
 //!
-//! Las reglas públicas se documentan en `IdentityPolicy`. Aquí se separan dos cosas:
+//! Las reglas públicas se documentan en `config::IdentityPolicy`. Aquí se separan dos cosas:
 //!
 //! - **Buscar y comparar**, igual con cualquier política: `*_key` (sin espacios en los extremos,
 //!   NFKC en el nombre de usuario y en minúsculas) y el esqueleto de confusión del nombre
@@ -23,7 +23,7 @@ use unicode_security::{GeneralSecurityProfile, MixedScript, skeleton};
 use sha2::{Digest, Sha256};
 
 use crate::LOCALES_USER;
-use crate::config::IdentityPolicy;
+use crate::config;
 use crate::entity::user;
 use crate::error::AuthError;
 
@@ -35,10 +35,10 @@ pub(crate) const USERNAME_MIN_CHARS: u16 = 3;
 pub(crate) const EMAIL_MAX_CHARS: u16 = 254;
 
 // Longitud máxima del nombre de usuario según la política. La de `Permissive` es la de Drupal.
-pub(crate) fn username_max_chars(policy: IdentityPolicy) -> u16 {
+pub(crate) fn username_max_chars(policy: config::IdentityPolicy) -> u16 {
     match policy {
-        IdentityPolicy::Strict | IdentityPolicy::Unicode => 32,
-        IdentityPolicy::Permissive => 60,
+        config::IdentityPolicy::Strict | config::IdentityPolicy::Unicode => 32,
+        config::IdentityPolicy::Permissive => 60,
     }
 }
 
@@ -69,7 +69,7 @@ impl Username {
 // más abierta pueda seguir guardando su perfil.
 pub(crate) fn username(
     raw: &str,
-    policy: IdentityPolicy,
+    policy: config::IdentityPolicy,
     current_key: Option<&str>,
 ) -> Result<Username, AuthError> {
     let value = raw.trim().nfkc().collect::<String>();
@@ -119,10 +119,10 @@ fn skeleton_hash(key: &str) -> String {
 // clases que definen los identificadores de Rust (XID, UAX #31), que incluyen las marcas
 // combinables de escrituras como el devanagari; `identifier_allowed()` descarta los caracteres
 // que UTS #39 desaconseja (invisibles, obsoletos...) y `is_single_script()` la mezcla de alfabetos.
-fn accepts(name: &str, policy: IdentityPolicy) -> bool {
+fn accepts(name: &str, policy: config::IdentityPolicy) -> bool {
     let symbols: &[char] = match policy {
-        IdentityPolicy::Strict | IdentityPolicy::Unicode => &['.', '_', '-'],
-        IdentityPolicy::Permissive => &['.', '_', '-', ' ', '\'', '+'],
+        config::IdentityPolicy::Strict | config::IdentityPolicy::Unicode => &['.', '_', '-'],
+        config::IdentityPolicy::Permissive => &['.', '_', '-', ' ', '\'', '+'],
     };
     let length = usize::from(USERNAME_MIN_CHARS)..=usize::from(username_max_chars(policy));
     if !length.contains(&name.chars().count()) {
@@ -132,13 +132,13 @@ fn accepts(name: &str, policy: IdentityPolicy) -> bool {
         return false;
     };
     match policy {
-        IdentityPolicy::Strict => {
+        config::IdentityPolicy::Strict => {
             first.is_ascii_alphanumeric()
                 && name
                     .chars()
                     .all(|c| c.is_ascii_alphanumeric() || symbols.contains(&c))
         }
-        IdentityPolicy::Unicode | IdentityPolicy::Permissive => {
+        config::IdentityPolicy::Unicode | config::IdentityPolicy::Permissive => {
             let letter_or_digit = |c: char| {
                 c.identifier_allowed()
                     && (is_xid_start(c) || (is_xid_continue(c) && c.is_numeric()))
@@ -196,11 +196,11 @@ pub(crate) fn email_key(raw: &str) -> String {
 // **< Textos >*************************************************************************************
 
 // Reglas del nombre de usuario de la política, como texto de ayuda de los formularios.
-pub(crate) fn username_help(policy: IdentityPolicy) -> Lc {
+pub(crate) fn username_help(policy: config::IdentityPolicy) -> Lc {
     let key = match policy {
-        IdentityPolicy::Strict => "help-username-strict",
-        IdentityPolicy::Unicode => "help-username-unicode",
-        IdentityPolicy::Permissive => "help-username-permissive",
+        config::IdentityPolicy::Strict => "help-username-strict",
+        config::IdentityPolicy::Unicode => "help-username-unicode",
+        config::IdentityPolicy::Permissive => "help-username-permissive",
     };
     Lc::t(key, &LOCALES_USER)
         .with_number("min", u32::from(USERNAME_MIN_CHARS))
@@ -211,14 +211,18 @@ pub(crate) fn username_help(policy: IdentityPolicy) -> Lc {
 mod tests {
     use super::*;
 
-    fn accepted(raw: &str, policy: IdentityPolicy) -> bool {
+    fn accepted(raw: &str, policy: config::IdentityPolicy) -> bool {
         username(raw, policy, None).is_ok()
     }
 
     fn skeleton_of(raw: &str) -> String {
-        username(raw, IdentityPolicy::Permissive, Some(&username_key(raw)))
-            .unwrap()
-            .skeleton
+        username(
+            raw,
+            config::IdentityPolicy::Permissive,
+            Some(&username_key(raw)),
+        )
+        .unwrap()
+        .skeleton
     }
 
     const ALWAYS_REJECTED: &[&str] = &[
@@ -234,13 +238,13 @@ mod tests {
 
     #[pagetop::test]
     async fn strict_accepts_only_ascii_identifiers() {
-        let name = username("  Ana.Perez_01 ", IdentityPolicy::Strict, None).unwrap();
+        let name = username("  Ana.Perez_01 ", config::IdentityPolicy::Strict, None).unwrap();
         assert_eq!(name.value, "Ana.Perez_01", "the value keeps its case");
         assert_eq!(name.key, "ana.perez_01");
-        assert!(accepted("a-b", IdentityPolicy::Strict));
+        assert!(accepted("a-b", config::IdentityPolicy::Strict));
         // Full-width letters are normalized to ASCII (NFKC).
         assert_eq!(
-            username("Ａｎａ", IdentityPolicy::Strict, None)
+            username("Ａｎａ", config::IdentityPolicy::Strict, None)
                 .unwrap()
                 .value,
             "Ana"
@@ -253,7 +257,7 @@ mod tests {
                 .chain(["peña", "аna", "ana perez", too_long.as_str()])
         {
             assert!(
-                !accepted(name, IdentityPolicy::Strict),
+                !accepted(name, config::IdentityPolicy::Strict),
                 "{name:?} must be rejected"
             );
         }
@@ -274,7 +278,7 @@ mod tests {
             "ana_01",
         ] {
             assert!(
-                accepted(name, IdentityPolicy::Unicode),
+                accepted(name, config::IdentityPolicy::Unicode),
                 "{name:?} must be accepted"
             );
         }
@@ -288,7 +292,7 @@ mod tests {
             too_long.as_str(),
         ]) {
             assert!(
-                !accepted(name, IdentityPolicy::Unicode),
+                !accepted(name, config::IdentityPolicy::Unicode),
                 "{name:?} must be rejected"
             );
         }
@@ -298,7 +302,7 @@ mod tests {
     async fn permissive_adds_spaces_apostrophes_and_plus() {
         for name in ["Ana Pérez", "O'Brien", "ana+test", "José María"] {
             assert!(
-                accepted(name, IdentityPolicy::Permissive),
+                accepted(name, config::IdentityPolicy::Permissive),
                 "{name:?} must be accepted"
             );
         }
@@ -310,7 +314,7 @@ mod tests {
                 .chain(["ana  perez", "pаypal", too_long.as_str()])
         {
             assert!(
-                !accepted(name, IdentityPolicy::Permissive),
+                !accepted(name, config::IdentityPolicy::Permissive),
                 "{name:?} must be rejected"
             );
         }
@@ -328,7 +332,7 @@ mod tests {
     // the column, whatever the name.
     #[pagetop::test]
     async fn longest_names_fit_their_columns() {
-        let name = username(&"꽦".repeat(60), IdentityPolicy::Permissive, None).unwrap();
+        let name = username(&"꽦".repeat(60), config::IdentityPolicy::Permissive, None).unwrap();
         assert_eq!(name.skeleton.len(), 64);
         assert!(name.key.chars().count() <= 255);
     }
@@ -336,8 +340,8 @@ mod tests {
     #[pagetop::test]
     async fn unchanged_names_skip_the_policy() {
         let current = username_key("Ana Pérez");
-        assert!(username("ana pérez", IdentityPolicy::Strict, Some(&current)).is_ok());
-        assert!(username("Eva Pérez", IdentityPolicy::Strict, Some(&current)).is_err());
+        assert!(username("ana pérez", config::IdentityPolicy::Strict, Some(&current)).is_ok());
+        assert!(username("Eva Pérez", config::IdentityPolicy::Strict, Some(&current)).is_err());
     }
 
     #[pagetop::test]

@@ -2,7 +2,7 @@ use pagetop::prelude::*;
 
 use tokio::sync::{Notify, watch};
 
-use crate::config::{CronMode, JobSettings, SETTINGS};
+use crate::config;
 use crate::schedule::Trigger;
 use crate::{AfterJobRun, CronError, CronJobs, Job, JobContext, JobOutcome, JobRun, JobStatus};
 use crate::{Overlap, RunTrigger, Schedule};
@@ -102,18 +102,19 @@ fn build(jobs: Vec<Job>, now: DateTime<Utc>) -> Result<Registry, CronError> {
         if !is_valid_key(&key) {
             return Err(CronError::InvalidKey(key));
         }
-        let entry = Entry::new(job, SETTINGS.jobs.get(&key), default_tz, now).map_err(|err| {
-            CronError::InvalidJob {
-                key: key.clone(),
-                source: Box::new(err),
-            }
-        })?;
+        let entry =
+            Entry::new(job, config::SETTINGS.jobs.get(&key), default_tz, now).map_err(|err| {
+                CronError::InvalidJob {
+                    key: key.clone(),
+                    source: Box::new(err),
+                }
+            })?;
         if !keys.insert(key.clone()) {
             return Err(CronError::DuplicateJob(key));
         }
         entries.push(Arc::new(entry));
     }
-    for key in SETTINGS.jobs.keys() {
+    for key in config::SETTINGS.jobs.keys() {
         if !keys.contains(key) {
             trace::warn!("Unknown cron job \"{key}\" in [cron.jobs], ignored. Check settings");
         }
@@ -132,7 +133,7 @@ fn is_valid_key(key: &str) -> bool {
 // El modo externo necesita una clave larga y que se pueda escribir tal cual en la cabecera, y un
 // intervalo entre llamadas válido.
 fn check_external_settings() -> Result<(), CronError> {
-    if SETTINGS.mode != CronMode::External {
+    if config::SETTINGS.mode != config::CronMode::External {
         return Ok(());
     }
     let valid = trigger_token().is_some_and(|token| {
@@ -160,11 +161,14 @@ fn check_external_settings() -> Result<(), CronError> {
 }
 
 fn trigger_token() -> Option<&'static str> {
-    SETTINGS.trigger_token.as_deref().and_then(util::non_blank)
+    config::SETTINGS
+        .trigger_token
+        .as_deref()
+        .and_then(util::non_blank)
 }
 
 fn trigger_interval() -> Option<Duration> {
-    let secs = i64::try_from(SETTINGS.trigger_interval_secs).ok()?;
+    let secs = i64::try_from(config::SETTINGS.trigger_interval_secs).ok()?;
     Duration::try_seconds(secs)
         .filter(|interval| *interval >= Duration::seconds(1) && *interval <= Duration::days(36_500))
 }
@@ -195,7 +199,7 @@ pub(crate) fn token_matches(given: &str) -> bool {
 impl Entry {
     fn new(
         job: Job,
-        settings: Option<&JobSettings>,
+        settings: Option<&config::JobSettings>,
         default_tz: Tz,
         now: DateTime<Utc>,
     ) -> Result<Self, CronError> {
@@ -231,7 +235,7 @@ impl Entry {
 
         // Con el modo externo, la próxima ejecución se conoce desde el arranque; la del arranque,
         // si la hay, la hace la primera llamada.
-        let external = enabled && SETTINGS.mode == CronMode::External;
+        let external = enabled && config::SETTINGS.mode == config::CronMode::External;
         let pending_start = external && job.run_on_start();
         let next_run = match (external, pending_start) {
             (true, true) => Some(now),
@@ -440,7 +444,7 @@ pub async fn run_now(key: impl AsRef<str>) -> Result<JobRun, CronError> {
 /// hasta el final. Si se abandona la espera (p. ej. el programa externo cierra la conexión), los
 /// trabajos siguen igualmente hasta terminar o agotar su tiempo máximo.
 pub async fn run_due() -> Vec<JobRun> {
-    if SETTINGS.mode != CronMode::External {
+    if config::SETTINGS.mode != config::CronMode::External {
         trace::warn!("Cron run_due() ignored: [cron].mode is not \"external\"");
         return Vec::new();
     }
@@ -493,17 +497,17 @@ pub(crate) fn start() {
     }
     let total = registry.entries.len();
     let enabled = registry.entries.iter().filter(|e| e.enabled).count();
-    match SETTINGS.mode {
-        CronMode::Internal => {
+    match config::SETTINGS.mode {
+        config::CronMode::Internal => {
             for entry in registry.entries.iter().filter(|e| e.enabled) {
                 tokio::spawn(job_loop(Arc::clone(entry)));
             }
             trace::info!("Cron scheduler started with {enabled} of {total} jobs");
         }
-        CronMode::External => trace::info!(
+        config::CronMode::External => trace::info!(
             "Cron jobs ({enabled} of {total}) run on authorized calls to POST {TRIGGER_PATH}"
         ),
-        CronMode::Off => {
+        config::CronMode::Off => {
             trace::info!("Cron jobs ({total}) only run on demand: [cron].mode is \"off\"");
         }
     }
@@ -674,7 +678,7 @@ pub(crate) async fn shutdown() {
     if active == 0 {
         return;
     }
-    let limit = SETTINGS.shutdown_timeout_secs;
+    let limit = config::SETTINGS.shutdown_timeout_secs;
     trace::info!("Waiting up to {limit} s for {active} running cron jobs to finish");
     let idle = async {
         loop {
@@ -707,7 +711,7 @@ mod tests {
 
     // Settings come from this crate's `config/common.toml` (external mode, Madrid timezone).
     fn load_settings() {
-        SETTINGS.load().unwrap();
+        config::SETTINGS.load().unwrap();
     }
 
     async fn noop(_cx: JobContext) -> crate::JobResult {

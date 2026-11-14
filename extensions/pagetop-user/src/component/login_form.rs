@@ -3,7 +3,7 @@
 use pagetop::prelude::*;
 
 use crate::component::error_banner;
-use crate::config::SETTINGS;
+use crate::config;
 use crate::provider::{self, HelpLink, ResetLink};
 use crate::{LOCALES_USER, LOGIN_PATH, PASSWORD_RESET_PATH, REGISTER_PATH};
 
@@ -35,7 +35,7 @@ impl Component for LoginForm {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let action = self.waypoint().append_to(cx.route(LOGIN_PATH));
-        let strict = SETTINGS.login.strict;
+        let strict = config::SETTINGS.login.strict;
         let (notes, reset) = provider::login_hints();
 
         // En modo estricto se dificulta que el navegador recuerde o autorrellene las
@@ -83,7 +83,7 @@ impl Component for LoginForm {
                 Button::submit(Lc::t("btn-login", &LOCALES_USER))
                     .with_style(button::Style::Solid(Intent::Primary)),
             )
-            .with_child(links(SETTINGS.allow_registration, notes, reset));
+            .with_child(links(config::SETTINGS.allow_registration, notes, reset));
 
         if strict {
             form = form

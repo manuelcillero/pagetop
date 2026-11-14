@@ -26,10 +26,9 @@ use pagetop::prelude::*;
 
 use crate::account::UserStatus;
 use crate::component::admin::status_key;
-use crate::config::{user_language_applies, user_timezone_applies};
 use crate::entity::user;
-use crate::provider;
 use crate::{LOCALES_USER, PROFILE_PATH};
+use crate::{config, provider};
 
 // Texto libre de varias líneas como contenido seguro: cada salto de línea se convierte en `<br>`,
 // sin depender del CSS del tema. Se usa para mostrar el "Sobre mí" del usuario.
@@ -138,26 +137,28 @@ pub(crate) async fn user_details(user: &user::Model, cx: &mut Context) -> Block 
                 )),
         );
     // Sólo se muestran si se aplican, igual que en el formulario de edición.
-    if user_language_applies() {
+    if config::user_language_applies() {
         table = table.with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-language", &LOCALES_USER))
                 .with_cell(language_name(user.language.as_deref())),
         );
     }
-    if user_timezone_applies() {
+    if config::user_timezone_applies() {
         table = table.with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-timezone", &LOCALES_USER))
                 .with_cell(user.timezone.as_deref().unwrap_or("-")),
         );
     }
-    table = table
-        .with_row(
+    if config::user_theme_applies() {
+        table = table.with_row(
             table::Row::new()
                 .with_cell(Lc::t("field-theme", &LOCALES_USER))
                 .with_cell(theme_name(user.theme.as_deref())),
-        )
+        );
+    }
+    table = table
         .with_row(
             table::Row::new()
                 .with_cell(Lc::t("col-status", &LOCALES_USER))

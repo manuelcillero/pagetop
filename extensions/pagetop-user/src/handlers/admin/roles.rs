@@ -10,7 +10,7 @@ use crate::LOCALES_USER;
 use crate::component::admin::{
     PermissionGroups, RoleForm, RoleFormMode, RolePermissionsForm, RoleTable, delete_dialog,
 };
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::role;
 use crate::handlers::admin::{back_link, map_auth_error};
 use crate::permission::UserPermission;
@@ -38,7 +38,7 @@ pub(crate) async fn list_get(
         sort: RoleSortField::from_query(query.sort.as_deref()),
         dir: SortDir::from_query(query.dir.as_deref()),
         page: query.page.unwrap_or(1).max(1),
-        per_page: SETTINGS.admin.list_page_size,
+        per_page: config::SETTINGS.admin.list_page_size,
     };
 
     let result = match role_admin::list_roles_page(&params).await {
@@ -350,7 +350,7 @@ pub(crate) async fn delete_post(
             sort: RoleSortField::from_query(query.sort.as_deref()),
             dir: SortDir::from_query(query.dir.as_deref()),
             page: query.page.unwrap_or(1).max(1),
-            per_page: SETTINGS.admin.list_page_size,
+            per_page: config::SETTINGS.admin.list_page_size,
         };
         let page_result = role_admin::list_roles_page(&params)
             .await

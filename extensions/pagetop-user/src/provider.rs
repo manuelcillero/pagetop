@@ -48,7 +48,7 @@ use pagetop::prelude::*;
 use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, dbconn};
 
 use crate::account::UserStatus;
-use crate::config::{LocalFallback, SETTINGS};
+use crate::config;
 use crate::entity::{user, user_identity};
 use crate::error::AuthError;
 
@@ -240,8 +240,8 @@ pub trait AuthProvider: Send + Sync + 'static {
     ///
     /// Una cuenta liberada se trata como local:
     ///
-    /// - **Al iniciar sesión**, con [`LocalFallback::Released`], puede entrar con su contraseña
-    ///   local aunque `"local"` no esté en `sources`.
+    /// - **Al iniciar sesión**, con [`config::LocalFallback::Released`], puede entrar con su
+    ///   contraseña local aunque `"local"` no esté en `sources`.
     /// - **Al confirmar una operación sensible** (cambiar el email o la contraseña), se comprueba
     ///   su contraseña local en lugar de llamar a [`reauthenticate()`](Self::reauthenticate).
     ///
@@ -417,7 +417,7 @@ pub(crate) fn initialize() -> Result<(), AuthError> {
     }
     let mut declared = AuthProviders::default();
     dispatch_actions(|action: &DeclareAuthProviders| (action.f)(&mut declared));
-    let sources = resolve_sources(&SETTINGS.login.sources, &declared.providers)?;
+    let sources = resolve_sources(&config::SETTINGS.login.sources, &declared.providers)?;
 
     for provider in &declared.providers {
         if !sources
@@ -432,7 +432,7 @@ pub(crate) fn initialize() -> Result<(), AuthError> {
         }
     }
     let has_providers = sources.iter().any(|s| matches!(s, Source::Provider(_)));
-    if has_providers && SETTINGS.allow_registration {
+    if has_providers && config::SETTINGS.allow_registration {
         trace::warn!(
             "Local registration is open (user.allow_registration) while an authentication \
              provider is active: anyone can create a local account, and a name taken here can \
@@ -503,15 +503,15 @@ pub(crate) fn local_is_source() -> bool {
 // cuenta que algún proveedor libera (`released`) con `Released` o `Admins`.
 pub(crate) fn login_chain(
     sources: &[Source],
-    fallback: LocalFallback,
+    fallback: config::LocalFallback,
     local: Option<&UserRef>,
     released: bool,
 ) -> Vec<Source> {
     let mut chain = Vec::with_capacity(sources.len() + 1);
     let has_local = sources.iter().any(|s| matches!(s, Source::Local));
     if !has_local && let Some(user) = local {
-        let admin = fallback == LocalFallback::Admins && user.is_admin();
-        let freed = fallback != LocalFallback::None && released;
+        let admin = fallback == config::LocalFallback::Admins && user.is_admin();
+        let freed = fallback != config::LocalFallback::None && released;
         if admin || freed {
             chain.push(Source::Local);
         }
@@ -521,10 +521,13 @@ pub(crate) fn login_chain(
 }
 
 // Si hace falta preguntar a los proveedores si liberan la cuenta para construir la cadena.
-pub(crate) fn needs_release_check(fallback: LocalFallback, local: Option<&UserRef>) -> bool {
+pub(crate) fn needs_release_check(
+    fallback: config::LocalFallback,
+    local: Option<&UserRef>,
+) -> bool {
     !local_is_source()
-        && fallback != LocalFallback::None
-        && local.is_some_and(|user| !(fallback == LocalFallback::Admins && user.is_admin()))
+        && fallback != config::LocalFallback::None
+        && local.is_some_and(|user| !(fallback == config::LocalFallback::Admins && user.is_admin()))
 }
 
 // Proveedores (por identificador) a los que está vinculada la cuenta; vacío si es local.
@@ -668,7 +671,7 @@ mod tests {
         let both = resolve_sources(&ids(&["fake", "local"]), &declared).unwrap();
         let admin = user(true);
         let plain = user(false);
-        use LocalFallback::*;
+        use config::LocalFallback::*;
 
         // "local" already in the sources: the chain is the configured one.
         assert_eq!(

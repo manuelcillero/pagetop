@@ -5,7 +5,7 @@ use pagetop::prelude::*;
 
 use serde::Deserialize;
 
-use crate::config::{self, MailTransport, SmtpSecurity};
+use crate::config;
 use crate::{Email, LOCALES_MAIL, Mailbox};
 
 // Ruta de la página, relativa a la raíz del panel.
@@ -124,8 +124,8 @@ async fn test_mail_post(
 // Aviso si el transporte configurado no entrega los correos.
 fn not_delivered_warning() -> Option<Lc> {
     let key = match config::SETTINGS.transport {
-        MailTransport::Log => "test_log_warning",
-        MailTransport::Memory => "test_memory_warning",
+        config::MailTransport::Log => "test_log_warning",
+        config::MailTransport::Memory => "test_memory_warning",
         _ => return None,
     };
     Some(Lc::t(key, &LOCALES_MAIL))
@@ -138,11 +138,11 @@ fn settings_summary() -> Block {
     let text = |value: &Option<String>| value.clone().map_or_else(none, Lc::n);
 
     let transport = match settings.transport {
-        MailTransport::Smtp => "transport_smtp",
-        MailTransport::Sendmail => "transport_sendmail",
-        MailTransport::File => "transport_file",
-        MailTransport::Log => "transport_log",
-        MailTransport::Memory => "transport_memory",
+        config::MailTransport::Smtp => "transport_smtp",
+        config::MailTransport::Sendmail => "transport_sendmail",
+        config::MailTransport::File => "transport_file",
+        config::MailTransport::Log => "transport_log",
+        config::MailTransport::Memory => "transport_memory",
     };
     let mut rows = vec![
         ("test_transport", Lc::t(transport, &LOCALES_MAIL)),
@@ -153,25 +153,25 @@ fn settings_summary() -> Block {
         rows.push(("test_redirect_to", text(&settings.redirect_to)));
     }
     match settings.transport {
-        MailTransport::Smtp => {
+        config::MailTransport::Smtp => {
             let smtp = &settings.smtp;
             let (security, default_port) = match smtp.security {
-                SmtpSecurity::None => ("security_none", 25),
-                SmtpSecurity::Opportunistic => ("security_opportunistic", 25),
-                SmtpSecurity::StartTls => ("security_starttls", 587),
-                SmtpSecurity::Tls => ("security_tls", 465),
+                config::SmtpSecurity::None => ("security_none", 25),
+                config::SmtpSecurity::Opportunistic => ("security_opportunistic", 25),
+                config::SmtpSecurity::StartTls => ("security_starttls", 587),
+                config::SmtpSecurity::Tls => ("security_tls", 465),
             };
             let port = smtp.port.unwrap_or(default_port).to_string();
             rows.push(("test_smtp_server", Lc::n(util::join!(smtp.host, ":", port))));
             rows.push(("test_smtp_security", Lc::t(security, &LOCALES_MAIL)));
         }
-        MailTransport::Sendmail => {
+        config::MailTransport::Sendmail => {
             rows.push(("test_sendmail_command", text(&settings.sendmail.command)));
         }
-        MailTransport::File => {
+        config::MailTransport::File => {
             rows.push(("test_file_dir", Lc::n(settings.file.dir.clone())));
         }
-        MailTransport::Log | MailTransport::Memory => {}
+        config::MailTransport::Log | config::MailTransport::Memory => {}
     }
 
     let mut table = Table::new();

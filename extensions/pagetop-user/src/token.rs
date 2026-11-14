@@ -7,7 +7,7 @@ use pagetop_seaorm::db::{
     ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, Set, dbconn,
 };
 
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::user_token;
 use crate::error::AuthError;
 
@@ -85,12 +85,12 @@ impl TokenKind {
     fn limit(self) -> (u32, i64) {
         match self {
             TokenKind::PasswordReset => (
-                SETTINGS.max_password_resets,
-                SETTINGS.password_reset_window_secs,
+                config::SETTINGS.max_password_resets,
+                config::SETTINGS.password_reset_window_secs,
             ),
             TokenKind::EmailChange => (
-                SETTINGS.max_email_changes,
-                SETTINGS.email_change_window_secs,
+                config::SETTINGS.max_email_changes,
+                config::SETTINGS.email_change_window_secs,
             ),
             TokenKind::EmailVerification => (0, 0),
         }

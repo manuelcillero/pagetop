@@ -10,7 +10,7 @@ use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::{role, user, user_role};
 use crate::error::AuthError;
 use crate::identity;
@@ -91,8 +91,11 @@ async fn create_demo_users(
     let now = Utc::now();
 
     for n in 1..=USER_COUNT {
-        let username =
-            identity::username(&format!("demo_user_{n:02}"), SETTINGS.identity_policy, None)?;
+        let username = identity::username(
+            &format!("demo_user_{n:02}"),
+            config::SETTINGS.identity_policy,
+            None,
+        )?;
         let email = identity::email(&format!("demo_user_{n:02}@example.com"))?;
         let mut new_user = user::ActiveModel {
             id: ActiveValue::NotSet,

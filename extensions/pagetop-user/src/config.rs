@@ -427,6 +427,12 @@ pub(crate) fn user_timezone_applies() -> bool {
     global::SETTINGS.app.timezone_per_user
 }
 
+// Si se aplica el tema propio del usuario (`app.theme_per_user`). Si no se aplica, no se ofrece
+// elegirlo ni se borra el guardado.
+pub(crate) fn user_theme_applies() -> bool {
+    global::SETTINGS.app.theme_per_user
+}
+
 #[cfg(test)]
 mod tests {
     use super::{UserSettings, config};

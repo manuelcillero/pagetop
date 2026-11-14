@@ -11,7 +11,7 @@ use pagetop_seaorm::db::{ColumnTrait, EntityTrait, QueryFilter, QuerySelect};
 use pagetop_seaorm::db::{Condition, DbErr, Set, dbconn};
 
 use crate::account::{Account, PermissionSet, UserStatus};
-use crate::config::SETTINGS;
+use crate::config;
 use crate::entity::{role_permission, session, user, user_role};
 use crate::{ANONYMOUS_ROLE_ID, AUTHENTICATED_ROLE_ID};
 
@@ -42,20 +42,20 @@ fn bytes_to_hex(bytes: &[u8]) -> String {
 /// Con `remember`, la cookie dura `remember_idle_secs`; sin él, es de sesión del navegador. Se marca
 /// como `Secure` según `secure_cookies` de `[server]`.
 pub fn build_cookie(sid: &str, remember: bool) -> String {
-    let max_age =
-        remember.then(|| u64::try_from(SETTINGS.session.remember_idle_secs).unwrap_or_default());
-    web::cookie_header(&SETTINGS.session.cookie_name, sid, "/", max_age)
+    let max_age = remember
+        .then(|| u64::try_from(config::SETTINGS.session.remember_idle_secs).unwrap_or_default());
+    web::cookie_header(&config::SETTINGS.session.cookie_name, sid, "/", max_age)
 }
 
 /// Construye la cookie de expiración (Max-Age=0) para borrar la sesión del navegador.
 pub fn expiry_cookie() -> String {
-    web::cookie_header(&SETTINGS.session.cookie_name, "", "/", Some(0))
+    web::cookie_header(&config::SETTINGS.session.cookie_name, "", "/", Some(0))
 }
 
 /// Extrae el session ID de las cabeceras HTTP de la petición, si existe y tiene el formato de los
 /// que genera [`generate_sid`].
 pub fn extract_sid(headers: Option<&web::http::HeaderMap>) -> Option<&str> {
-    let name = SETTINGS.session.cookie_name.as_str();
+    let name = config::SETTINGS.session.cookie_name.as_str();
     // Con HTTP/2 el navegador puede repartir las cookies en varias cabeceras `cookie`.
     headers?
         .get_all(web::http::header::COOKIE)
@@ -156,7 +156,7 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
         sess.last_activity_at,
         now,
         idle_period(sess.remember),
-        Duration::seconds(SETTINGS.session.write_interval_secs),
+        Duration::seconds(config::SETTINGS.session.write_interval_secs),
     ) {
         if sess.remember {
             renewed_cookie = Some(build_cookie(sid, true));
@@ -198,9 +198,9 @@ pub async fn load_user_from_session(sid: &str) -> (CurrentUser, Option<Account>,
 // Tiempo sin uso tras el que caduca una sesión, según se iniciara o no con "recordarme".
 fn idle_period(remember: bool) -> Duration {
     Duration::seconds(if remember {
-        SETTINGS.session.remember_idle_secs
+        config::SETTINGS.session.remember_idle_secs
     } else {
-        SETTINGS.session.idle_secs
+        config::SETTINGS.session.idle_secs
     })
 }
 
@@ -341,7 +341,7 @@ pub(crate) fn invalidate_anonymous_permissions() {
 #[cfg(test)]
 mod tests {
     use super::{
-        DateTime, Duration, SETTINGS, Utc, bytes_to_hex, extract_sid, generate_sid, renewed_expiry,
+        DateTime, Duration, Utc, bytes_to_hex, config, extract_sid, generate_sid, renewed_expiry,
         web,
     };
 
@@ -419,7 +419,7 @@ mod tests {
 
     #[test]
     fn extracts_sid_among_other_cookies() {
-        let name = &SETTINGS.session.cookie_name;
+        let name = &config::SETTINGS.session.cookie_name;
         let headers = cookie_headers(&[&format!("a=1; {name}={SID}; b=2")]);
         assert_eq!(extract_sid(Some(&headers)), Some(SID));
     }
@@ -427,14 +427,14 @@ mod tests {
     #[test]
     fn extracts_sid_from_split_cookie_headers() {
         // HTTP/2 clients may send each cookie in its own header field.
-        let name = &SETTINGS.session.cookie_name;
+        let name = &config::SETTINGS.session.cookie_name;
         let headers = cookie_headers(&["a=1", &format!("{name}={SID}")]);
         assert_eq!(extract_sid(Some(&headers)), Some(SID));
     }
 
     #[test]
     fn skips_cookies_with_a_longer_name_or_invalid_value() {
-        let name = &SETTINGS.session.cookie_name;
+        let name = &config::SETTINGS.session.cookie_name;
         let headers = cookie_headers(&[&format!("{name}x={SID}; {name}=bogus")]);
         assert_eq!(extract_sid(Some(&headers)), None);
 

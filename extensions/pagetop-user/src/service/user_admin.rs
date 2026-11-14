@@ -6,7 +6,7 @@ use pagetop::prelude::*;
 use pagetop_seaorm::db::*;
 
 use crate::account::UserStatus;
-use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
+use crate::config;
 use crate::entity::{role, user, user_role};
 use crate::error::AuthError;
 use crate::identity::{self, Email, Username};
@@ -211,25 +211,29 @@ pub(crate) async fn create_user(data: NewUserData<'_>) -> Result<i32, AuthError>
     if data.link_provider.is_some() && data.is_admin {
         return Err(AuthError::ProtectedAccount);
     }
-    let username = identity::username(data.username, SETTINGS.identity_policy, None)?;
+    let username = identity::username(data.username, config::SETTINGS.identity_policy, None)?;
     let email = identity::email(data.email)?;
     if let Some((plain, confirm)) = data.password {
         password::validate_strength(plain)?;
         password::passwords_match(plain, confirm)?;
     }
-    // El idioma y la zona horaria que no se aplican no se ofrecen en el formulario: se ignora lo
-    // que pudiera llegar y el usuario se crea sin ellos.
-    let language = if user_language_applies() {
+    // El idioma, la zona horaria y el tema que no se aplican no se ofrecen en el formulario: se
+    // ignora lo que pudiera llegar y el usuario se crea sin ellos.
+    let language = if config::user_language_applies() {
         validate_language(data.language)?
     } else {
         None
     };
-    let timezone = if user_timezone_applies() {
+    let timezone = if config::user_timezone_applies() {
         validate_timezone(data.timezone)?
     } else {
         None
     };
-    let theme = validate_theme(data.theme)?;
+    let theme = if config::user_theme_applies() {
+        validate_theme(data.theme)?
+    } else {
+        None
+    };
     validate_display_name(data.display_name)?;
     ensure_username_available(&username, None).await?;
     ensure_email_available(&email, None).await?;
@@ -343,18 +347,18 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     let current = find_user(user_id).await?;
     let username = identity::username(
         data.username,
-        SETTINGS.identity_policy,
+        config::SETTINGS.identity_policy,
         Some(&current.username_key),
     )?;
     let email = identity::email(data.email)?;
-    // El idioma y la zona horaria que no se aplican tampoco se ofrecen en el formulario, así que no
-    // llegan: se conserva lo guardado por si se vuelven a aplicar.
-    let language = if user_language_applies() {
+    // El idioma, la zona horaria y el tema que no se aplican tampoco se ofrecen en el formulario,
+    // así que no llegan: se conserva lo guardado por si se vuelven a aplicar.
+    let language = if config::user_language_applies() {
         Set(validate_language(data.language)?.map(str::to_owned))
     } else {
         ActiveValue::NotSet
     };
-    let timezone = if user_timezone_applies() {
+    let timezone = if config::user_timezone_applies() {
         let timezone = match validate_timezone(data.timezone) {
             Err(AuthError::InvalidTimezone) => {
                 keep_current_timezone(data.timezone, current.timezone.as_deref())?
@@ -365,7 +369,11 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
     } else {
         ActiveValue::NotSet
     };
-    let theme = validate_theme(data.theme)?;
+    let theme = if config::user_theme_applies() {
+        Set(validate_theme(data.theme)?.map(str::to_owned))
+    } else {
+        ActiveValue::NotSet
+    };
     validate_display_name(data.display_name)?;
     // El navegador envía los saltos de línea de un `<textarea>` como `\r\n`, pero `maxlength` puede
     // contarlos como un único carácter: se normalizan antes de medir para no rechazar un texto que
@@ -382,7 +390,7 @@ pub(crate) async fn update_user(user_id: i32, data: UserUpdateData<'_>) -> Resul
         about: Set(about),
         language,
         timezone,
-        theme: Set(theme.map(str::to_owned)),
+        theme,
         updated_at: Set(now),
         ..Default::default()
     };

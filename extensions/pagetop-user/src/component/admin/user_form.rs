@@ -3,7 +3,7 @@
 use pagetop::prelude::*;
 
 use crate::LOCALES_USER;
-use crate::config::{SETTINGS, user_language_applies, user_timezone_applies};
+use crate::config;
 use crate::user_path;
 use crate::{ADMIN_USERS_PATH, PROFILE_EDIT_PATH};
 
@@ -102,12 +102,12 @@ impl Component for UserForm {
                     } else if username_readonly {
                         Lc::none()
                     } else {
-                        username_help(SETTINGS.identity_policy)
+                        username_help(config::SETTINGS.identity_policy)
                     })
                     .with_required(true)
                     .with_readonly(username_readonly)
                     .with_minlength(USERNAME_MIN_CHARS)
-                    .with_maxlength(username_max_chars(SETTINGS.identity_policy)),
+                    .with_maxlength(username_max_chars(config::SETTINGS.identity_policy)),
             )
             .with_child(
                 form::input::Field::email()
@@ -135,9 +135,9 @@ impl Component for UserForm {
                     .with_maxlength(DISPLAY_NAME_MAX_CHARS),
             );
 
-        // Sólo se ofrecen si se aplican (ver `config::user_language_applies()` y
-        // `config::user_timezone_applies()`).
-        if user_language_applies() {
+        // Sólo se ofrecen si se aplican (ver `config::user_language_applies()`,
+        // `config::user_timezone_applies()` y `config::user_theme_applies()`).
+        if config::user_language_applies() {
             form = form.with_child(
                 form::SelectLanguage::new()
                     .with_name("language")
@@ -146,7 +146,7 @@ impl Component for UserForm {
                     .with_selected(self.language()),
             );
         }
-        if user_timezone_applies() {
+        if config::user_timezone_applies() {
             form = form.with_child(
                 form::SelectTimezone::new()
                     .with_name("timezone")
@@ -156,13 +156,15 @@ impl Component for UserForm {
                     .with_selected(self.timezone()),
             );
         }
-        form = form.with_child(
-            form::SelectTheme::new()
-                .with_name("theme")
-                .with_label(Lc::t("field-theme", &LOCALES_USER))
-                .with_disabled(managed(UserField::Theme))
-                .with_selected(self.theme()),
-        );
+        if config::user_theme_applies() {
+            form = form.with_child(
+                form::SelectTheme::new()
+                    .with_name("theme")
+                    .with_label(Lc::t("field-theme", &LOCALES_USER))
+                    .with_disabled(managed(UserField::Theme))
+                    .with_selected(self.theme()),
+            );
+        }
 
         match (self.mode(), self.provider()) {
             // Una cuenta que entrará con un proveedor no tiene contraseña local.

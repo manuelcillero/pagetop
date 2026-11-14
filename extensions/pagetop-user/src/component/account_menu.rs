@@ -3,7 +3,7 @@
 use pagetop::prelude::*;
 use pagetop_htmx::prelude::*;
 
-use crate::config::SETTINGS;
+use crate::config;
 use crate::{LOCALES_USER, LOGIN_PATH, LOGOUT_PATH, PROFILE_PATH, REGISTER_PATH};
 
 /// Construye el menú de cuenta como un [`Nav`] justificado al final de su contenedor.
@@ -59,7 +59,7 @@ pub fn account_menu(cx: &Context) -> Nav {
             Lc::t("menu-login", &LOCALES_USER),
             cx.route(LOGIN_PATH),
         ));
-        if SETTINGS.allow_registration {
+        if config::SETTINGS.allow_registration {
             nav.with_item(nav::Item::link(
                 Lc::t("link-register", &LOCALES_USER),
                 cx.route(REGISTER_PATH),
