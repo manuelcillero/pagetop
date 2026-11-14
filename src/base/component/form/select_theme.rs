@@ -19,6 +19,9 @@ use crate::prelude::*;
 ///   deja enviar el formulario sin elegir un tema. El valor recibido debe validarse igualmente en
 ///   el servidor.
 ///
+/// Si [`global::SETTINGS.app.theme_per_user`] es *false*, el tema propio del usuario no se aplica y
+/// no conviene mostrar este campo.
+///
 /// # Ejemplo
 ///
 /// ```rust,no_run
@@ -28,6 +31,8 @@ use crate::prelude::*;
 ///     .with_label(Lc::n("Theme"))
 ///     .with_selected("Basic");
 /// ```
+///
+/// [`global::SETTINGS.app.theme_per_user`]: crate::global::AppSettings::theme_per_user
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct SelectTheme {
     /// Devuelve la lista de selección interna con la configuración común (nombre, etiqueta, ayuda,

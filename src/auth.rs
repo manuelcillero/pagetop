@@ -86,11 +86,8 @@ pub struct CurrentUser {
     // Ver `timezone()`, que devuelve la zona horaria efectiva.
     #[getters(skip)]
     timezone: Option<Tz>,
-    /// Devuelve el tema preferido del usuario, o `None` si no tiene ninguno.
-    ///
-    /// Lo tiene en cuenta el [`Context`](crate::core::component::Context) de la petición al elegir
-    /// el tema con el que se renderiza.
-    #[getters(copy)]
+    // Ver `theme()`, que devuelve el tema preferido sólo si se aplica.
+    #[getters(skip)]
     theme: Option<ThemeRef>,
 }
 
@@ -175,6 +172,18 @@ impl CurrentUser {
             Some(tz) if global::SETTINGS.app.timezone_per_user => tz,
             _ => Timezone::default_tz(),
         }
+    }
+
+    /// Devuelve el tema preferido del usuario, o `None` si no tiene ninguno.
+    ///
+    /// También devuelve `None` si [`global::SETTINGS.app.theme_per_user`] es *false*, aunque el
+    /// usuario tenga uno. Lo tiene en cuenta el [`Context`] de la petición al elegir el tema con el
+    /// que se renderiza: sin tema preferido, usa el predeterminado de la aplicación.
+    ///
+    /// [`global::SETTINGS.app.theme_per_user`]: crate::global::AppSettings::theme_per_user
+    /// [`Context`]: crate::core::component::Context
+    pub fn theme(&self) -> Option<ThemeRef> {
+        self.theme.filter(|_| global::SETTINGS.app.theme_per_user)
     }
 }
 

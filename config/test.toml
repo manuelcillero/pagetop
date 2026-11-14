@@ -1,5 +1,7 @@
 [app]
 name = "Testing"
+# Lets the tests check that a user's own theme is applied (it is off by default).
+theme_per_user = true
 
 [server]
 bind_port = 9000

@@ -82,11 +82,6 @@ pub struct AppSettings {
     /// Nombre de la aplicación.
     #[default = "PageTop App"]
     pub name: String,
-    /// Tema predeterminado: *"Basic"* o el de una extensión enlazada por la aplicación, sin
-    /// distinguir mayúsculas y minúsculas. Si no está habilitado se usa *"Basic"*, con un aviso al
-    /// arrancar. Ver [`default_theme()`](crate::core::theme::default_theme).
-    #[default = "Basic"]
-    pub theme: String,
     /// Idioma predeterminado de la aplicación (p. ej., *"es-ES"* o *"en-US"*).
     ///
     /// Cuando tiene un valor validado por [`Locale`](crate::locale::Locale), se usa como candidato
@@ -163,9 +158,38 @@ pub struct AppSettings {
     /// gestionan usuarios no deben ofrecer elegirla; la zona guardada se conserva por si se vuelve
     /// a activar. Es el equivalente de [`LangNegotiation::ConfigOnly`] para el idioma.
     ///
+    /// Sólo tiene efecto con una extensión que guarde la zona horaria de cada usuario y la asigne
+    /// con [`CurrentUser::with_timezone()`] (como `pagetop-user`); sin ella, ningún usuario tiene
+    /// zona horaria propia.
+    ///
     /// [`CurrentUser::timezone()`]: crate::auth::CurrentUser::timezone
+    /// [`CurrentUser::with_timezone()`]: crate::auth::CurrentUser::with_timezone
     #[default = true]
     pub timezone_per_user: bool,
+    /// Tema predeterminado: *"Basic"* o el de una extensión enlazada por la aplicación, sin
+    /// distinguir mayúsculas y minúsculas. Si no está habilitado se usa *"Basic"*, con un aviso al
+    /// arrancar. Ver [`default_theme()`](crate::core::theme::default_theme).
+    ///
+    /// Se usa para las peticiones de usuarios anónimos o sin tema propio, y para todos si
+    /// [`theme_per_user`](Self::theme_per_user) es *false*.
+    #[default = "Basic"]
+    pub theme: String,
+    /// Si cada usuario puede tener su propio tema (*true*) o se usa siempre el de la aplicación
+    /// (*false*, por defecto).
+    ///
+    /// Con *false*, [`CurrentUser::theme()`] devuelve siempre `None`, aunque el usuario tenga uno
+    /// guardado, así que todas las páginas se renderizan con [`theme`](Self::theme); y las
+    /// extensiones que gestionan usuarios no deben ofrecer elegirlo. El tema guardado se conserva
+    /// por si se activa. No afecta al tema que fije el código de una página concreta.
+    ///
+    /// Sólo tiene efecto con una extensión que guarde el tema de cada usuario y lo asigne con
+    /// [`CurrentUser::with_theme()`] (como `pagetop-user`); sin ella, ningún usuario tiene tema
+    /// propio.
+    ///
+    /// [`CurrentUser::theme()`]: crate::auth::CurrentUser::theme
+    /// [`CurrentUser::with_theme()`]: crate::auth::CurrentUser::with_theme
+    #[default = false]
+    pub theme_per_user: bool,
     /// Ruta raíz del panel de administración (p. ej. *"/admin"* o *"/manage"*).
     ///
     /// Las secciones y páginas del panel se declaran con rutas relativas a ella, y
