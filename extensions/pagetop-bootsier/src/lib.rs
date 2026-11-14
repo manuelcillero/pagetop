@@ -117,6 +117,87 @@ let navbar = bs::Navbar::simple().with_item(bs::navbar::Item::nav(
         .with_item(bs::theme_toggle()),
 ));
 ```
+
+## Temas hijo
+
+Un tema hijo hereda todo de Bootsier (plantillas, componentes, estilos, *scripts* y fuentes) y
+cambia su aspecto con una hoja de estilos propia que se carga detrás de la de Bootsier. Esa hoja
+sólo contiene lo que cambia: Bootstrap define casi todo su aspecto con variables CSS (`--bs-*`), y
+basta con redefinirlas:
+
+```css
+:root {
+  --bs-border-radius: .25rem;
+  --bs-link-color: #6f42c1;
+  --bs-link-color-rgb: 111, 66, 193;
+  --bs-link-hover-color: #59359a;
+  --bs-link-hover-color-rgb: 89, 53, 154;
+}
+```
+
+Las variantes de color de los componentes (`.btn-primary`, `.alert-primary`...) llevan sus propios
+valores, así que se cambian redefiniendo las variables de cada componente:
+
+```css
+.btn-primary {
+  --bs-btn-bg: #6f42c1;
+  --bs-btn-border-color: #6f42c1;
+  --bs-btn-hover-bg: #59359a;
+  --bs-btn-hover-border-color: #59359a;
+  --bs-btn-active-bg: #4b2d83;
+  --bs-btn-active-border-color: #4b2d83;
+}
+```
+
+Lo redefinido en `:root` vale también en el modo oscuro, porque gana a los valores oscuros de
+Bootstrap; lo que deba ser distinto en él va dentro de `[data-bs-theme=dark] { ... }`.
+
+El `build.rs` del tema hijo incluye la hoja en el binario con `pagetop-build`:
+
+```rust,ignore
+use pagetop_build::StaticFilesBundle;
+
+fn main() -> std::io::Result<()> {
+    StaticFilesBundle::from_dir("./assets/css", None)
+        .with_name("my_theme_css")
+        .build()
+}
+```
+
+El tema la sirve con `serve_static_files!(files, [my_theme_css] => "/my-theme/css")` en
+`Extension::configure_static_files()`, declara a Bootsier como padre y añade su hoja tras la de
+Bootsier:
+
+```rust,no_run
+use pagetop::prelude::*;
+use pagetop_bootsier::Bootsier;
+
+pub struct MyTheme;
+
+#[async_trait]
+impl Extension for MyTheme {
+    fn theme(&self) -> Option<ThemeRef> {
+        Some(&Self)
+    }
+
+    fn dependencies(&self) -> Vec<ExtensionRef> {
+        vec![&Bootsier]
+    }
+}
+
+#[async_trait]
+impl Theme for MyTheme {
+    fn parent(&self) -> Option<ThemeRef> {
+        Some(&Bootsier)
+    }
+
+    fn before_render_page_body(&self, page: &mut Page) {
+        Bootsier.before_render_page_body(page);
+        // Justo detrás de la hoja de Bootsier (peso -99).
+        page.alter_assets(StyleSheet::from("/my-theme/css/my-theme.css").with_weight(-98));
+    }
+}
+```
 */
 
 #![doc(
