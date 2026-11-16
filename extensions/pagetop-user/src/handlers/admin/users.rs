@@ -408,9 +408,10 @@ struct EditActions {
     linking: Vec<(&'static str, Lc, bool)>,
 }
 
-// Botonera de la edición: "Guardar", "Cancelar", el enlace a la pantalla de restablecer contraseña
-// y los botones de bloqueo/activación (sólo si `can_change_status`) y de concesión/revocación de
-// acceso total (sólo si `can_toggle_admin`).
+// Botonera de la edición: el enlace a la pantalla de restablecer contraseña, los botones de
+// bloqueo/activación (sólo si `can_change_status`), de vinculación con proveedores y de
+// concesión/revocación de acceso total (sólo si `can_toggle_admin`) y, al final, "Guardar" y
+// "Cancelar", que cierran el formulario como en el resto de formularios.
 //
 // "Guardar" (envía el `<form>` de `UserForm` vía el atributo `form`, ver `USER_ADMIN_FORM_ID`),
 // "Cancelar" y "Restablecer contraseña" son botones sueltos; bloqueo/activación y
@@ -442,7 +443,7 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
         .with_child(form::Hidden::field("status", next_status))
         .with_child(
             Button::submit(Lc::t(label_key, &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Warning)),
+                .with_style(button::Style::Solid(Intent::Neutral)),
         );
     if let Some(confirm) = Lc::t("confirm-change-status", &LOCALES_USER).lookup(cx) {
         status_form = status_form.with_prop(PropsOp::set(hx::CONFIRM, confirm));
@@ -451,13 +452,7 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     let mut container = Flex::new()
         .with_wrap(flex::Behavior::Wrap)
         .with_align(align::Items::Center)
-        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
-        .with_child(
-            Button::submit(Lc::t("btn-save", &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Primary))
-                .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
-        )
-        .with_child(cancel_link(cx.route(ADMIN_USERS_PATH.as_str())));
+        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)));
     if state.can_reset_password {
         container = container.with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)
@@ -505,6 +500,12 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     }
 
     container
+        .with_child(
+            Button::submit(Lc::t("btn-save", &LOCALES_USER))
+                .with_style(button::Style::Solid(Intent::Primary))
+                .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
+        )
+        .with_child(cancel_link(cx.route(ADMIN_USERS_PATH.as_str())))
 }
 
 /// GET /admin/user/users/{id}/edit - Formulario de edición de usuario.
