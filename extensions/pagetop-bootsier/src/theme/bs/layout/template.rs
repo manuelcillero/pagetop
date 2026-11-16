@@ -8,9 +8,9 @@ use crate::theme::bs;
 // `CoreTemplates`, dejando que el resto de la cadena de temas (o el propio componente) resuelva el
 // renderizado por defecto.
 //
-// `CoreTemplates::Admin` sigue la composición del núcleo: tras la cabecera, la navegación del
-// panel (`AdminMenu`) y, en lugar del contenido, el marco de la página (`AdminFrame`), que
-// contiene la región `Content`.
+// `CoreTemplates::Admin` sigue la composición del núcleo: en lugar del contenido, el marco de la
+// página (`AdminFrame`), que contiene la región `Content`. La navegación del panel la coloca la
+// aplicación (`Nav::admin()`).
 pub(crate) async fn render(
     component: &layout::Template,
     cx: &mut Context,
@@ -33,15 +33,13 @@ async fn render_standard(cx: &mut Context) -> Markup {
         .await
 }
 
-// Como `render_standard()`, con la navegación del panel tras la cabecera y el marco de la página
-// en lugar de la región `Content`.
+// Como `render_standard()`, con el marco de la página en lugar de la región `Content`.
 async fn render_admin(cx: &mut Context) -> Markup {
     wrapper()
         .with_prop(PropsOp::add_classes("container-wrapper-admin"))
         .with_child(layout::Region::header())
-        .with_child(AdminMenu::new())
         .with_child(layout::Region::aside())
-        .with_child(AdminFrame::new())
+        .with_child(layout::AdminFrame::new())
         .with_child(layout::Region::footer())
         .render(cx)
         .await

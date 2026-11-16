@@ -83,7 +83,9 @@
 //! [`DeclareAdminTasks`]: crate::base::action::admin::DeclareAdminTasks
 //! [`DeclareAdminActions`]: crate::base::action::admin::DeclareAdminActions
 
-use crate::core::component::Context;
+use crate::core::AnyCast;
+use crate::core::component::{Context, Contextual};
+use crate::core::theme::CoreTemplates;
 use crate::{global, util};
 
 mod bag;
@@ -135,4 +137,26 @@ pub fn can_access_admin(cx: &Context) -> bool {
         .pages()
         .iter()
         .any(|page| registry.section(page.section()).is_some() && page.is_accessible(cx))
+}
+
+/// Devuelve `true` si la página es del panel de administración y el usuario tiene acceso a él.
+///
+/// Concretamente, devuelve `true` cuando la página actual del contexto utiliza la plantilla
+/// [`CoreTemplates::Admin`] y el usuario de la petición puede acceder a alguna de las páginas del
+/// panel ([`can_access_admin()`]).
+///
+/// Es la condición con la que se muestra la navegación del panel ([`Nav::admin()`]). Una página del
+/// panel puede responder a quien no tiene acceso (el error 403 se pinta con la plantilla de la
+/// página), así que no basta con comprobar la plantilla.
+///
+/// Sirve también para ocultar en el panel uno o más menús, negando esta función en su
+/// [`Nav::with_renderable()`].
+///
+/// [`Nav::admin()`]: crate::base::component::Nav::admin
+/// [`Nav::with_renderable()`]: crate::base::component::Nav::with_renderable
+pub fn is_admin_panel(cx: &Context) -> bool {
+    matches!(
+        cx.template().downcast_ref::<CoreTemplates>(),
+        Some(CoreTemplates::Admin)
+    ) && can_access_admin(cx)
 }

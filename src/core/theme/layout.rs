@@ -177,13 +177,16 @@ pub enum CoreTemplates {
 
     /// Plantilla para la **interfaz de administración**, de nombre `"admin"`.
     ///
-    /// Se utiliza para las páginas del panel de administración ([`Page::admin()`]): además de las
-    /// regiones de `Standard`, pinta la navegación del panel ([`AdminMenu`]) y el marco de la
-    /// página ([`AdminFrame`]) alrededor de la región de contenido.
+    /// Se utiliza para las páginas del panel de administración ([`Page::admin()`]). Además de las
+    /// regiones de `Standard`, muestra también el marco de la página ([`AdminFrame`]) alrededor de
+    /// la región de contenido.
+    ///
+    /// Sin embargo, no muestra el menú de navegación del panel: será la aplicación la que decida
+    /// dónde colocarlo, usando [`Nav::admin()`].
     ///
     /// [`Page::admin()`]: crate::response::Page::admin
-    /// [`AdminMenu`]: crate::base::component::AdminMenu
-    /// [`AdminFrame`]: crate::base::component::AdminFrame
+    /// [`AdminFrame`]: crate::base::component::layout::AdminFrame
+    /// [`Nav::admin()`]: crate::base::component::Nav::admin
     Admin,
 }
 

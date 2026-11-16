@@ -211,8 +211,10 @@ pub trait Contextual {
     /// Establece el título del documento como un valor traducible.
     ///
     /// Además de usarse en el `<head>`, lo ven las plantillas y los componentes al renderizarse,
-    /// como el marco de las páginas del panel de administración
-    /// ([`AdminFrame`](crate::base::component::AdminFrame)), que lo muestra como encabezado.
+    /// como el marco de las páginas del panel de administración ([`AdminFrame`]), que lo muestra
+    /// como encabezado.
+    ///
+    /// [`AdminFrame`]: crate::base::component::layout::AdminFrame
     fn with_title(self, title: Lc) -> Self {
         self.context_mut().title = title;
         self

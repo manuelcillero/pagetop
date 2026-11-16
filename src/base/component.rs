@@ -2,12 +2,6 @@
 
 pub mod layout;
 
-mod admin_frame;
-pub use admin_frame::AdminFrame;
-
-mod admin_menu;
-pub use admin_menu::AdminMenu;
-
 mod badge;
 pub use badge::Badge;
 

@@ -35,10 +35,13 @@
 //!
 //! # Panel de administración
 //!
-//! En la plantilla `Admin`, Bootsier sigue la composición del núcleo: tras la cabecera pinta la
-//! navegación del panel ([`AdminMenu`]) y, en lugar del contenido, el marco de la página
-//! ([`AdminFrame`]: migas, título, botones y pestañas). Los dos se construyen con componentes del
-//! núcleo ([`Navbar`]/[`Nav`]/[`Dropdown`], [`Breadcrumb`]), que Bootsier ya pinta con su aspecto.
+//! En la plantilla `Admin`, Bootsier sigue la composición del núcleo: en lugar del contenido pinta
+//! el marco de la página ([`AdminFrame`]: migas, título, botones y pestañas). La navegación del
+//! panel ([`Nav::admin()`]) la coloca la aplicación, en una barra aparte o en su barra principal,
+//! donde se pliega con su botón en pantallas pequeñas. Todo se construye con componentes del núcleo
+//! ([`Navbar`]/[`Nav`]/[`Dropdown`], [`Breadcrumb`]), que Bootsier ya pinta con su aspecto.
+//!
+//! [`AdminFrame`]: pagetop::prelude::layout::AdminFrame
 //!
 //! # Selector de modo de color
 //!

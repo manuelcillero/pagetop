@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 /// Marco de las páginas de administración, alrededor de [`CoreRegions::Content`].
 ///
-/// Pinta, para la ruta de la petición actual, las migas de pan del panel, el título de la página
+/// Muestra, para la ruta de la petición actual, el *breadcrumb* del panel, el título de la página
 /// ([`Contextual::title()`]) con sus botones de acción ([`AdminAction`]), las pestañas de la
 /// página ([`AdminTask`]) y, después, el contenido. Si la página no tiene título, usa el de la
 /// página declarada para esa ruta, también en el `<title>` del documento:
@@ -17,10 +17,10 @@ use crate::prelude::*;
 /// <div class="admin-content">...</div>
 /// ```
 ///
-/// La plantilla [`CoreTemplates::Admin`] lo pinta en lugar de la región `Content`, así que un
+/// La plantilla [`CoreTemplates::Admin`] lo muestra en lugar de la región `Content`, así que un
 /// *handler* sólo tiene que crear la página con [`Page::admin()`], darle título y añadir su
 /// contenido. Un tema puede capturarlo en [`Theme::render_component()`] para darle otro aspecto,
-/// pero entonces le corresponde pintar también la región `Content`
+/// pero entonces le corresponde mostrar también la región `Content`
 /// ([`layout::Region::content()`](crate::base::component::layout::Region::content)).
 ///
 /// Para una ruta que no es una página declarada (p. ej. la edición de un elemento de un listado),

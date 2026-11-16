@@ -116,10 +116,8 @@ async fn the_admin_template_frames_the_content_of_the_page() {
         render(Page::admin(request("/admin/config/export/csv")).with_title(Lc::n("CSV"))).await;
 
     assert!(html.contains(r#"class="wrapper wrapper-admin""#), "{html}");
-    // Navigation: only the sections with an accessible page.
-    assert!(html.contains("admin-menu"), "{html}");
-    assert!(html.contains(r#"href="/admin/config/export""#), "{html}");
-    assert!(!html.contains(r#"href="/admin/reports/audit""#), "{html}");
+    // The template does not paint the navigation of the panel: the application places it.
+    assert!(!html.contains("nav-admin"), "{html}");
     // Breadcrumbs up to the nearest declared page, then the page title.
     assert!(html.contains(r#"href="/admin/config""#), "{html}");
     assert!(
@@ -165,9 +163,154 @@ async fn the_standard_template_has_no_admin_frame() {
     let html = render(Page::new(request("/admin/config/export")).with_title(Lc::n("Export"))).await;
 
     assert!(!html.contains("wrapper-admin"), "{html}");
-    assert!(!html.contains("admin-menu"), "{html}");
+    assert!(!html.contains("nav-admin"), "{html}");
     assert!(!html.contains("admin-content"), "{html}");
     assert!(html.contains("Body of the page."), "{html}");
+}
+
+// Navigation of the panel in its own bar.
+fn admin_navbar() -> Navbar {
+    Navbar::simple().with_item(navbar::Item::nav(Nav::admin()))
+}
+
+#[pagetop::test]
+async fn the_admin_menu_goes_where_the_application_places_it() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::admin(request("/admin/config/export/csv"))
+        .with_child_in(&CoreRegions::Header, admin_navbar());
+    let html = render(page).await;
+
+    // Only the sections with an accessible page.
+    let header = &html[html.find(r#"id="header""#).unwrap()..html.find("admin-content").unwrap()];
+    assert!(header.contains("nav-admin"), "{header}");
+    assert!(header.contains("navbar-nav"), "{header}");
+    assert!(
+        header.contains(r#"href="/admin/config/export""#),
+        "{header}"
+    );
+    assert!(
+        !header.contains(r#"href="/admin/reports/audit""#),
+        "{header}"
+    );
+}
+
+#[pagetop::test]
+async fn the_admin_menu_only_shows_in_the_panel() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::new(request("/home")).with_child_in(&CoreRegions::Header, admin_navbar());
+    let html = render(page).await;
+
+    assert!(!html.contains("nav-admin"), "{html}");
+    assert!(!html.contains(r#"href="/admin"#), "{html}");
+}
+
+#[pagetop::test]
+async fn the_admin_menu_does_not_repeat_its_links_when_rendered_again() {
+    let _ = Application::prepare(&Ext).await;
+    // The same prototype for every page, as with `InRegion`.
+    let navbar = admin_navbar();
+    for _ in 0..2 {
+        let page = Page::admin(request("/admin/config/export"))
+            .with_child_in(&CoreRegions::Header, navbar.clone());
+        let html = render(page).await;
+        // Links of the menu only (the breadcrumbs also link to the dashboard).
+        let links = r#"class="nav-link" href="/admin""#;
+        assert_eq!(html.matches(links).count(), 1, "{html}");
+    }
+}
+
+// Main navbar of an application, with its own menu and the navigation of the panel.
+fn main_navbar() -> Navbar {
+    Navbar::simple()
+        .with_item(navbar::Item::nav(
+            Nav::new().with_item(nav::Item::link(Lc::n("Home"), "/home")),
+        ))
+        .with_item(navbar::Item::nav(Nav::admin()))
+}
+
+#[pagetop::test]
+async fn the_admin_menu_can_go_in_the_main_navbar() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::admin(request("/admin/config/export/csv"))
+        .with_child_in(&CoreRegions::Header, main_navbar());
+    let html = render(page).await;
+
+    // The navigation of the panel goes in the main navbar, with the accessible pages only.
+    let header = &html[html.find(r#"id="header""#).unwrap()..html.find("admin-content").unwrap()];
+    assert!(header.contains(r#"href="/home""#), "{header}");
+    assert!(header.contains(r#"href="/admin""#), "{header}");
+    assert!(
+        header.contains(r#"href="/admin/config/export""#),
+        "{header}"
+    );
+    assert!(
+        !header.contains(r#"href="/admin/reports/audit""#),
+        "{header}"
+    );
+}
+
+#[pagetop::test]
+async fn the_admin_nav_keeps_its_layout_in_the_main_navbar() {
+    let _ = Application::prepare(&Ext).await;
+    let navbar = Navbar::simple().with_item(navbar::Item::nav(
+        Nav::admin()
+            .with_id("admin-nav")
+            .with_layout(nav::Layout::Center),
+    ));
+    let page =
+        Page::admin(request("/admin/config/export")).with_child_in(&CoreRegions::Header, navbar);
+    let html = render(page).await;
+
+    let start = html
+        .find(r#"id="admin-nav""#)
+        .expect("the admin nav is rendered");
+    let nav = &html[html[..start].rfind('<').unwrap()..];
+    let nav = &nav[..nav.find('>').unwrap()];
+    assert!(nav.contains("nav-center"), "{nav}");
+    assert!(nav.contains("nav-admin"), "{nav}");
+    assert!(html.contains(r#"href="/admin/config/export""#), "{html}");
+}
+
+// Main navbar whose own menu leaves its place to the navigation of the panel.
+fn swapping_navbar() -> Navbar {
+    Navbar::simple()
+        .with_item(navbar::Item::nav(
+            Nav::new()
+                .with_item(nav::Item::link(Lc::n("Home"), "/home"))
+                .with_renderable(|cx| !is_admin_panel(cx)),
+        ))
+        .with_item(navbar::Item::nav(Nav::admin()))
+}
+
+#[pagetop::test]
+async fn the_admin_nav_takes_the_place_of_the_main_menu_in_the_panel() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::admin(request("/admin/config/export"))
+        .with_child_in(&CoreRegions::Header, swapping_navbar());
+    let html = render(page).await;
+
+    assert!(html.contains(r#"href="/admin/config/export""#), "{html}");
+    assert!(!html.contains(r#"href="/home""#), "{html}");
+}
+
+#[pagetop::test]
+async fn the_main_menu_shows_outside_the_panel() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::new(request("/home")).with_child_in(&CoreRegions::Header, swapping_navbar());
+    let html = render(page).await;
+
+    assert!(html.contains(r#"href="/home""#), "{html}");
+    assert!(!html.contains(r#"href="/admin"#), "{html}");
+}
+
+#[pagetop::test]
+async fn the_admin_menu_of_the_main_navbar_only_shows_in_the_panel() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::new(request("/home")).with_child_in(&CoreRegions::Header, main_navbar());
+    let html = render(page).await;
+
+    assert!(html.contains(r#"href="/home""#), "{html}");
+    assert!(!html.contains(r#"href="/admin"#), "{html}");
 }
 
 async fn get(uri: &str) -> (u16, String) {

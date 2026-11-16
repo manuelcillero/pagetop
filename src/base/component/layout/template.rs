@@ -10,9 +10,10 @@ use std::fmt;
 /// su gusto (por ejemplo, usando CSS Grid, para que `Aside` se muestre como columna lateral junto a
 /// `Content`). Si `Aside`, o cualquier otra región, no tiene contenido, no se renderiza.
 ///
-/// [`CoreTemplates::Admin`] añade el panel de administración: tras `Header` pinta la navegación
-/// del panel ([`AdminMenu`]) y, en lugar de `Content`, el marco de la página ([`AdminFrame`]), que
-/// contiene la región; el contenedor lleva además la clase `wrapper-admin`.
+/// [`CoreTemplates::Admin`] añade el panel de administración: en lugar de `Content` pinta el marco
+/// de la página ([`AdminFrame`]), que contiene la región; el contenedor lleva además la clase
+/// `wrapper-admin`. La navegación del panel no forma parte de la plantilla: la coloca la aplicación
+/// donde quiera, con [`Nav::admin()`] en una barra aparte o en la suya.
 ///
 /// No incluye las regiones reservadas ([`ReservedRegions::PageTop`] y
 /// [`ReservedRegions::PageBottom`]) porque el propio [`Page::render()`] las añade antes y después
@@ -28,6 +29,8 @@ use std::fmt;
 /// intervenir en su renderizado.
 ///
 /// [`Region`]: crate::base::component::layout::Region
+/// [`AdminFrame`]: crate::base::component::layout::AdminFrame
+/// [`Nav::admin()`]: crate::base::component::Nav::admin
 /// [`ReservedRegions::PageTop`]: crate::response::ReservedRegions::PageTop
 /// [`ReservedRegions::PageBottom`]: crate::response::ReservedRegions::PageBottom
 /// [`Page::render()`]: crate::response::Page::render
@@ -76,9 +79,8 @@ impl Component for Template {
         let body = if admin {
             html! {
                 (layout::Region::header().render(cx).await)
-                (AdminMenu::new().render(cx).await)
                 (layout::Region::aside().render(cx).await)
-                (AdminFrame::new().render(cx).await)
+                (layout::AdminFrame::new().render(cx).await)
                 (layout::Region::footer().render(cx).await)
             }
         } else {
