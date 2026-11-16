@@ -17,6 +17,7 @@
 // Components, in alphabetical order. `buttons` must go before `dropdown` and `nav`, see the notes
 // in `basic/_buttons.scss`.
 @use "basic/badge";
+@use "basic/block";
 @use "basic/brand";
 @use "basic/breadcrumb";
 @use "basic/buttons";

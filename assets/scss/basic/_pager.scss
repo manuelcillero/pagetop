@@ -33,8 +33,10 @@
     margin-inline-end: 0;
 }
 
+// Cells wrap onto more lines when they don't fit, so a long pager never gets wider than the screen.
 .pagination {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.25rem;
     list-style: none;
@@ -93,6 +95,11 @@
 .pager-jump {
     display: flex;
     align-items: center;
+}
+// The page number is a form field: without the bottom margin fields take elsewhere, so it lines up
+// with the button.
+.pager-jump-input {
+    margin-bottom: 0;
 }
 .pager-jump:focus-within {
     border-radius: 0.375rem;

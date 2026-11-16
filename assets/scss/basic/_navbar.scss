@@ -1,10 +1,11 @@
 @use "breakpoints" as bp;
 
+// No side padding, so the bar lines up with the rest of the page (fixed bars below get it back).
 .navbar {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.5rem 1rem;
+    padding-block: 0.5rem;
 }
 
 .navbar-toggle {
@@ -53,12 +54,14 @@
 .navbar.sticky-bottom {
     background-color: var(--val-color--bg);
 }
+// Fixed bars span the whole viewport, so they keep some side padding off its edges.
 .navbar.fixed-top,
 .navbar.fixed-bottom {
     position: fixed;
     right: 0;
     left: 0;
     z-index: 1030;
+    padding-inline: 1rem;
 }
 .navbar.fixed-top {
     top: 0;

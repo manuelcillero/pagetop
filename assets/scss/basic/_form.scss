@@ -3,9 +3,17 @@
     margin-left: 0.25rem;
 }
 
+// Fields are spaced below, as in Bootsier, so the first one of a form or a fieldset starts right
+// at its top; the last one leaves no gap.
+.form-field {
+    margin-bottom: 1rem;
+}
+.form-field:last-child {
+    margin-bottom: 0;
+}
+
 .form-label {
     display: block;
-    margin-top: 1em;
 }
 
 .form-text {
@@ -25,7 +33,7 @@
 }
 
 fieldset {
-    margin: 2rem 0 1rem;
+    margin: 0 0 1rem;
     background: var(--val-color--bg);
 }
 fieldset > legend {
@@ -41,10 +49,6 @@ fieldset > legend {
     gap: 0.25rem 0.5rem;
     min-height: 1.5rem;
     margin-bottom: 0.25rem;
-}
-// A single checkbox has no label above it to give it room, as the other fields do.
-.form-field.form-check:not(.form-check-inline) {
-    margin-top: 1em;
 }
 .form-check-inline {
     display: inline-grid;

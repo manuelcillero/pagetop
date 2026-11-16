@@ -261,68 +261,66 @@ pub(crate) async fn render(navbar: &Navbar, cx: &mut Context) -> Result<Markup, 
 
     Ok(html! {
         nav (navbar.props().unpack(cx)) {
-            div class="container-fluid" {
-                @match layout {
-                    // Barra más sencilla: sólo contenido.
-                    bs::navbar::Layout::Simple => {
+            @match layout {
+                // Barra más sencilla: sólo contenido.
+                bs::navbar::Layout::Simple => {
+                    (items)
+                },
+
+                // Barra sencilla que se puede contraer/expandir.
+                bs::navbar::Layout::SimpleToggle => {
+                    (button(cx, TOGGLE_COLLAPSE, &id_content))
+                    div id=(&id_content) class="collapse navbar-collapse" {
                         (items)
-                    },
+                    }
+                },
 
-                    // Barra sencilla que se puede contraer/expandir.
-                    bs::navbar::Layout::SimpleToggle => {
-                        (button(cx, TOGGLE_COLLAPSE, &id_content))
-                        div id=(&id_content) class="collapse navbar-collapse" {
-                            (items)
-                        }
-                    },
+                // Barra con marca a la izquierda, siempre visible. El contenedor ocupa el espacio
+                // que deja la marca y coloca en él los contenidos, como en las barras que se
+                // contraen. Sin `collapse`, `setup()` garantiza `navbar-expand` y Bootstrap lo
+                // muestra siempre.
+                bs::navbar::Layout::SimpleBrandLeft(brand) => {
+                    (brand.render(cx).await)
+                    div class="navbar-collapse" { (items) }
+                },
 
-                    // Barra con marca a la izquierda, siempre visible. El contenedor deja los
-                    // contenidos junto a la marca: sin él, el `space-between` de `container-fluid`
-                    // los llevaría al extremo opuesto. Sin `collapse`, `setup()` garantiza
-                    // `navbar-expand` y Bootstrap lo muestra siempre.
-                    bs::navbar::Layout::SimpleBrandLeft(brand) => {
-                        (brand.render(cx).await)
-                        div class="navbar-collapse" { (items) }
-                    },
+                // Barra con marca a la izquierda y botón a la derecha.
+                bs::navbar::Layout::BrandLeft(brand) => {
+                    (brand.render(cx).await)
+                    (button(cx, TOGGLE_COLLAPSE, &id_content))
+                    div id=(&id_content) class="collapse navbar-collapse" {
+                        (items)
+                    }
+                },
 
-                    // Barra con marca a la izquierda y botón a la derecha.
-                    bs::navbar::Layout::BrandLeft(brand) => {
-                        (brand.render(cx).await)
-                        (button(cx, TOGGLE_COLLAPSE, &id_content))
-                        div id=(&id_content) class="collapse navbar-collapse" {
-                            (items)
-                        }
-                    },
+                // Barra con botón a la izquierda y marca a la derecha.
+                bs::navbar::Layout::BrandRight(brand) => {
+                    (button(cx, TOGGLE_COLLAPSE, &id_content))
+                    (brand.render(cx).await)
+                    div id=(&id_content) class="collapse navbar-collapse" {
+                        (items)
+                    }
+                },
 
-                    // Barra con botón a la izquierda y marca a la derecha.
-                    bs::navbar::Layout::BrandRight(brand) => {
-                        (button(cx, TOGGLE_COLLAPSE, &id_content))
-                        (brand.render(cx).await)
-                        div id=(&id_content) class="collapse navbar-collapse" {
-                            (items)
-                        }
-                    },
+                // Barra cuyo contenido se muestra en un panel lateral, sin marca.
+                bs::navbar::Layout::Offcanvas(panel) => {
+                    (button(cx, TOGGLE_OFFCANVAS, &id_content))
+                    (panel.render_panel(cx, &id_content, &items))
+                },
 
-                    // Barra cuyo contenido se muestra en un panel lateral, sin marca.
-                    bs::navbar::Layout::Offcanvas(panel) => {
-                        (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        (panel.render_panel(cx, &id_content, &items))
-                    },
+                // Barra con marca a la izquierda y contenido en un panel lateral.
+                bs::navbar::Layout::OffcanvasBrandLeft(brand, panel) => {
+                    (brand.render(cx).await)
+                    (button(cx, TOGGLE_OFFCANVAS, &id_content))
+                    (panel.render_panel(cx, &id_content, &items))
+                },
 
-                    // Barra con marca a la izquierda y contenido en un panel lateral.
-                    bs::navbar::Layout::OffcanvasBrandLeft(brand, panel) => {
-                        (brand.render(cx).await)
-                        (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        (panel.render_panel(cx, &id_content, &items))
-                    },
-
-                    // Barra con contenido en un panel lateral y marca a la derecha.
-                    bs::navbar::Layout::OffcanvasBrandRight(brand, panel) => {
-                        (button(cx, TOGGLE_OFFCANVAS, &id_content))
-                        (brand.render(cx).await)
-                        (panel.render_panel(cx, &id_content, &items))
-                    },
-                }
+                // Barra con contenido en un panel lateral y marca a la derecha.
+                bs::navbar::Layout::OffcanvasBrandRight(brand, panel) => {
+                    (button(cx, TOGGLE_OFFCANVAS, &id_content))
+                    (brand.render(cx).await)
+                    (panel.render_panel(cx, &id_content, &items))
+                },
             }
         }
     })

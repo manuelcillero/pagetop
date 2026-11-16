@@ -16,8 +16,10 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-// Header, Aside, Content and Footer are stacked in that order, using the full available width.
+// Header, Aside, Content and Footer are stacked in that order, using the full available width, with
+// side padding (the same as containers) so the content never touches the edges of the screen.
 .wrapper {
     display: flex;
     flex-direction: column;
+    padding-inline: 1rem;
 }

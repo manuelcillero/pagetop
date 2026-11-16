@@ -10,7 +10,74 @@ $font-family-sans-serif: "Source Sans 3", system-ui, -apple-system, "Segoe UI", 
   "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji",
   "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
+// Theme colors from the PageTop logo and the Intro component: warm neutrals and state colors of the
+// same palette, with a petrol blue as the primary color. The text Bootstrap picks for their
+// buttons (white or black) keeps a contrast of at least 4.5:1 with all of them.
+$primary: #0e6973;   // Petrol blue, a cool counterpoint to the warm palette.
+$secondary: #6e604a; // Warm gray of the logo, darkened.
+$success: #4d7c0f;   // Lime of the logo, as olive green.
+$danger: #b91c1c;    // Red of the Intro button.
+$warning: #ffb84b;   // Amber of the logo.
+$info: #4cb5c4;      // Teal of the screens in the Intro illustration.
+$light: #fff1db;     // Cream of the Intro blocks.
+$dark: #1a202c;      // Text color of Intro.
+
+// Filled form fields: text fields, dropdowns and checks take a gray background, one for each color
+// mode (--bootsier-input-bg, declared in _bootsier-custom.scss), and the same color as their
+// border, which only shows when it changes color (validation). Checked checks already take the
+// same color for both.
+$input-bg: var(--bootsier-input-bg);
+$input-border-color: $input-bg;
+// Unchecked checks, radios and switches take a somewhat darker gray (--bootsier-check-bg), since
+// they are small and would barely stand out with the background of text fields.
+$form-check-input-bg: var(--bootsier-check-bg);
+$form-check-input-border: var(--bs-border-width) solid $form-check-input-bg;
+// Disabled fields take a lighter background (--bootsier-input-disabled-bg), with the border in the
+// same color, and also fade (see _bootsier-custom.scss).
+$input-disabled-bg: var(--bootsier-input-disabled-bg);
+$input-disabled-border-color: $input-disabled-bg;
+// Focused text fields and dropdowns keep their border hidden and stand out with a shadow in the
+// primary color, equally wide on all four sides, one for each color mode (--bootsier-focus-shadow,
+// declared in _bootsier-custom.scss). Checks keep Bootstrap's focus ring, with no border.
+$input-focus-border-color: $input-bg;
+$input-focus-box-shadow: var(--bootsier-focus-shadow);
+$form-select-focus-box-shadow: $input-focus-box-shadow;
+$form-check-input-focus-border: $form-check-input-bg;
+// Bootstrap draws the knob of focused switches with $input-focus-border-color inside an SVG, where
+// CSS variables do not work: keep its default color.
+$form-switch-focus-color: tint-color($primary, 50%);
+
+// Labels closer to their field (Bootstrap's default is .5rem), and two pixels smaller than the
+// body text (16px with the 18px of $font-size-base; Bootstrap's default inherits it).
+$form-label-margin-bottom: .125rem;
+$form-label-font-size: $font-size-base - .125rem;
+
+// Lighter help text than Bootstrap's (.75 opacity), still above a 4.5:1 contrast in both color
+// modes (4.9:1 on white), and slightly smaller (Bootstrap's default is .875em).
+$form-text-color: rgba(var(--bs-body-color-rgb), .65);
+$form-text-font-size: .8125em;
+
 // Table cells centered vertically, as in the Basic theme: with Bootstrap's default (top), a cell
 // holding a button is taller and the text of the other cells sticks to the top of the row. Header
 // cells keep Bootstrap's bottom alignment.
 $table-cell-vertical-align: middle;
+
+// Dropdown menus: a gray background between those of fieldsets and text fields, one for each color
+// mode (--bootsier-dropdown-bg, declared in _bootsier-custom.scss), with no outer border nor
+// rounded corners; dividers keep the border color. The hovered item takes the gray of text fields,
+// since Bootstrap's (--bs-tertiary-bg) would match the menu background.
+$dropdown-bg: var(--bootsier-dropdown-bg);
+$dropdown-border-width: 0;
+$dropdown-border-radius: 0;
+$dropdown-inner-border-radius: 0;
+$dropdown-link-hover-bg: var(--bootsier-input-bg);
+// Group titles of dropdown menus, lighter in light mode (--bootsier-dropdown-header-color).
+$dropdown-header-color: var(--bootsier-dropdown-header-color);
+
+// Breadcrumbs: a light gray background, one for each color mode (--bootsier-breadcrumb-bg, declared
+// in _bootsier-custom.scss), padding that keeps the text off its edges, and 16px text (1rem),
+// smaller than the 18px of $font-size-base.
+$breadcrumb-bg: var(--bootsier-breadcrumb-bg);
+$breadcrumb-padding-y: .5rem;
+$breadcrumb-padding-x: .75rem;
+$breadcrumb-font-size: 1rem;

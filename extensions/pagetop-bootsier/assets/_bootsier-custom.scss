@@ -19,6 +19,46 @@
   font-display: swap;
 }
 
+// Background of the form fields ($input-bg in _bootsier-variables.scss), of disabled fields
+// ($input-disabled-bg), of unchecked checks ($form-check-input-bg), of fieldsets, of dropdown menus
+// ($dropdown-bg) and of breadcrumbs ($breadcrumb-bg), color of the group titles of dropdown menus
+// ($dropdown-header-color, a lighter gray than their items in light mode, nearly white in dark
+// mode), color of the legends of fieldsets (darker than Bootstrap's secondary color in light mode,
+// since their thin weight makes them lighter), and shadow of focused fields
+// ($input-focus-box-shadow), for each color mode. On a dark background the primary color barely
+// shows, so the dark mode uses a lighter tint of it with more opacity.
+:root,
+[data-bs-theme="light"] {
+  --bootsier-input-bg: #f1f3f4;
+  --bootsier-input-disabled-bg: #f7f8f9;
+  --bootsier-check-bg: #e2e5e8;
+  --bootsier-fieldset-bg: #fefefe;
+  --bootsier-dropdown-bg: #fdfdfd;
+  --bootsier-breadcrumb-bg: #f8f9fa;
+  --bootsier-dropdown-header-color: rgba(var(--bs-body-color-rgb), .65);
+  --bootsier-legend-color: rgba(var(--bs-body-color-rgb), .9);
+  --bootsier-focus-shadow: 0 0 2px #{rgba($primary, .15)}, 0 0 6px #{rgba($primary, .35)};
+}
+
+@include color-mode(dark, true) {
+  --bootsier-input-bg: #{$gray-800};
+  --bootsier-input-disabled-bg: #31363b;
+  --bootsier-check-bg: #{$gray-700};
+  --bootsier-fieldset-bg: #292e33;
+  --bootsier-dropdown-bg: #3e444a;
+  --bootsier-breadcrumb-bg: #292e33;
+  --bootsier-dropdown-header-color: rgba(var(--bs-emphasis-color-rgb), .85);
+  --bootsier-legend-color: var(--bs-secondary-color);
+  --bootsier-focus-shadow:
+    0 0 2px #{rgba(tint-color($primary, 60%), .4)}, 0 0 6px #{rgba(tint-color($primary, 60%), .7)};
+}
+
+// Disabled form fields also fade as disabled buttons do.
+.form-control:disabled,
+.form-select:disabled {
+  opacity: $btn-disabled-opacity;
+}
+
 // Font-relative top offset to keep the skip-link hidden at any font size.
 .skip-link {
   top: -3em;
@@ -48,12 +88,20 @@
   margin: 1rem 0;
 }
 
-// Fieldset with border and floating legend.
+// Space below each block (Block), from Bootstrap's spacing unit, so consecutive blocks (and what
+// follows them) do not sit right together. Twice $spacer, as the 2rem of the Basic theme.
+.block {
+  margin-bottom: $spacer * 2;
+}
+
+// Fieldset outlined only by a soft shadow (Bootstrap's reboot already removes the border), with a
+// floating legend.
 fieldset {
   position: relative;
-  background-color: var(--bs-body-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color);
+  background-color: var(--bootsier-fieldset-bg);
   border-radius: var(--bs-border-radius);
+  // Offset down with a negative spread: strongest below, softer at the sides, faintest on top.
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .10), 0 4px 8px -2px rgba(0, 0, 0, .22);
   padding: 2rem 1rem 1rem;
   margin: 2rem 0 1rem;
 }
@@ -63,13 +111,14 @@ fieldset > legend {
   top: 0;
   left: 1rem;
   transform: translateY(-50%);
-  color: var(--bs-secondary-color);
+  color: var(--bootsier-legend-color);
   background-color: var(--bs-body-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color);
+  // Soft outline with the gray of the form fields, in both color modes.
+  border: var(--bs-border-width) solid var(--bootsier-input-bg);
   border-radius: var(--bs-border-radius);
   padding: 0.125rem 0.75rem;
   font-size: ($font-size-sm + $font-size-base) / 2;
-  font-weight: var(--bs-font-weight-normal);
+  font-weight: $font-weight-light;
   line-height: 1.25;
   width: fit-content;
   max-width: 75%;
@@ -80,6 +129,11 @@ fieldset > legend {
 
 .fieldset-description {
   margin-bottom: 1rem;
+}
+
+// Labels start a little inside, clear of the rounded corner of their field.
+.form-label {
+  padding-left: .25rem;
 }
 
 // Gap between group label and first inline check.
@@ -99,11 +153,68 @@ fieldset > legend {
   text-align: center;
 }
 
+// Images with this class show their colors inverted in dark mode, such as a dark logo that would
+// otherwise blend into the background. Only for images that keep their look when inverted: a full
+// color one would change its hues.
+[data-bs-theme="dark"] .image-invert-dark {
+  filter: invert(1);
+}
+
+// Dropdown menus have no border (_bootsier-variables.scss), so a soft shadow sets them apart from
+// the content they cover, as fieldsets are outlined. Bootstrap only adds its own with
+// $enable-shadows.
+.dropdown-menu {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .10), 0 4px 8px -2px rgba(0, 0, 0, .22);
+}
+
+// Group titles of dropdown menus in a lighter weight than their items.
+.dropdown-header {
+  font-weight: $font-weight-light;
+}
+
+// Navbars have no inner container, so they line up with the rest of the page. Fixed bars span the
+// whole viewport, so they take back the side padding of a container off its edges.
+.navbar.fixed-top,
+.navbar.fixed-bottom {
+  padding-right: $container-padding-x * .5;
+  padding-left: $container-padding-x * .5;
+}
+
+// The first link of the first menu and the last link of the last menu drop their outer padding, so
+// their text lines up with the rest of the page (next to the brand, its own margin keeps them
+// apart). Collapsed bars stack their links with no side padding already.
+.navbar-nav:first-child > .nav-item:first-child > .nav-link {
+  padding-left: 0;
+}
+.navbar-nav:last-child > .nav-item:last-child > .nav-link {
+  padding-right: 0;
+}
+
+// Disabled links of navbars, lighter in dark mode: Bootstrap's 30% of the text color barely shows
+// on the dark background (links take 65%).
+[data-bs-theme="dark"] .navbar {
+  --bs-navbar-disabled-color: rgba(var(--bs-emphasis-color-rgb), .45);
+}
+
 // Messages component. Classes are fixed by pagetop core (`.message`, `.message-info`,
 // `.message-warning`, `.message-error`); reusing Bootstrap's own `.alert`/`.alert-*` styles keeps
 // the palette in sync with the active Bootstrap theme instead of duplicating it here.
 .message {
   @extend .alert;
+  // Outlined by a shadow tinted with the text color of each variant instead of a border. A single
+  // offset shadow is always stronger below than at the sides, so three are combined (left, right
+  // and below) to reach the same width on those three sides, leaving the top faint.
+  --bootsier-message-shadow: color-mix(in srgb, var(--bs-alert-color) 35%, transparent);
+  border: 0;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--bs-alert-color) 15%, transparent),
+    -4px 0 6px -4px var(--bootsier-message-shadow),
+    4px 0 6px -4px var(--bootsier-message-shadow),
+    0 3px 6px -3px var(--bootsier-message-shadow);
+}
+// No shadow in dark mode, where it barely shows: the background of each variant is enough.
+[data-bs-theme="dark"] .message {
+  box-shadow: none;
 }
 .message-info {
   @extend .alert-info;
@@ -133,6 +244,14 @@ fieldset > legend {
   opacity: 1;
 }
 
+// Message of a table without rows, as in the Basic theme: centered, in italics and muted (inside
+// .table, to win over the color Bootstrap gives to every cell).
+.table .table-empty {
+  text-align: center;
+  font-style: italic;
+  color: var(--bs-secondary-color);
+}
+
 // List filters (ListFilter): fields and button on one row, wrapping when there is no room.
 .list-filter {
   display: flex;
@@ -150,8 +269,9 @@ fieldset > legend {
 // colors and opacity change, never sizes: the dot always takes its room, hidden, so nothing moves
 // when it shows up. A vivid orange, set apart from the primary color of the button, darkened just
 // enough to keep a 3:1 contrast against the background. Every changed field gets the dot by its
-// label, once per field (on the title of a group); text fields and dropdowns also show a gray
-// background. Floating labels are left out: Bootstrap draws their background with `::after`.
+// label, once per field (on the title of a group); text fields, dropdowns and checks also show
+// their border in that color. Floating labels are left out: Bootstrap draws their background with
+// `::after`.
 .list-filter {
   --list-filter-mark: #{mix(#000, $orange, 15%)};
 }
@@ -173,12 +293,11 @@ fieldset > legend {
   .form-control,
   .form-select,
   .form-check-input {
-    background-color: var(--bs-secondary-bg);
+    border-color: var(--list-filter-mark);
   }
 
   .form-check-input:checked {
     background-color: var(--list-filter-mark);
-    border-color: var(--list-filter-mark);
   }
 }
 
@@ -242,6 +361,24 @@ fieldset > legend {
   flex-basis: 100%;
   text-align: center;
   margin-inline-end: 0;
+}
+
+// Joined cells, as in Bootstrap, but wrapping onto more lines when they don't fit: a long pager
+// never gets wider than the screen (mobile browsers would zoom out the whole page). Each line
+// overlaps the border of the one above, as cells do side by side. On small screens they also get
+// smaller, so that more of them fit on a line.
+.pagination {
+  flex-wrap: wrap;
+}
+.pagination .page-link {
+  margin-bottom: calc(var(--bs-pagination-border-width) * -1);
+}
+@include media-breakpoint-down(sm) {
+  .pagination {
+    --bs-pagination-padding-x: .5rem;
+    --bs-pagination-padding-y: .25rem;
+    --bs-pagination-font-size: #{$font-size-base * .875};
+  }
 }
 
 // By default, .page-link-icon shows the text of pager_previous_label/pager_next_label

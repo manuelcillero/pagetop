@@ -17,12 +17,12 @@
 @import "bootstrap-5.3.8/scss/utilities";
 
 // Bootstrap Layout & components
+// No "grid": page layout comes from PageTop's own Flex and Grid components.
 @import "bootstrap-5.3.8/scss/root";
 @import "bootstrap-5.3.8/scss/reboot";
 @import "bootstrap-5.3.8/scss/type";
 @import "bootstrap-5.3.8/scss/images";
 @import "bootstrap-5.3.8/scss/containers";
-@import "bootstrap-5.3.8/scss/grid";
 @import "bootstrap-5.3.8/scss/tables";
 @import "bootstrap-5.3.8/scss/forms";
 @import "bootstrap-5.3.8/scss/buttons";

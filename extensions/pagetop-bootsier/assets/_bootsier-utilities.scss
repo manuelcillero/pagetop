@@ -1,8 +1,4 @@
-// Bootstrap utility extensions. Imported just before utilities/api so variable changes take effect.
-
-// CSS Grid (Bootstrap 5): disable legacy grid classes and enable native CSS Grid.
-$enable-grid-classes: false;
-$enable-cssgrid: true;
+// Bootstrap utility extensions. Imported just before utilities/api so the changes take effect.
 
 // Extend the $utilities map with additional classes.
 $utilities: map-merge(
