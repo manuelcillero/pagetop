@@ -43,6 +43,10 @@ pub use grid::Grid;
 mod html;
 pub use html::Html;
 
+pub mod icon;
+#[doc(inline)]
+pub use icon::Icon;
+
 pub mod image;
 #[doc(inline)]
 pub use image::Image;

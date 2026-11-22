@@ -149,7 +149,10 @@ impl Nav {
     fn add_admin_items(&mut self, cx: &Context) {
         let registry = AdminRegistry::global();
 
-        self.alter_item(nav::Item::link(Lc::l("admin_dashboard"), admin_path("")));
+        self.alter_item(
+            nav::Item::link(Lc::l("admin_dashboard"), admin_path(""))
+                .with_icon_start(Icon::with(icon::Core::Gear)),
+        );
         for section in registry.sections() {
             let mut pages = registry
                 .pages_for_section(section.key())
@@ -161,12 +164,12 @@ impl Nav {
             }
             let mut menu = Dropdown::new().with_title(section.title().clone());
             for page in pages {
-                menu = menu.with_item(dropdown::Item::link(
-                    page.title().clone(),
-                    admin_path(page.path()),
-                ));
+                menu = menu.with_item(
+                    dropdown::Item::link(page.title().clone(), admin_path(page.path()))
+                        .with_icon_start(page.icon().cloned()),
+                );
             }
-            self.alter_item(nav::Item::dropdown(menu));
+            self.alter_item(nav::Item::dropdown(menu).with_icon_start(section.icon().cloned()));
         }
     }
 }

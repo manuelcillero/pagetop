@@ -25,6 +25,12 @@ use crate::prelude::*;
 /// let cancel = Button::plain(Lc::n("Cancel"));
 /// let clear  = Button::reset(Lc::n("Clear"));
 /// let edit   = Button::anchor(Lc::n("Edit"), "/items/1/edit");
+///
+/// // Con un icono al principio o al final de la etiqueta, o sólo con el icono.
+/// let add   = Button::plain(Lc::n("Add")).with_icon_start(Icon::with(icon::Core::Plus));
+/// let next  = Button::plain(Lc::n("Next")).with_icon_end(Icon::with(icon::Core::ChevronRight));
+/// let close = Button::plain(Lc::none())
+///     .with_icon_start(Icon::with(icon::Core::Close).with_label(Lc::n("Close")));
 /// ```
 ///
 /// Cuando el botón activa el envío, el navegador incluye el par `name=value` en los datos del
@@ -56,6 +62,10 @@ pub struct Button {
     value: AttrValue,
     /// Devuelve la etiqueta del botón.
     label: Lc,
+    /// Devuelve el icono al principio del botón, antes de la etiqueta (si lo hay).
+    icon_start: Embed<Icon>,
+    /// Devuelve el icono al final del botón, después de la etiqueta (si lo hay).
+    icon_end: Embed<Icon>,
     /// Devuelve el texto emergente del botón (atributo `title`).
     title: Lc,
     /// Devuelve la ruta de destino cuando el botón se renderiza como enlace de navegación
@@ -105,6 +115,27 @@ impl Component for Button {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        // Sin iconos, el contenido es la etiqueta tal cual. Con alguno, un espacio separa cada
+        // pieza de la siguiente, sólo si las dos tienen contenido.
+        let label = self.label().using(cx);
+        let content = if self.icon_start().get().is_none() && self.icon_end().get().is_none() {
+            label
+        } else {
+            let start = self.icon_start().render(cx).await;
+            let end = self.icon_end().render(cx).await;
+            html! {
+                (start)
+                @if !start.is_empty() && (!label.is_empty() || !end.is_empty()) {
+                    (" ")
+                }
+                (label)
+                @if !label.is_empty() && !end.is_empty() {
+                    (" ")
+                }
+                (end)
+            }
+        };
+
         if let Some(route) = self.href().try_resolve(cx) {
             let disabled = *self.disabled();
             let href = (!disabled).then_some(route);
@@ -120,7 +151,7 @@ impl Component for Button {
                     aria-disabled=[aria_disabled]
                     tabindex=[tabindex]
                 {
-                    (self.label().using(cx))
+                    (content)
                 }
             });
         }
@@ -135,7 +166,7 @@ impl Component for Button {
                 autofocus[*self.autofocus()]
                 disabled[*self.disabled()]
             {
-                (self.label().using(cx))
+                (content)
             }
         })
     }
@@ -249,6 +280,26 @@ impl Button {
     /// Establece la etiqueta visible del botón (usa [`Lc::none()`] para quitarla).
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
+        self
+    }
+
+    /// Asigna o quita el icono al principio del botón, antes de la etiqueta. Si se pasa `None`, no
+    /// se mostrará.
+    ///
+    /// *Principio* y *final* siguen el sentido de la escritura: en un idioma que se escribe de
+    /// derecha a izquierda, el principio queda a la derecha.
+    ///
+    /// Un botón sólo con icono (etiqueta [`Lc::none()`]) necesita un nombre accesible: se lo da la
+    /// etiqueta del propio icono ([`Icon::with_label()`]).
+    pub fn with_icon_start(mut self, icon: impl Into<Option<Icon>>) -> Self {
+        self.icon_start.alter_component(icon);
+        self
+    }
+
+    /// Asigna o quita el icono al final del botón, después de la etiqueta. Si se pasa `None`, no se
+    /// mostrará. Ver [`with_icon_start()`](Self::with_icon_start).
+    pub fn with_icon_end(mut self, icon: impl Into<Option<Icon>>) -> Self {
+        self.icon_end.alter_component(icon);
         self
     }
 

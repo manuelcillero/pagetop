@@ -2,6 +2,7 @@ use crate::auth::{PermissionRef, PermissionRegistry, has_permission};
 use crate::base::action::admin::{
     DeclareAdminActions, DeclareAdminPages, DeclareAdminSections, DeclareAdminTasks,
 };
+use crate::base::component::{Icon, icon};
 use crate::core::component::{Context, Contextual};
 use crate::locale::Lc;
 use crate::{Getters, Weight, builder_impl, trace, util};
@@ -36,6 +37,8 @@ pub struct AdminSection {
     /// Devuelve el peso para ordenar las secciones (menor = antes).
     #[getters(copy)]
     weight: Weight,
+    /// Devuelve el icono que acompaña al título en la navegación (si lo tiene).
+    icon: Option<Icon>,
 }
 
 #[builder_impl]
@@ -48,6 +51,7 @@ impl AdminSection {
             key,
             title,
             weight: 0,
+            icon: None,
         }
     }
 
@@ -68,6 +72,13 @@ impl AdminSection {
     /// Establece el peso de la sección.
     pub fn with_weight(mut self, weight: Weight) -> Self {
         self.weight = weight;
+        self
+    }
+
+    /// Asigna o quita el icono que acompaña al título de la sección en la navegación del panel
+    /// ([`Nav::admin()`](crate::base::component::Nav::admin)).
+    pub fn with_icon(mut self, icon: impl Into<Option<Icon>>) -> Self {
+        self.icon = icon.into();
         self
     }
 }
@@ -104,6 +115,8 @@ pub struct AdminPage {
     /// ([`Routes::admin_route()`](crate::web::Routes::admin_route)).
     #[getters(copy)]
     permission: PermissionRef,
+    /// Devuelve el icono que acompaña al título en la navegación (si lo tiene).
+    icon: Option<Icon>,
 }
 
 #[builder_impl]
@@ -126,6 +139,7 @@ impl AdminPage {
             description: Lc::none(),
             weight: 0,
             permission,
+            icon: None,
         }
     }
 
@@ -146,6 +160,16 @@ impl AdminPage {
     /// Establece el peso de la página dentro de su sección.
     pub fn with_weight(mut self, weight: Weight) -> Self {
         self.weight = weight;
+        self
+    }
+
+    /// Asigna o quita el icono que acompaña al título de la página en la navegación del panel
+    /// ([`Nav::admin()`](crate::base::component::Nav::admin)).
+    ///
+    /// Con un icono del conjunto de PageTop ([`icon::Core`](crate::base::component::icon::Core)),
+    /// la extensión no depende de ningún tema y cada tema puede mostrar el equivalente del suyo.
+    pub fn with_icon(mut self, icon: impl Into<Option<Icon>>) -> Self {
+        self.icon = icon.into();
         self
     }
 
@@ -605,16 +629,22 @@ fn relative(path: String) -> String {
 
 // Secciones habituales del panel, declaradas antes que las de las extensiones.
 fn default_sections() -> Vec<AdminSection> {
-    [
-        ("people", "admin_section_people", 10),
-        ("structure", "admin_section_structure", 20),
-        ("config", "admin_section_config", 30),
-        ("reports", "admin_section_reports", 40),
-        ("help", "admin_section_help", 50),
-    ]
-    .into_iter()
-    .map(|(key, title, weight)| AdminSection::new(key, Lc::l(title)).with_weight(weight))
-    .collect()
+    #[rustfmt::skip]
+    let sections = [
+        ("people",    "admin_section_people",    10, icon::Core::People),
+        ("structure", "admin_section_structure", 20, icon::Core::Layers),
+        ("config",    "admin_section_config",    30, icon::Core::Sliders),
+        ("reports",   "admin_section_reports",   40, icon::Core::BarChart),
+        ("help",      "admin_section_help",      50, icon::Core::QuestionCircle),
+    ];
+    sections
+        .into_iter()
+        .map(|(key, title, weight, icon)| {
+            AdminSection::new(key, Lc::l(title))
+                .with_weight(weight)
+                .with_icon(Icon::with(icon))
+        })
+        .collect()
 }
 
 #[cfg(test)]

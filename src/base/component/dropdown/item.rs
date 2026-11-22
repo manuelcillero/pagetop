@@ -41,6 +41,9 @@ pub enum ItemKind {
 /// Permite definir el identificador, las clases de estilo adicionales y el tipo de interacción
 /// asociada, manteniendo una interfaz común para renderizar todos los elementos del menú.
 ///
+/// Las etiquetas, los enlaces y los botones pueden llevar un icono al principio y otro al final
+/// ([`with_icon_start()`](Self::with_icon_start) y [`with_icon_end()`](Self::with_icon_end)).
+///
 /// Un enlace no se renderiza si el usuario actual no puede acceder a su ruta (ver [`Endpoint`]).
 /// Tampoco se muestra un encabezado si su grupo no tiene ningún elemento visible, ni un separador
 /// que no quede entre elementos visibles (ver [`dropdown::Items`](super::Items)).
@@ -50,6 +53,10 @@ pub struct Item {
     props: Props,
     /// Devuelve el tipo de elemento representado.
     item_kind: ItemKind,
+    /// Devuelve el icono al principio del elemento, antes de la etiqueta (si lo hay).
+    icon_start: Embed<Icon>,
+    /// Devuelve el icono al final del elemento, después de la etiqueta (si lo hay).
+    icon_end: Embed<Icon>,
 }
 
 #[async_trait]
@@ -70,13 +77,15 @@ impl Component for Item {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let start = self.icon_start().render(cx).await;
+        let end = self.icon_end().render(cx).await;
         Ok(match self.item_kind() {
             ItemKind::Void => html! {},
 
             ItemKind::Label(label) => html! {
                 li (self.props().unpack(cx)) {
                     span class="dropdown-item-text" {
-                        (label.using(cx))
+                        (start) (label.using(cx)) (end)
                     }
                 }
             },
@@ -118,7 +127,7 @@ impl Component for Item {
                             aria-disabled=[aria_disabled]
                             tabindex=[tabindex]
                         {
-                            (label.using(cx))
+                            (start) (label.using(cx)) (end)
                         }
                     }
                 }
@@ -141,7 +150,7 @@ impl Component for Item {
                             aria-disabled=[aria_disabled]
                             disabled=[disabled_attr]
                         {
-                            (label.using(cx))
+                            (start) (label.using(cx)) (end)
                         }
                     }
                 }
@@ -277,6 +286,32 @@ impl Item {
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
+        self
+    }
+
+    /// Asigna o quita el icono al principio del elemento, antes de la etiqueta. Si se pasa `None`,
+    /// no se mostrará.
+    ///
+    /// *Principio* y *final* siguen el sentido de la escritura. Se aplica a las etiquetas, los
+    /// enlaces y los botones. El icono lleva la clase `icon-start` (`icon-end` el del final) para
+    /// que cada tema lo coloque. Basic deja ese hueco libre en los elementos sin icono, para que
+    /// todas las etiquetas del menú queden alineadas.
+    pub fn with_icon_start(mut self, icon: impl Into<Option<Icon>>) -> Self {
+        let icon = icon
+            .into()
+            .map(|icon| icon.with_prop(PropsOp::add_classes("icon-start")));
+        self.icon_start.alter_component(icon);
+        self
+    }
+
+    /// Asigna o quita el icono al final del elemento, después de la etiqueta. Si se pasa `None`, no
+    /// se mostrará. Basic lo lleva junto al borde del menú. Ver
+    /// [`with_icon_start()`](Self::with_icon_start).
+    pub fn with_icon_end(mut self, icon: impl Into<Option<Icon>>) -> Self {
+        let icon = icon
+            .into()
+            .map(|icon| icon.with_prop(PropsOp::add_classes("icon-end")));
+        self.icon_end.alter_component(icon);
         self
     }
 }

@@ -28,12 +28,10 @@ fn grant_tools(_: &HttpRequest, perm: PermissionRef, granted: &mut bool) {
 }
 
 fn declare_pages(bag: &mut AdminPageBag) {
-    bag.add(AdminPage::new(
-        "config/export",
-        "config",
-        Lc::n("Export"),
-        &ToolsPermission,
-    ));
+    bag.add(
+        AdminPage::new("config/export", "config", Lc::n("Export"), &ToolsPermission)
+            .with_icon(Icon::with(icon::Core::Plus)),
+    );
     bag.add(AdminPage::new(
         "reports/audit",
         "reports",
@@ -190,6 +188,22 @@ async fn the_admin_menu_goes_where_the_application_places_it() {
     );
     assert!(
         !header.contains(r#"href="/admin/reports/audit""#),
+        "{header}"
+    );
+}
+
+#[pagetop::test]
+async fn the_admin_menu_shows_the_icons_of_the_dashboard_sections_and_pages() {
+    let _ = Application::prepare(&Ext).await;
+    let page = Page::admin(request("/admin/config/export/csv"))
+        .with_child_in(&CoreRegions::Header, admin_navbar());
+    let html = render(page).await;
+
+    // The dashboard, the "config" section (the only one with an accessible page) and its page.
+    let header = &html[html.find(r#"id="header""#).unwrap()..html.find("admin-content").unwrap()];
+    assert_eq!(
+        header.matches(r#"class="icon icon-start""#).count(),
+        3,
         "{header}"
     );
 }

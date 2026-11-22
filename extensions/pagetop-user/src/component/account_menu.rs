@@ -37,19 +37,20 @@ pub fn account_menu(cx: &Context) -> Nav {
         // El cierre de sesión requiere POST; el atributo `hx-post` viaja en el `<li>` del elemento
         // (ver `logout_post`, que responde con `HX-Redirect` a las peticiones htmx).
         let logout = dropdown::Item::button(Lc::t("btn-logout", &LOCALES_USER))
+            .with_icon_start(Icon::with(icon::Core::SignOut))
             .with_prop(PropsOp::set(hx::POST, cx.route(LOGOUT_PATH).to_string()));
         let mut menu = Dropdown::new()
             .with_title(title)
             .with_menu_end(true)
-            .with_item(dropdown::Item::link(
-                Lc::t("menu-profile", &LOCALES_USER),
-                cx.route(PROFILE_PATH),
-            ));
+            .with_item(
+                dropdown::Item::link(Lc::t("menu-profile", &LOCALES_USER), cx.route(PROFILE_PATH))
+                    .with_icon_start(Icon::with(icon::Core::Person)),
+            );
         if can_access_admin(cx) {
-            menu = menu.with_item(dropdown::Item::link(
-                Lc::t("menu-admin", &LOCALES_USER),
-                cx.route(admin_path("")),
-            ));
+            menu = menu.with_item(
+                dropdown::Item::link(Lc::t("menu-admin", &LOCALES_USER), cx.route(admin_path("")))
+                    .with_icon_start(Icon::with(icon::Core::Gear)),
+            );
         }
         nav.with_item(nav::Item::dropdown(
             menu.with_item(dropdown::Item::divider()).with_item(logout),

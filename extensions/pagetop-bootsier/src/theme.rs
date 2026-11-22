@@ -82,6 +82,8 @@ pub use bs::form::select::SelectBsExt;
 #[doc(hidden)]
 pub use bs::form::textarea::TextareaBsExt;
 #[doc(hidden)]
+pub use bs::icon::IconBsExt;
+#[doc(hidden)]
 pub use bs::nav::NavBsExt;
 #[doc(hidden)]
 pub use bs::navbar::NavbarBsExt;

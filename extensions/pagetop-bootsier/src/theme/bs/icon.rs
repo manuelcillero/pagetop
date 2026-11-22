@@ -1,128 +1,68 @@
-use crate::theme::*;
+//! Definiciones para mostrar iconos ([`Icon`]).
 
-const DEFAULT_VIEWBOX: &str = "0 0 16 16";
+use pagetop::prelude::*;
 
-#[derive(AutoDefault, Clone)]
-pub enum IconKind {
-    #[default]
-    None,
-    Font(FontSize),
-    Svg {
-        shapes: Markup,
-        viewbox: AttrValue,
-    },
+pub use pagetop::base::component::icon::{Core, Icon, Source};
+
+/// Extensión de Bootsier para [`Icon`].
+///
+/// Añade los iconos de [Bootstrap Icons](https://icons.getbootstrap.com/), que Bootsier ya carga
+/// como fuente de iconos en todas las páginas. Además, Bootsier muestra los iconos del conjunto de
+/// PageTop ([`Core`]) con su equivalente de Bootstrap Icons.
+///
+/// ```rust,no_run
+/// use pagetop::prelude::*;
+/// use pagetop_bootsier::theme::*;
+///
+/// let home = bs::Icon::bi("house-fill").with_label(Lc::n("Home"));
+/// ```
+pub trait IconBsExt: Sized {
+    /// Crea un icono de Bootstrap Icons a partir de su nombre, sin el prefijo `bi-` (p. ej.
+    /// `"house-fill"`).
+    fn bi(name: impl AsRef<str>) -> Self;
 }
 
-#[derive(AutoDefault, Clone, Debug, Getters)]
-pub struct Icon {
-    /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
-    props: Props,
-    icon_kind: IconKind,
-    aria_label: AttrLc,
-}
-
-#[async_trait]
-impl Component for Icon {
-    fn new() -> Self {
-        Self::default()
-    }
-
-    fn id(&self) -> Option<String> {
-        self.props.get_id()
-    }
-
-    fn setup(&mut self, _cx: &mut Context) {
-        if !matches!(self.icon_kind(), IconKind::None) {
-            self.alter_prop(PropsOp::prepend_classes("icon"));
-        }
-        if let IconKind::Font(font_size) = self.icon_kind() {
-            self.alter_prop(PropsOp::add_classes(font_size.as_str()));
-        }
-    }
-
-    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        Ok(match self.icon_kind() {
-            IconKind::None => html! {},
-            IconKind::Font(_) => {
-                let aria_label = self.aria_label().lookup(cx);
-                let has_label = aria_label.is_some();
-                html! {
-                    i
-                        (self.props().unpack(cx))
-                        role=[has_label.then_some("img")]
-                        aria-label=[aria_label]
-                        aria-hidden=[(!has_label).then_some("true")]
-                    {}
-                }
-            }
-            IconKind::Svg { shapes, viewbox } => {
-                let aria_label = self.aria_label().lookup(cx);
-                let has_label = aria_label.is_some();
-                let viewbox = viewbox.get().unwrap_or_else(|| DEFAULT_VIEWBOX.to_string());
-                html! {
-                    svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox=(viewbox)
-                        fill="currentColor"
-                        focusable="false"
-                        (self.props().unpack(cx))
-                        role=[has_label.then_some("img")]
-                        aria-label=[aria_label]
-                        aria-hidden=[(!has_label).then_some("true")]
-                    {
-                        (shapes)
-                    }
-                }
-            }
-        })
+impl IconBsExt for Icon {
+    fn bi(name: impl AsRef<str>) -> Self {
+        Icon::with(Source::font(util::join!("bi bi-", name.as_ref())))
     }
 }
 
-#[builder_impl]
-impl Icon {
-    pub fn font() -> Self {
-        Self::default().with_icon_kind(IconKind::Font(FontSize::default()))
-    }
+// **< Icon SETUP >*********************************************************************************
 
-    pub fn font_sized(font_size: FontSize) -> Self {
-        Self::default().with_icon_kind(IconKind::Font(font_size))
-    }
+// Sustituye cada icono del conjunto de PageTop por su equivalente de Bootstrap Icons. El `setup()`
+// del icono ya se ha ejecutado, así que las clases del glifo se añaden aquí; el origen cambia para
+// que se pinte como glifo.
+pub(crate) fn setup(icon: &mut Icon) {
+    let Some(&Source::Core(core)) = icon.source() else {
+        return;
+    };
+    let classes = bi_classes(core);
+    icon.alter_prop(PropsOp::add_classes(classes));
+    icon.alter_source(Source::font(classes));
+}
 
-    pub fn svg(shapes: Markup) -> Self {
-        Self::default().with_icon_kind(IconKind::Svg {
-            shapes,
-            viewbox: AttrValue::default(),
-        })
-    }
-
-    pub fn svg_with_viewbox(shapes: Markup, viewbox: impl AsRef<str>) -> Self {
-        Self::default().with_icon_kind(IconKind::Svg {
-            shapes,
-            viewbox: AttrValue::new(viewbox),
-        })
-    }
-
-    // **< Icon BUILDER >***************************************************************************
-
-    /// Establece el identificador único del componente; igual a `with_prop(PropsOp::set_id(id))`.
-    pub fn with_id(mut self, id: impl Into<CowStr>) -> Self {
-        self.props.alter_id(id);
-        self
-    }
-
-    /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
-    pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
-        self.props.alter_prop(op);
-        self
-    }
-
-    pub fn with_icon_kind(mut self, icon_kind: IconKind) -> Self {
-        self.icon_kind = icon_kind;
-        self
-    }
-
-    pub fn with_aria_label(mut self, label: Lc) -> Self {
-        self.aria_label.alter_value(label);
-        self
+#[rustfmt::skip]
+const fn bi_classes(icon: Core) -> &'static str {
+    match icon {
+        Core::BarChart       => "bi bi-bar-chart",
+        Core::Check          => "bi bi-check-lg",
+        Core::ChevronDown    => "bi bi-chevron-down",
+        Core::ChevronLeft    => "bi bi-chevron-left",
+        Core::ChevronRight   => "bi bi-chevron-right",
+        Core::ChevronUp      => "bi bi-chevron-up",
+        Core::Close          => "bi bi-x-lg",
+        Core::Gear           => "bi bi-gear",
+        Core::Home           => "bi bi-house",
+        Core::Key            => "bi bi-key",
+        Core::Layers         => "bi bi-layers",
+        Core::Minus          => "bi bi-dash-lg",
+        Core::People         => "bi bi-people",
+        Core::Person         => "bi bi-person",
+        Core::Plus           => "bi bi-plus-lg",
+        Core::QuestionCircle => "bi bi-question-circle",
+        Core::Shield         => "bi bi-shield-lock",
+        Core::SignOut        => "bi bi-box-arrow-right",
+        Core::Sliders        => "bi bi-sliders",
     }
 }

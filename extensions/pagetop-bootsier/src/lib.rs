@@ -283,6 +283,7 @@ impl Theme for Bootsier {
             Container           => |c| theme::bs::container::setup(c),
             Dialog              => |c| theme::bs::dialog::setup(c),
             Dropdown            => |c| theme::bs::dropdown::setup(c),
+            Icon                => |c| theme::bs::icon::setup(c),
             Image               => |c| theme::bs::image::setup(c),
             Nav                 => |c| theme::bs::nav::setup(c),
             Navbar              => |c| theme::bs::navbar::setup(c),

@@ -226,6 +226,63 @@ fieldset > legend {
   @extend .alert-danger;
 }
 
+// Inline SVG icons (`Icon`) sit on the text baseline like the Bootstrap Icons glyphs.
+svg.icon {
+  flex-shrink: 0;
+  vertical-align: -0.125em;
+}
+
+// Color of an icon with an intent (`Icon::with_intent()`), named after the Bootsier palette.
+@each $color in primary, secondary, success, info, warning, danger {
+  .icon-#{$color} {
+    color: var(--bs-#{$color});
+  }
+}
+
+// Icons of menu items (`with_icon_start()`/`with_icon_end()` of `nav::Item` and `dropdown::Item`).
+// In a row of links, each icon keeps its distance from the label.
+.nav-link > .icon-start {
+  margin-inline-end: 0.5em;
+}
+.nav-link > .icon-end {
+  margin-inline-start: 0.5em;
+}
+
+// In a vertical list (dropdown menu or vertical nav) with any icon, every item is a flex row: the
+// end icon goes to the edge, and an item without an icon on one side keeps that space empty, so
+// that all the labels line up. The `:has()` selectors look only at the items of this list, not at
+// those of a nested menu.
+.dropdown-menu:has(> li > * > .icon) > li > :is(.dropdown-item, .dropdown-item-text),
+.nav-vertical:has(> li > .nav-link > .icon) > li > .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+
+  > .icon-start,
+  > .icon-end {
+    margin: 0;
+  }
+  > .icon-end {
+    margin-inline-start: auto;
+  }
+}
+.dropdown-menu:has(> li > * > .icon-start) > li > :is(.dropdown-item, .dropdown-item-text),
+.nav-vertical:has(> li > .nav-link > .icon-start) > li > .nav-link {
+  &:not(:has(> .icon-start))::before {
+    content: "";
+    flex: 0 0 1em;
+  }
+}
+// The toggle of a dropdown already shows its arrow at the end.
+.dropdown-menu:has(> li > * > .icon-end) > li > :is(.dropdown-item, .dropdown-item-text),
+.nav-vertical:has(> li > .nav-link > .icon-end) > li > .nav-link:not(.dropdown-toggle) {
+  &:not(:has(> .icon-end))::after {
+    content: "";
+    flex: 0 0 1em;
+    margin-inline-start: auto;
+  }
+}
+
 // Sort indicator on sortable table headers (`table::SortLink`), using Bootstrap Icons'
 // sort-up/sort-down glyphs instead of the plain triangle from basic.css.
 .table-sort::after {

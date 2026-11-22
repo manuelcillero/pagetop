@@ -95,13 +95,15 @@ fn layout_class(layout: nav::Layout, classes: &mut String) {
 // `data-bs-toggle="dropdown"` para que el JS de Bootstrap lo reconozca (la clase `dropdown-toggle`
 // por sí sola sólo aporta el estilo, no la inicialización).
 pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup, ComponentError> {
+    let start = item.icon_start().render(cx).await;
+    let end = item.icon_end().render(cx).await;
     Ok(match item.item_kind() {
         ItemKind::Void => html! {},
 
         ItemKind::Label(label) => html! {
             li (item.props().unpack(cx)) {
                 span class="nav-link disabled" aria-disabled="true" {
-                    (label.using(cx))
+                    (start) (label.using(cx)) (end)
                 }
             }
         },
@@ -144,7 +146,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
                         aria-current=[aria_current]
                         aria-disabled=[aria_disabled]
                     {
-                        (label.using(cx))
+                        (start) (label.using(cx)) (end)
                     }
                 }
             }
@@ -182,7 +184,7 @@ pub(crate) async fn item_render(item: &Item, cx: &mut Context) -> Result<Markup,
                             aria-haspopup="true"
                             aria-expanded="false"
                         {
-                            (title)
+                            (start) (title) (end)
                         }
                         ul class=(menu_classes) {
                             (items)

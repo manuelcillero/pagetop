@@ -343,7 +343,8 @@ fn declare_admin_pages(bag: &mut AdminPageBag) {
             Lc::t("title-admin-users", &LOCALES_USER),
             &permission::UserPermission::AdminUsers,
         )
-        .with_description(Lc::t("description-admin-users", &LOCALES_USER)),
+        .with_description(Lc::t("description-admin-users", &LOCALES_USER))
+        .with_icon(Icon::with(icon::Core::Person)),
     );
     bag.add(
         AdminPage::new(
@@ -353,7 +354,8 @@ fn declare_admin_pages(bag: &mut AdminPageBag) {
             &permission::UserPermission::AdminRoles,
         )
         .with_description(Lc::t("description-admin-roles", &LOCALES_USER))
-        .with_weight(10),
+        .with_weight(10)
+        .with_icon(Icon::with(icon::Core::Shield)),
     );
     bag.add(
         AdminPage::new(
@@ -363,7 +365,8 @@ fn declare_admin_pages(bag: &mut AdminPageBag) {
             &permission::UserPermission::AdminPermissions,
         )
         .with_description(Lc::t("description-admin-permissions", &LOCALES_USER))
-        .with_weight(20),
+        .with_weight(20)
+        .with_icon(Icon::with(icon::Core::Key)),
     );
 }
 

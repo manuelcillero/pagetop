@@ -50,6 +50,13 @@ pub use form::select::SelectBsExt;
 #[doc(inline)]
 pub use form::textarea::TextareaBsExt;
 
+// Icon.
+pub mod icon;
+#[doc(inline)]
+pub use icon::Icon;
+#[doc(inline)]
+pub use icon::IconBsExt;
+
 // Image.
 pub mod image;
 #[doc(inline)]
