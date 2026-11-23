@@ -1,0 +1,105 @@
+// Access tiles (Tile): a large link with white text over its accent color and, when it has one, a
+// blurred background image. The image goes below a veil of the accent color (from translucent to
+// darkened), so the text keeps its contrast whatever the picture. The icon stays at the top and the
+// texts at the bottom (also without an icon), so the icons of a row line up whatever the length of
+// the descriptions.
+.tile {
+    // The accent of the tile (`accent-<color>`, see `_accent.scss`), with a fallback.
+    --tile-accent: var(--val-color--accent, var(--val-color--primary));
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-height: 11rem;
+    padding: 1.5rem;
+    overflow: hidden;
+    color: #fff;
+    text-decoration: none;
+    background-color: var(--tile-accent);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--tile-accent) 75%, transparent),
+        color-mix(in srgb, var(--tile-accent) 55%, #000)
+    );
+}
+
+// Scaled up a little so that the blur does not leave light edges.
+.tile > .tile-image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3px) saturate(80%);
+    transform: scale(1.08);
+    transition: transform 0.4s ease;
+}
+
+.tile:hover,
+.tile:focus-visible {
+    color: #fff;
+    transform: translateY(-0.25rem);
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 25%);
+}
+
+.tile:hover > .tile-image,
+.tile:focus-visible > .tile-image {
+    transform: scale(1.15);
+}
+
+.tile:focus-visible {
+    outline: 3px solid var(--tile-accent);
+    outline-offset: 3px;
+}
+
+.tile-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 40%);
+}
+
+.tile-icon {
+    margin-bottom: auto;
+    padding-bottom: 1rem;
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.tile-title {
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.tile-description {
+    font-size: 0.9375rem;
+    opacity: 0.9;
+}
+
+// Disabled (`Tile::with_disabled()`): dimmed, without a link and without reacting to the pointer.
+.tile.disabled {
+    pointer-events: none;
+    opacity: 0.65;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tile,
+    .tile > .tile-image {
+        transition: none;
+    }
+}

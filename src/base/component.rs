@@ -81,3 +81,6 @@ pub use poweredby::PoweredBy;
 pub mod table;
 #[doc(inline)]
 pub use table::Table;
+
+mod tile;
+pub use tile::Tile;

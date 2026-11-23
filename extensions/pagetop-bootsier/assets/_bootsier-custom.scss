@@ -590,3 +590,119 @@ svg.icon {
   @extend .alert;
   @extend .alert-danger;
 }
+
+// Accent colors (`Accent`): every component that takes one adds the same `accent-<color>` class,
+// which sets --bootsier-accent to the Bootstrap color of the same name (lime and magenta are added
+// by Bootsier, see _bootsier-variables.scss). The styles of each component only read that variable.
+// Quoted: unquoted, Sass reads names such as `yellow` or `cyan` as colors, not as text.
+@each $name in "blue", "indigo", "purple", "magenta", "pink", "red", "orange", "yellow", "lime",
+  "green", "teal", "cyan", "gray" {
+  .accent-#{$name} {
+    --bootsier-accent: var(--bs-#{$name});
+  }
+}
+
+// Access tiles (Tile): a large link with white text over its accent color and, when it has one, a
+// blurred background image. The image goes below a veil of the accent color (from translucent to
+// darkened), so the text keeps its contrast whatever the picture. The icon stays at the top and the
+// texts at the bottom (also without an icon), so the icons of a row line up whatever the length of
+// the descriptions.
+.tile {
+  // The accent of the tile (`accent-<color>`, see above), with a fallback.
+  --tile-accent: var(--bootsier-accent, var(--bs-primary));
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 11rem;
+  padding: $spacer * 1.5;
+  overflow: hidden;
+  color: $white;
+  text-decoration: none;
+  background-color: var(--tile-accent);
+  border-radius: var(--bs-border-radius-xl);
+  box-shadow: var(--bs-box-shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--tile-accent) 75%, transparent),
+      color-mix(in srgb, var(--tile-accent) 55%, #000)
+    );
+  }
+
+  // Scaled up a little so that the blur does not leave light edges.
+  > .tile-image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3px) saturate(80%);
+    transform: scale(1.08);
+    transition: transform .4s ease;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: $white;
+    transform: translateY(-.25rem);
+    box-shadow: var(--bs-box-shadow);
+
+    > .tile-image {
+      transform: scale(1.15);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--tile-accent);
+    outline-offset: 3px;
+  }
+
+  // Disabled (`Tile::with_disabled()`): dimmed, without a link and without reacting to the pointer.
+  &.disabled {
+    pointer-events: none;
+    opacity: $btn-disabled-opacity;
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &,
+    > .tile-image {
+      transition: none;
+    }
+  }
+}
+
+.tile-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: $spacer * .25;
+  text-shadow: 0 1px 3px rgba($black, .4);
+}
+
+.tile-icon {
+  margin-bottom: auto;
+  padding-bottom: $spacer;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.tile-title {
+  font-size: $h4-font-size;
+  font-weight: $font-weight-semibold;
+  line-height: $headings-line-height;
+}
+
+.tile-description {
+  font-size: .9375rem;
+  opacity: .9;
+}

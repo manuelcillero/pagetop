@@ -16,6 +16,12 @@
 @import "bootstrap-5.3.8/scss/mixins";
 @import "bootstrap-5.3.8/scss/utilities";
 
+// Bootsier additions to the Bootstrap maps
+// ---------------------------------------------------
+// The accent colors that Bootstrap lacks (see _bootsier-variables.scss). Only `root` uses $colors,
+// to declare the --bs-* variables, so they must be added before importing it.
+$colors: map-merge($colors, ("lime": $lime, "magenta": $magenta));
+
 // Bootstrap Layout & components
 // No "grid": page layout comes from PageTop's own Flex and Grid components.
 @import "bootstrap-5.3.8/scss/root";

@@ -1,0 +1,16 @@
+// Accent colors (`Accent`): every component that takes one adds the same `accent-<color>` class,
+// which sets --val-color--accent to the tone of the theme for that color (`_root.scss`). The
+// styles of each component only read that variable.
+.accent-blue    { --val-color--accent: var(--val-color--blue); }
+.accent-indigo  { --val-color--accent: var(--val-color--indigo); }
+.accent-purple  { --val-color--accent: var(--val-color--purple); }
+.accent-magenta { --val-color--accent: var(--val-color--magenta); }
+.accent-pink    { --val-color--accent: var(--val-color--pink); }
+.accent-red     { --val-color--accent: var(--val-color--red); }
+.accent-orange  { --val-color--accent: var(--val-color--orange); }
+.accent-yellow  { --val-color--accent: var(--val-color--yellow); }
+.accent-lime    { --val-color--accent: var(--val-color--lime); }
+.accent-green   { --val-color--accent: var(--val-color--green); }
+.accent-teal    { --val-color--accent: var(--val-color--teal); }
+.accent-cyan    { --val-color--accent: var(--val-color--cyan); }
+.accent-gray    { --val-color--accent: var(--val-color--gray); }

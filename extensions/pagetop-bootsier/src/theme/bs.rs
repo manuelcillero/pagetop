@@ -92,6 +92,9 @@ pub use pagetop::base::component::table;
 #[doc(inline)]
 pub use table::Table;
 
+// Tile.
+pub use pagetop::base::component::Tile;
+
 // Theme toggle.
 mod theme_toggle;
 pub use theme_toggle::theme_toggle;

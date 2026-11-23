@@ -14,6 +14,9 @@
 @use "basic/root";
 @use "basic/base";
 
+// Accent colors shared by the components that take one (`accent-<color>` classes).
+@use "basic/accent";
+
 // Components, in alphabetical order. `buttons` must go before `dropdown` and `nav`, see the notes
 // in `basic/_buttons.scss`.
 @use "basic/badge";
@@ -34,6 +37,7 @@
 @use "basic/navbar";
 @use "basic/pager";
 @use "basic/table";
+@use "basic/tile";
 
 // Theme regions.
 @use "basic/regions";

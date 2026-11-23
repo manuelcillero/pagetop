@@ -22,6 +22,11 @@ $info: #4cb5c4;      // Teal of the screens in the Intro illustration.
 $light: #fff1db;     // Cream of the Intro blocks.
 $dark: #1a202c;      // Text color of Intro.
 
+// Accent colors (`Accent`) that Bootstrap lacks, added to its $colors map in bootsier.scss so that
+// they get their own --bs-lime and --bs-magenta like the others. Same tones as in Basic.
+$lime: #65a30d;
+$magenta: #c026d3;
+
 // Filled form fields: text fields, dropdowns and checks take a gray background, one for each color
 // mode (--bootsier-input-bg, declared in _bootsier-custom.scss), and the same color as their
 // border, which only shows when it changes color (validation). Checked checks already take the

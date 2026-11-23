@@ -95,7 +95,9 @@
 //!    ejemplo, uno basado en Bootstrap) debe traducir cada variante al nombre que le corresponda en
 //!    su paleta. Los componentes que generan clases CSS a partir de una [`Intent`] (`Button`,
 //!    `Badge`, `Dropdown`, etc.) consultan este método a través de [`Intent::color()`], así que la
-//!    clase resultante ya nace en la paleta del tema activo.
+//!    clase resultante ya nace en la paleta del tema activo. Los colores de acento ([`Accent`]), en
+//!    cambio, no pasan por el tema: el tema define en su CSS las clases `accent-<color>` que añaden
+//!    los componentes (como `Tile`) con los tonos de su paleta.
 //! 6. **Reexportar, extender o añadir componentes**. Un tema puede reexportar tal cual los
 //!    componentes propios de PageTop que no requieran adaptación, extenderlos con un trait propio
 //!    para añadir métodos exclusivos (guardando su estado en valores extra con
@@ -158,6 +160,9 @@
 
 mod intent;
 pub use intent::Intent;
+
+mod accent;
+pub use accent::Accent;
 
 mod breakpoint;
 pub use breakpoint::{Breakpoint, BreakpointEntry, Responsive};
