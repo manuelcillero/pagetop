@@ -77,6 +77,8 @@ pub struct Intro {
     slogan: Lc,
     /// Devuelve el botón de llamada a la acción, si existe.
     button: Option<(Lc, Route)>,
+    /// Devuelve si el botón de llamada a la acción se abre en una nueva ventana o pestaña.
+    button_blank: bool,
     /// Devuelve el tipo de introducción, fijado al construirla.
     kind: intro::Kind,
     /// Devuelve el ancho máximo del área de contenidos.
@@ -93,6 +95,7 @@ impl Default for Intro {
             title: Lc::l("intro_default_title"),
             slogan: Lc::l("intro_default_slogan").with_arg("app", &global::SETTINGS.app.name),
             button: Some((Lc::l("intro_default_button"), BUTTON_LINK.into())),
+            button_blank: true,
             kind: intro::Kind::default(),
             width: intro::Width::default(),
             children: Children::default(),
@@ -160,8 +163,8 @@ impl Component for Intro {
                                     a
                                         class="intro-button-link"
                                         href=(lnk.resolve(cx))
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        target=[self.button_blank().then_some("_blank")]
+                                        rel=[self.button_blank().then_some("noopener noreferrer")]
                                     {
                                         span {} span {} span {}
                                         div class="intro-button-text" {
@@ -276,11 +279,14 @@ impl Intro {
         self
     }
 
-    /// Configura el botón opcional de llamada a la acción.
+    /// Configura el botón opcional de llamada a la acción, que se abre en la misma ventana.
     ///
     /// - Usa `Some((texto, ruta))` para mostrarlo, donde [`Route`] resuelve la ruta o URL final al
     ///   pulsar el botón según el contexto de renderizado.
     /// - Usa `None` para ocultarlo.
+    ///
+    /// Para abrirlo en una nueva ventana o pestaña se usa
+    /// [`with_button_blank()`](Self::with_button_blank).
     ///
     /// # Ejemplo
     ///
@@ -293,6 +299,24 @@ impl Intro {
     /// ```
     pub fn with_button(mut self, button: impl Into<Option<(Lc, Route)>>) -> Self {
         self.button = button.into();
+        self.button_blank = false;
+        self
+    }
+
+    /// Configura el botón opcional de llamada a la acción, que se abre en una nueva ventana o
+    /// pestaña. Es el de la introducción por defecto, que lleva a la web de PageTop. Ver
+    /// [`with_button()`](Self::with_button).
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let intro = Intro::default()
+    ///     .with_button_blank(Some((Lc::n("Docs"), "https://docs.rs/pagetop".into())));
+    /// ```
+    pub fn with_button_blank(mut self, button: impl Into<Option<(Lc, Route)>>) -> Self {
+        self.button = button.into();
+        self.button_blank = true;
         self
     }
 

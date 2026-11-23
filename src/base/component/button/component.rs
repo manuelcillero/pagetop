@@ -8,6 +8,7 @@ use crate::prelude::*;
 /// - [`Button::reset()`]: botón de restablecimiento de valores.
 /// - [`Button::plain()`]: botón genérico sin comportamiento predeterminado.
 /// - [`Button::anchor()`]: enlace de navegación real con el aspecto de un botón.
+/// - [`Button::anchor_blank()`]: igual, pero se abre en una nueva ventana o pestaña.
 ///
 /// No confundir [`Button::anchor()`] con [`button::Style::Link`]: el primero renderiza un `<a
 /// href=...>` real que navega; el segundo es sólo un estilo visual (clase `button-link`) que se
@@ -72,6 +73,8 @@ pub struct Button {
     /// (`<a href=...>` en vez de `<button>`). Vacía por defecto: en ese caso `prepare()` renderiza
     /// un `<button>` normal, ignorando este campo.
     href: Route,
+    /// Devuelve si el enlace se abre en una nueva ventana o pestaña (sólo con una ruta de destino).
+    blank: bool,
     /// Devuelve si el botón recibe el foco automáticamente al cargar la página.
     autofocus: bool,
     /// Devuelve si el botón está deshabilitado.
@@ -111,6 +114,13 @@ impl Component for Button {
         // `href` (ver `prepare()`) no tiene un estado nativo similar. Por eso la clase `disabled`.
         if *self.disabled() {
             self.alter_prop(PropsOp::add_classes("disabled"));
+        }
+
+        // Por `Props` y no en el `<a>` de `prepare()`: un atributo escrito en el elemento omite el
+        // mismo atributo de `Props`, y se perdería un `target` añadido con `with_prop()`.
+        if *self.blank() && !*self.disabled() && self.href().try_resolve(cx).is_some() {
+            self.alter_prop(PropsOp::set("target", "_blank"));
+            self.alter_prop(PropsOp::set("rel", "noopener noreferrer"));
         }
     }
 
@@ -224,6 +234,15 @@ impl Button {
             label,
             href: route.into(),
             ..Default::default()
+        }
+    }
+
+    /// Crea un **enlace de navegación** con el aspecto de un botón que se abre en una nueva ventana
+    /// o pestaña. Ver [`Button::anchor()`].
+    pub fn anchor_blank(label: Lc, route: impl Into<Route>) -> Self {
+        Self {
+            blank: true,
+            ..Self::anchor(label, route)
         }
     }
 

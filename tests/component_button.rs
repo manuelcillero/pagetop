@@ -116,8 +116,8 @@ async fn button_without_href_renders_as_button_tag() {
 
 #[pagetop::test]
 async fn anchor_falls_back_to_button_when_href_is_reset() {
-    // `Route::default()` resuelve a una ruta vacía; `prepare()` debe ignorar `href` y volver a
-    // renderizar un `<button>`, tal y como documenta `Button::with_href()`.
+    // `Route::default()` resolves to an empty path; `prepare()` must ignore `href` and render a
+    // `<button>` again, as documented in `Button::with_href()`.
     let mut button = Button::anchor(Lc::n("Edit"), "/items/1/edit").with_href(Route::default());
     let html = button.render(&mut Context::default()).await.into_string();
 
@@ -143,6 +143,25 @@ async fn disabled_anchor_omits_href_and_sets_aria_disabled() {
     assert!(html.contains(r#"tabindex="-1""#));
 }
 
+#[pagetop::test]
+async fn anchor_blank_opens_in_a_new_window() {
+    let mut button = Button::anchor(Lc::n("Docs"), "https://docs.rs");
+    let html = button.render(&mut Context::default()).await.into_string();
+    assert!(!html.contains("target="), "{html}");
+
+    let mut button = Button::anchor_blank(Lc::n("Docs"), "https://docs.rs");
+    let html = button.render(&mut Context::default()).await.into_string();
+    assert!(html.starts_with("<a "), "{html}");
+    assert!(html.contains(r#"target="_blank""#));
+    assert!(html.contains(r#"rel="noopener noreferrer""#));
+
+    // Disabled, it has no link to open.
+    let mut button = Button::anchor_blank(Lc::n("Docs"), "https://docs.rs").with_disabled(true);
+    let html = button.render(&mut Context::default()).await.into_string();
+    assert!(!html.contains("target="), "{html}");
+    assert!(!html.contains("rel="));
+}
+
 // A disabled `<a>` has no native equivalent to `:disabled` that CSS can hook into, unlike a
 // `<button disabled>`; the `disabled` class is what both Basic (`.button.disabled`) and Bootsier
 // (Bootstrap's own `.btn.disabled`) actually style.
@@ -160,4 +179,13 @@ async fn disabled_button_also_gets_the_disabled_class() {
     let html = button.render(&mut Context::default()).await.into_string();
 
     assert!(html.contains(r#"class="button disabled""#));
+}
+
+// `ListFilter` relies on this for its reset link (`target="_top"`).
+#[pagetop::test]
+async fn anchor_keeps_a_target_set_with_props() {
+    let mut button =
+        Button::anchor(Lc::n("Clear"), "/items").with_prop(PropsOp::set("target", "_top"));
+    let html = button.render(&mut Context::default()).await.into_string();
+    assert!(html.contains(r#"target="_top""#), "{html}");
 }
