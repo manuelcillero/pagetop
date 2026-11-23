@@ -25,7 +25,7 @@ use crate::prelude::*;
 ///             .with_item(dropdown::Item::link(Lc::n("Action"), "/action"))
 ///             .with_item(dropdown::Item::link(Lc::n("Another"), "/another")),
 ///     ))
-///     .with_item(nav::Item::link_disabled(Lc::n("Disabled"), "#"));
+///     .with_item(nav::Item::link(Lc::n("Disabled"), "#").with_disabled(true));
 /// ```
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Nav {
@@ -237,7 +237,7 @@ impl Nav {
     /// nav.with_item(nav::Item::link("Inicio", "/"));
     /// nav.with_item(TypedOp::AddMany(vec![
     ///     nav::Item::link(...),
-    ///     nav::Item::link_disabled(...),
+    ///     nav::Item::link(...).with_disabled(true),
     /// ]));
     /// ```
     pub fn with_item(mut self, op: impl Into<TypedOp<nav::Item>>) -> Self {

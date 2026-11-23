@@ -106,15 +106,14 @@ fn menus_block() -> Block {
                         ))
                         .with_item(dropdown::Item::divider())
                         .with_item(dropdown::Item::label(Lc::t("menus_item_label", &LOC)))
-                        .with_item(dropdown::Item::link_disabled(
-                            Lc::t("menus_item_disabled", &LOC),
-                            "#",
-                        )),
+                        .with_item(
+                            dropdown::Item::link(Lc::t("menus_item_disabled", &LOC), "#")
+                                .with_disabled(true),
+                        ),
                 ))
-                .with_item(nav::Item::link_disabled(
-                    Lc::t("menus_item_disabled", &LOC),
-                    "#",
-                )),
+                .with_item(
+                    nav::Item::link(Lc::t("menus_item_disabled", &LOC), "#").with_disabled(true),
+                ),
         ))
         .with_item(navbar::Item::nav(
             Nav::new()
@@ -686,10 +685,7 @@ fn demo_nav() -> Nav {
                     "/something",
                 )),
         ))
-        .with_item(nav::Item::link_disabled(
-            Lc::t("menus_item_disabled", &LOC),
-            "#",
-        ))
+        .with_item(nav::Item::link(Lc::t("menus_item_disabled", &LOC), "#").with_disabled(true))
 }
 
 fn is_bootsier() -> bool {

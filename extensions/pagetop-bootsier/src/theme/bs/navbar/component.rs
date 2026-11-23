@@ -74,7 +74,7 @@ const EXTRA_LAYOUT: &str = "bootsier.navbar.layout";
 ///                         Lc::n("Reports"), "/tools/reports")
 ///                     )
 ///             ))
-///             .with_item(bs::nav::Item::link_disabled(Lc::n("Disabled"), "#"))
+///             .with_item(bs::nav::Item::link(Lc::n("Disabled"), "#").with_disabled(true))
 ///     ));
 /// ```
 ///

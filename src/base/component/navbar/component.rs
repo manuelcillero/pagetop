@@ -57,7 +57,7 @@ use crate::prelude::*;
 ///                     .with_item(dropdown::Item::link(Lc::n("Generator"), "/tools/gen"))
 ///                     .with_item(dropdown::Item::link(Lc::n("Reports"), "/tools/reports")),
 ///             ))
-///             .with_item(nav::Item::link_disabled(Lc::n("Disabled"), "#")),
+///             .with_item(nav::Item::link(Lc::n("Disabled"), "#").with_disabled(true)),
 ///     ));
 /// ```
 ///

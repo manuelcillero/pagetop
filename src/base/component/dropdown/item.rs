@@ -198,19 +198,6 @@ impl Item {
         }
     }
 
-    /// Crea un enlace deshabilitado que no permite la interacción.
-    pub fn link_disabled(label: Lc, route: impl Into<Route>) -> Self {
-        Self {
-            item_kind: ItemKind::Link {
-                label,
-                route: route.into(),
-                blank: false,
-                disabled: true,
-            },
-            ..Default::default()
-        }
-    }
-
     /// Crea un enlace que se abre en una nueva ventana o pestaña.
     pub fn link_blank(label: Lc, route: impl Into<Route>) -> Self {
         Self {
@@ -224,36 +211,12 @@ impl Item {
         }
     }
 
-    /// Crea un enlace inicialmente deshabilitado que se abriría en una nueva ventana.
-    pub fn link_blank_disabled(label: Lc, route: impl Into<Route>) -> Self {
-        Self {
-            item_kind: ItemKind::Link {
-                label,
-                route: route.into(),
-                blank: true,
-                disabled: true,
-            },
-            ..Default::default()
-        }
-    }
-
     /// Crea un botón de acción local, sin navegación asociada.
     pub fn button(label: Lc) -> Self {
         Self {
             item_kind: ItemKind::Button {
                 label,
                 disabled: false,
-            },
-            ..Default::default()
-        }
-    }
-
-    /// Crea un botón deshabilitado.
-    pub fn button_disabled(label: Lc) -> Self {
-        Self {
-            item_kind: ItemKind::Button {
-                label,
-                disabled: true,
             },
             ..Default::default()
         }
@@ -286,6 +249,17 @@ impl Item {
     /// Modifica identificador, clases CSS, atributos HTML o valores extra del componente.
     pub fn with_prop(mut self, op: impl Into<PropsOp>) -> Self {
         self.props.alter_prop(op);
+        self
+    }
+
+    /// Establece si el elemento está deshabilitado: se muestra atenuado y no permite la
+    /// interacción. Sólo se aplica a los enlaces y los botones; en los demás tipos no tiene efecto.
+    pub fn with_disabled(mut self, disabled: bool) -> Self {
+        if let ItemKind::Link { disabled: d, .. } | ItemKind::Button { disabled: d, .. } =
+            &mut self.item_kind
+        {
+            *d = disabled;
+        }
         self
     }
 

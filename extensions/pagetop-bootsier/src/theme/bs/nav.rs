@@ -42,7 +42,7 @@ pub(crate) const EXTRA_IN_NAVBAR: &str = "bootsier.nav.in_navbar";
 ///                 bs::dropdown::Item::link(Lc::n("Another"), "/another"),
 ///             ])),
 ///     ))
-///     .with_item(bs::nav::Item::link_disabled(Lc::n("Disabled"), "#"));
+///     .with_item(bs::nav::Item::link(Lc::n("Disabled"), "#").with_disabled(true));
 /// ```
 #[builder_impl]
 pub trait NavBsExt {

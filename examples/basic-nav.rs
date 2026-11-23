@@ -24,7 +24,7 @@ impl Extension for NavDemo {
                     .with_item(dropdown::Item::header(Lc::n("Danger zone")))
                     .with_item(dropdown::Item::button(Lc::n("Reset settings"))),
             ))
-            .with_item(nav::Item::link_disabled(Lc::n("Disabled"), "#"));
+            .with_item(nav::Item::link(Lc::n("Disabled"), "#").with_disabled(true));
 
         let user_menu = Dropdown::new()
             .with_title(Lc::n("Account"))

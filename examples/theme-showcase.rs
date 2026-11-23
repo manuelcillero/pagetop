@@ -46,19 +46,18 @@ impl Extension for ThemeShowcase {
                         Lc::t("showcase_menu_messages", &LOC),
                         "#",
                     ))
-                    .with_item(dropdown::Item::link_disabled(
-                        Lc::t("showcase_menu_disabled", &LOC),
-                        "#",
-                    )),
+                    .with_item(
+                        dropdown::Item::link(Lc::t("showcase_menu_disabled", &LOC), "#")
+                            .with_disabled(true),
+                    ),
             ))
             .with_item(nav::Item::link_blank(
                 Lc::t("showcase_menu_docs", &LOC),
                 "https://docs.rs/pagetop",
             ))
-            .with_item(nav::Item::link_disabled(
-                Lc::t("showcase_menu_disabled", &LOC),
-                "#",
-            ));
+            .with_item(
+                nav::Item::link(Lc::t("showcase_menu_disabled", &LOC), "#").with_disabled(true),
+            );
 
         // Menú de la cuenta al final de la barra y, con Bootsier, el selector de modo de color
         // (claro, oscuro o automático).

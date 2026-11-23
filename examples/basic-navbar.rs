@@ -38,10 +38,7 @@ impl Extension for NavbarDemo {
                     )),
             ))
             .with_item(nav::Item::link(Lc::t("navbar_active", &LOC), "/active").with_active(true))
-            .with_item(nav::Item::link_disabled(
-                Lc::t("navbar_disabled", &LOC),
-                "#",
-            ));
+            .with_item(nav::Item::link(Lc::t("navbar_disabled", &LOC), "#").with_disabled(true));
 
         let navbar = Navbar::brand_left(brand).with_item(navbar::Item::nav(main_nav));
 
