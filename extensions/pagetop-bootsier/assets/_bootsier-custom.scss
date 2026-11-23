@@ -553,6 +553,102 @@ svg.icon {
   font-weight: 600;
 }
 
+// Front page of the panel and section pages. On the front page each section is a card (laid out by
+// `Mosaic`) with its icon and linked title on top and the list of its pages below, like a card with
+// a flush list group. On a section page the list stands alone, framed and with more room. Each page
+// shows its icon, its title and, below the title, its description; the whole row is the link.
+.admin-dashboard-sections {
+  margin-bottom: 1rem;
+}
+
+.admin-dashboard-section {
+  overflow: hidden;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
+
+.admin-dashboard-section-title {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--bs-tertiary-bg);
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--bs-emphasis-color);
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--bs-link-hover-color);
+    }
+  }
+}
+
+.admin-dashboard-section-links {
+  max-width: 42rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+
+  // Inside a card the list drops its own frame and gets more compact.
+  .admin-dashboard-section & {
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+
+    .admin-dashboard-link a {
+      padding: 0.55rem 0.9rem;
+    }
+
+    .admin-dashboard-link-desc {
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+.admin-dashboard-link + .admin-dashboard-link {
+  border-top: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+.admin-dashboard-link a {
+  display: grid;
+  grid-template-columns: 1.25rem 1fr;
+  column-gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  color: var(--bs-body-color);
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+  }
+}
+
+.admin-dashboard-link-icon {
+  color: var(--bs-secondary-color);
+}
+
+.admin-dashboard-link-title {
+  font-weight: 500;
+  color: var(--bs-link-color);
+}
+
+.admin-dashboard-link-desc {
+  grid-column: 2;
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+}
+
 // Login page (pagetop-user `LoginForm`): the form inside a centered card, as in Bootstrap's sign-in
 // example. The submit button takes the full width of the card.
 .user-login-page {

@@ -32,8 +32,7 @@ pub(crate) fn configure_routes(router: Router) -> Router {
 // puede acceder a ninguna, se le deniega el acceso como en cualquier otra ruta.
 async fn dashboard(request: HttpRequest) -> Response {
     let page = Page::admin(request.clone());
-    let sections = AdminRegistry::global().sections();
-    let Some(content) = sections_with_pages(page.context(), sections) else {
+    let Some(content) = sections_with_pages(page.context()) else {
         return deny_access(request);
     };
     page.with_title(Lc::l("admin_dashboard"))
@@ -45,8 +44,9 @@ async fn dashboard(request: HttpRequest) -> Response {
 
 // **< Sección >************************************************************************************
 
-// Página de una sección: sus páginas a las que puede acceder el usuario. Si no puede acceder a
-// ninguna, se le deniega el acceso como en cualquier otra ruta.
+// Página de una sección: sus páginas a las que puede acceder el usuario, sin repetir el título de
+// la sección, que ya es el de la página. Si no puede acceder a ninguna, se le deniega el acceso
+// como en cualquier otra ruta.
 async fn section_page(request: HttpRequest) -> Response {
     let path = strip_admin_path(request.path()).unwrap_or_default();
     let Some(section) = AdminRegistry::global().section_by_path(path) else {
@@ -54,11 +54,12 @@ async fn section_page(request: HttpRequest) -> Response {
     };
 
     let page = Page::admin(request.clone());
-    let Some(content) = sections_with_pages(page.context(), std::slice::from_ref(section)) else {
+    let pages = accessible_pages(page.context(), section);
+    if pages.is_empty() {
         return deny_access(request);
-    };
+    }
     page.with_title(section.title().clone())
-        .with_child(content)
+        .with_child(PageLinks { pages })
         .render()
         .await
         .into_response()
@@ -66,54 +67,119 @@ async fn section_page(request: HttpRequest) -> Response {
 
 // **< Listado de secciones >***********************************************************************
 
-// Secciones con sus páginas (título y descripción) a las que puede acceder el usuario, o `None` si
-// no queda ninguna.
-fn sections_with_pages(cx: &Context, candidates: &'static [AdminSection]) -> Option<Container> {
-    let registry = AdminRegistry::global();
-    let visible: Vec<_> = candidates
-        .iter()
-        .map(|section| {
-            let pages: Vec<_> = registry
-                .pages_for_section(section.key())
-                .iter()
-                .filter(|p| p.is_accessible(cx))
-                .collect();
-            (section, pages)
-        })
-        .filter(|(_, pages)| !pages.is_empty())
-        .collect();
-    if visible.is_empty() {
-        return None;
+// Mosaico de secciones, cada una con sus páginas a las que puede acceder el usuario, o `None` si no
+// queda ninguna.
+fn sections_with_pages(cx: &Context) -> Option<Mosaic> {
+    let mut mosaic = Mosaic::new()
+        .with_prop(PropsOp::add_classes("admin-dashboard-sections"))
+        .with_columns(1)
+        .with_columns_at(Breakpoint::Md, 2)
+        .with_columns_at(Breakpoint::Xl, 3);
+    let mut empty = true;
+    for section in AdminRegistry::global().sections() {
+        let pages = accessible_pages(cx, section);
+        if !pages.is_empty() {
+            empty = false;
+            mosaic = mosaic.with_child(SectionCard {
+                section: Some(section),
+                pages,
+            });
+        }
     }
-    let mut sections = Container::new().with_prop(PropsOp::add_classes("admin-dashboard-sections"));
-    for (section, pages) in visible {
-        sections = sections.with_child(
-            Container::new()
-                .with_prop(PropsOp::add_classes("admin-dashboard-section"))
-                .with_child(Html::with(move |cx| {
-                    html! {
-                        h2 class="admin-dashboard-section-title" {
-                            a href=(cx.route(admin_path(section.path()))) {
-                                (section.title().using(cx))
-                            }
-                        }
-                        ul class="admin-dashboard-section-links" {
-                            @for page in &pages {
-                                li class="admin-dashboard-link" {
-                                    a href=(cx.route(admin_path(page.path()))) {
-                                        (page.title().using(cx))
-                                    }
-                                    @if !page.description().is_none() {
-                                        span class="admin-dashboard-link-desc" {
-                                            " - " (page.description().using(cx))
-                                        }
-                                    }
+    (!empty).then_some(mosaic)
+}
+
+// Páginas de la sección a las que puede acceder el usuario.
+fn accessible_pages(cx: &Context, section: &AdminSection) -> Vec<&'static AdminPage> {
+    AdminRegistry::global()
+        .pages_for_section(section.key())
+        .iter()
+        .filter(|p| p.is_accessible(cx))
+        .collect()
+}
+
+// **< SectionCard >********************************************************************************
+
+// Tarjeta de una sección en el inicio del panel: su icono y su título enlazado a la página de la
+// sección, y debajo sus páginas.
+#[derive(AutoDefault, Clone)]
+struct SectionCard {
+    section: Option<&'static AdminSection>,
+    pages: Vec<&'static AdminPage>,
+}
+
+#[async_trait]
+impl Component for SectionCard {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let Some(section) = self.section else {
+            return Ok(html! {});
+        };
+        let icon = match section.icon() {
+            Some(icon) => icon.clone().render(cx).await,
+            None => html! {},
+        };
+        let links = PageLinks {
+            pages: self.pages.clone(),
+        }
+        .render(cx)
+        .await;
+        Ok(html! {
+            div class="admin-dashboard-section" {
+                h2 class="admin-dashboard-section-title" {
+                    a href=(cx.route(admin_path(section.path()))) {
+                        (icon)
+                        span { (section.title().using(cx)) }
+                    }
+                }
+                (links)
+            }
+        })
+    }
+}
+
+// **< PageLinks >**********************************************************************************
+
+// Enlaces a las páginas, cada uno con su icono, su título y su descripción. El hueco del icono se
+// reserva aunque la página no tenga, para que los títulos queden alineados.
+#[derive(AutoDefault, Clone)]
+struct PageLinks {
+    pages: Vec<&'static AdminPage>,
+}
+
+#[async_trait]
+impl Component for PageLinks {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
+        let mut icons = Vec::with_capacity(self.pages.len());
+        for page in &self.pages {
+            icons.push(match page.icon() {
+                Some(icon) => icon.clone().render(cx).await,
+                None => html! {},
+            });
+        }
+        Ok(html! {
+            ul class="admin-dashboard-section-links" {
+                @for (page, icon) in self.pages.iter().zip(icons) {
+                    li class="admin-dashboard-link" {
+                        a href=(cx.route(admin_path(page.path()))) {
+                            span class="admin-dashboard-link-icon" { (icon) }
+                            span class="admin-dashboard-link-title" { (page.title().using(cx)) }
+                            @if !page.description().is_none() {
+                                span class="admin-dashboard-link-desc" {
+                                    (page.description().using(cx))
                                 }
                             }
                         }
                     }
-                })),
-        );
+                }
+            }
+        })
     }
-    Some(sections)
 }

@@ -34,6 +34,8 @@ pub enum Core {
     ChevronUp,
     /// Aspa, para cerrar o descartar.
     Close,
+    /// Sobre, para el correo electrónico.
+    Envelope,
     /// Engranaje, para la administración.
     Gear,
     /// Casa, para la página de inicio.
@@ -84,6 +86,10 @@ impl Core {
             Self::ChevronRight => stroked!(r#"<path d="M5.5 3l5 5-5 5"/>"#),
             Self::ChevronUp => stroked!(r#"<path d="M3 10.5l5-5 5 5"/>"#),
             Self::Close => stroked!(r#"<path d="M4 4l8 8M12 4l-8 8"/>"#),
+            Self::Envelope => stroked!(
+                r#"<rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.25"/>"#,
+                r#"<path d="M2.25 4.25L8 8.75l5.75-4.5"/>"#,
+            ),
             Self::Gear => stroked!(
                 r#"<path d="M12.9 6.9 14.7 7.1 14.7 8.9 12.9 9.1 12.2 10.7 13.4 12.1 12.1 13.4 "#,
                 r#"10.7 12.2 9.1 12.9 8.9 14.7 7.1 14.7 6.9 12.9 5.3 12.2 3.9 13.4 2.6 12.1 "#,

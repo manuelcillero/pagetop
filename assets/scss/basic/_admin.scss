@@ -49,3 +49,99 @@
     border-bottom-color: var(--val-color--primary);
     font-weight: 600;
 }
+
+// Front page of the panel and section pages. On the front page each section is a card (laid out by
+// `Mosaic`) with its icon and linked title on top and the list of its pages below. On a section
+// page the list stands alone, framed and with more room. Each page shows its icon, its title and,
+// below the title, its description; the whole row is the link.
+
+.admin-dashboard-sections {
+    margin-bottom: 1rem;
+}
+
+.admin-dashboard-section {
+    overflow: hidden;
+    background-color: #fff;
+    border: 1px solid var(--val-color--bg--muted);
+    border-radius: 0.25rem;
+}
+
+.admin-dashboard-section-title {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--val-color--bg--muted);
+}
+
+.admin-dashboard-section-title a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--val-color--text);
+    text-decoration: none;
+}
+
+.admin-dashboard-section-title a:hover,
+.admin-dashboard-section-title a:focus-visible {
+    color: var(--val-color--primary);
+}
+
+.admin-dashboard-section-links {
+    max-width: 42rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    background-color: #fff;
+    border: 1px solid var(--val-color--bg--muted);
+    border-radius: 0.25rem;
+}
+
+.admin-dashboard-link + .admin-dashboard-link {
+    border-top: 1px solid var(--val-color--bg--muted);
+}
+
+.admin-dashboard-link a {
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;
+    column-gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    color: var(--val-color--text);
+    text-decoration: none;
+}
+
+.admin-dashboard-link a:hover,
+.admin-dashboard-link a:focus-visible {
+    background-color: color-mix(in srgb, var(--val-color--primary) 6%, #fff);
+}
+
+.admin-dashboard-link-icon {
+    color: var(--val-color--text--muted);
+}
+
+.admin-dashboard-link-title {
+    font-weight: 500;
+    color: var(--val-color--primary);
+}
+
+.admin-dashboard-link-desc {
+    grid-column: 2;
+    font-size: 0.875rem;
+    color: var(--val-color--text--muted);
+}
+
+// Inside a card the list drops its own frame and gets more compact.
+.admin-dashboard-section .admin-dashboard-section-links {
+    max-width: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+}
+
+.admin-dashboard-section .admin-dashboard-link a {
+    padding: 0.55rem 0.9rem;
+}
+
+.admin-dashboard-section .admin-dashboard-link-desc {
+    font-size: 0.8125rem;
+}

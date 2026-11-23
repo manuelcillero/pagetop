@@ -57,7 +57,8 @@ pub(crate) fn declare_pages(bag: &mut AdminPageBag) {
             Lc::t("test_title", &LOCALES_MAIL),
             &MailPermission::SendTest,
         )
-        .with_description(Lc::t("test_description", &LOCALES_MAIL)),
+        .with_description(Lc::t("test_description", &LOCALES_MAIL))
+        .with_icon(Icon::with(icon::Core::Envelope)),
     );
 }
 

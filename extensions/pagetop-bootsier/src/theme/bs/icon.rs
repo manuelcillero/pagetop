@@ -52,6 +52,7 @@ const fn bi_classes(icon: Core) -> &'static str {
         Core::ChevronRight   => "bi bi-chevron-right",
         Core::ChevronUp      => "bi bi-chevron-up",
         Core::Close          => "bi bi-x-lg",
+        Core::Envelope       => "bi bi-envelope",
         Core::Gear           => "bi bi-gear",
         Core::Home           => "bi bi-house",
         Core::Key            => "bi bi-key",

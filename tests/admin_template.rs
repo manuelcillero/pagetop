@@ -193,17 +193,17 @@ async fn the_admin_menu_goes_where_the_application_places_it() {
 }
 
 #[pagetop::test]
-async fn the_admin_menu_shows_the_icons_of_the_dashboard_sections_and_pages() {
+async fn the_admin_menu_shows_the_icons_of_the_dashboard_and_pages_but_not_of_sections() {
     let _ = Application::prepare(&Ext).await;
     let page = Page::admin(request("/admin/config/export/csv"))
         .with_child_in(&CoreRegions::Header, admin_navbar());
     let html = render(page).await;
 
-    // The dashboard, the "config" section (the only one with an accessible page) and its page.
+    // The dashboard and the page of the "config" section, but not the section itself.
     let header = &html[html.find(r#"id="header""#).unwrap()..html.find("admin-content").unwrap()];
     assert_eq!(
         header.matches(r#"class="icon icon-start""#).count(),
-        3,
+        2,
         "{header}"
     );
 }
@@ -335,25 +335,43 @@ async fn get(uri: &str) -> (u16, String) {
     (status, web::test::read_body_text(response).await)
 }
 
+// Whether the page links to a declared page with its icon slot first and then its title.
+fn page_link(html: &str, href: &str, title: &str) -> bool {
+    let start = format!(r#"<a href="{href}"><span class="admin-dashboard-link-icon">"#);
+    let title = format!(r#"<span class="admin-dashboard-link-title">{title}</span>"#);
+    html.find(&start).is_some_and(|at| {
+        html[at..]
+            .find("</a>")
+            .is_some_and(|end| html[at..at + end].contains(&title))
+    })
+}
+
 #[pagetop::test]
 async fn the_dashboard_lists_the_accessible_pages_by_section() {
     let (status, html) = get("/admin").await;
     assert_eq!(status, 200, "{html}");
     assert!(
-        html.contains(r#"<a href="/admin/config/export">Export</a>"#),
+        html.contains(r#"class="mosaic admin-dashboard-sections "#),
         "{html}"
     );
+    assert!(page_link(&html, "/admin/config/export", "Export"), "{html}");
     assert!(!html.contains("Audit"), "{html}");
+    // Each section shows its title linked to its own page.
+    assert!(
+        html.contains(r#"<h2 class="admin-dashboard-section-title"><a href="/admin/config">"#),
+        "{html}"
+    );
 }
 
 #[pagetop::test]
 async fn a_section_page_is_mounted_only_for_sections_with_pages() {
     let (status, html) = get("/admin/config").await;
     assert_eq!(status, 200, "{html}");
-    assert!(
-        html.contains(r#"<a href="/admin/config/export">Export</a>"#),
-        "{html}"
-    );
+    assert!(page_link(&html, "/admin/config/export", "Export"), "{html}");
+    // Only the list of pages, without the mosaic of the front page.
+    assert!(!html.contains("admin-dashboard-sections"), "{html}");
+    // The section title is already the page title, it is not repeated.
+    assert!(!html.contains("admin-dashboard-section-title"), "{html}");
     // Its only page needs a permission that nobody has.
     assert_eq!(get("/admin/reports").await.0, 403);
     // No page declared in it.

@@ -145,7 +145,8 @@ impl Nav {
     }
 
     // Añade el enlace al *dashboard* y un desplegable por sección con las páginas a las que puede
-    // acceder el usuario de la petición.
+    // acceder el usuario de la petición. Las secciones van sin su icono, para que la barra ocupe
+    // menos; el del *dashboard* coincide con el de la administración en el menú de cuenta.
     fn add_admin_items(&mut self, cx: &Context) {
         let registry = AdminRegistry::global();
 
@@ -169,7 +170,7 @@ impl Nav {
                         .with_icon_start(page.icon().cloned()),
                 );
             }
-            self.alter_item(nav::Item::dropdown(menu).with_icon_start(section.icon().cloned()));
+            self.alter_item(nav::Item::dropdown(menu));
         }
     }
 }

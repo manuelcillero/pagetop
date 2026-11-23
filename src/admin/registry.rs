@@ -37,7 +37,7 @@ pub struct AdminSection {
     /// Devuelve el peso para ordenar las secciones (menor = antes).
     #[getters(copy)]
     weight: Weight,
-    /// Devuelve el icono que acompaña al título en la navegación (si lo tiene).
+    /// Devuelve el icono que acompaña al título en el inicio del panel (si lo tiene).
     icon: Option<Icon>,
 }
 
@@ -75,8 +75,9 @@ impl AdminSection {
         self
     }
 
-    /// Asigna o quita el icono que acompaña al título de la sección en la navegación del panel
-    /// ([`Nav::admin()`](crate::base::component::Nav::admin)).
+    /// Asigna o quita el icono que acompaña al título de la sección en el inicio del panel. La
+    /// navegación del panel ([`Nav::admin()`](crate::base::component::Nav::admin)) no lo muestra,
+    /// para que los títulos de las secciones ocupen menos.
     pub fn with_icon(mut self, icon: impl Into<Option<Icon>>) -> Self {
         self.icon = icon.into();
         self
@@ -115,7 +116,8 @@ pub struct AdminPage {
     /// ([`Routes::admin_route()`](crate::web::Routes::admin_route)).
     #[getters(copy)]
     permission: PermissionRef,
-    /// Devuelve el icono que acompaña al título en la navegación (si lo tiene).
+    /// Devuelve el icono que acompaña al título en la navegación y en las listas de páginas del
+    /// panel (si lo tiene).
     icon: Option<Icon>,
 }
 
@@ -164,7 +166,8 @@ impl AdminPage {
     }
 
     /// Asigna o quita el icono que acompaña al título de la página en la navegación del panel
-    /// ([`Nav::admin()`](crate::base::component::Nav::admin)).
+    /// ([`Nav::admin()`](crate::base::component::Nav::admin)) y en las listas de páginas del
+    /// inicio del panel y de su sección.
     ///
     /// Con un icono del conjunto de PageTop ([`icon::Core`](crate::base::component::icon::Core)),
     /// la extensión no depende de ningún tema y cada tema puede mostrar el equivalente del suyo.
