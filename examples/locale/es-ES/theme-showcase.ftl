@@ -65,6 +65,63 @@ showcase_empty_table = Una tabla sin filas muestra su mensaje:
 
 showcase_block_buttons = Botones
 
+showcase_block_icons = Iconos
+showcase_icons_sizes =
+    Iconos del conjunto propio del ejemplo, iguales con cualquier tema, y de PageTop
+    (<code>icon::Core</code>), que cada tema puede sustituir por los suyos. Su tamaño sigue al de la
+    fuente y su color, a la intención:
+showcase_icons_cards = Tarjetas de estado con un icono grande:
+showcase_card_switch = Interruptor del salón
+showcase_card_outlet = Enchufe nocturno
+showcase_card_battery = Batería del servidor
+showcase_card_active = Activado
+showcase_card_low = Carga baja
+showcase_icons_toolbar =
+    Botones sólo con icono; la etiqueta del icono da nombre al botón y aparece al pasar por encima:
+showcase_tag = Etiquetar
+showcase_view = Ver
+showcase_comment_action = Comentar
+showcase_notify = Avisar
+showcase_pin = Fijar
+showcase_hide = Ocultar
+showcase_align_left = Alinear a la izquierda
+showcase_align_center = Centrar
+showcase_align_right = Alinear a la derecha
+showcase_align_justify = Justificar
+showcase_bold = Negrita
+showcase_italic = Cursiva
+showcase_underline = Subrayado
+showcase_icons_buttons =
+    Botones con icono y texto, con el icono al principio, al final o a los dos lados:
+showcase_new = Nuevo
+showcase_filter = Filtrar
+showcase_insert_image = Insertar imagen
+showcase_save = Guardar
+showcase_discard = Descartar
+showcase_next = Siguiente
+showcase_move_to = Mover a
+showcase_icons_menus =
+    Menús con iconos: las opciones sin icono dejan su hueco y el icono final va junto al borde.
+showcase_nav_start = Primeros pasos
+showcase_nav_styles = Estilos
+showcase_nav_grid = Rejilla
+showcase_nav_folders = Carpetas
+showcase_nav_templates = Plantillas
+showcase_actions = Acciones
+showcase_duplicate = Duplicar
+showcase_icons_table = Iconos en una tabla:
+showcase_col_name = Nombre
+showcase_col_type = Tipo
+showcase_type_folder = Carpeta
+showcase_type_document = Documento
+showcase_delete = Eliminar
+
+showcase_block_tiles = Recuadros de acceso
+showcase_tile_image = Con una imagen de fondo difuminada bajo su color
+showcase_tile_color = Sólo con su color de acento
+showcase_tile_no_icon = Sin icono
+showcase_tile_disabled = Deshabilitado: atenuado y sin enlace
+
 showcase_block_misc = Enlaces, insignias y paginación
 showcase_link_text = Un párrafo con <a href="#">un enlace</a> en medio del texto.
 showcase_msg_info = Un mensaje informativo.

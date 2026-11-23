@@ -65,6 +65,63 @@ showcase_empty_table = A table without rows shows its message:
 
 showcase_block_buttons = Buttons
 
+showcase_block_icons = Icons
+showcase_icons_sizes =
+    Icons of the example's own set, the same with any theme, and of PageTop
+    (<code>icon::Core</code>), which each theme may replace with its own. Their size follows the
+    font size and their color, the intent:
+showcase_icons_cards = Status cards with a large icon:
+showcase_card_switch = Living room switch
+showcase_card_outlet = Night outlet
+showcase_card_battery = Server battery
+showcase_card_active = Activated
+showcase_card_low = Low power
+showcase_icons_toolbar =
+    Icon-only buttons; the icon label names the button and shows up on hover:
+showcase_tag = Tag
+showcase_view = View
+showcase_comment_action = Comment
+showcase_notify = Notify
+showcase_pin = Pin
+showcase_hide = Hide
+showcase_align_left = Align left
+showcase_align_center = Center
+showcase_align_right = Align right
+showcase_align_justify = Justify
+showcase_bold = Bold
+showcase_italic = Italic
+showcase_underline = Underline
+showcase_icons_buttons =
+    Buttons with icon and text, with the icon at the start, at the end or on both sides:
+showcase_new = New
+showcase_filter = Filter
+showcase_insert_image = Insert image
+showcase_save = Save
+showcase_discard = Discard
+showcase_next = Next
+showcase_move_to = Move to
+showcase_icons_menus =
+    Menus with icons: options without an icon keep their space and the end icon sits at the edge.
+showcase_nav_start = Get started
+showcase_nav_styles = Styles
+showcase_nav_grid = Grid
+showcase_nav_folders = Folders
+showcase_nav_templates = Templates
+showcase_actions = Actions
+showcase_duplicate = Duplicate
+showcase_icons_table = Icons in a table:
+showcase_col_name = Name
+showcase_col_type = Type
+showcase_type_folder = Folder
+showcase_type_document = Document
+showcase_delete = Delete
+
+showcase_block_tiles = Access tiles
+showcase_tile_image = With a blurred background image under its color
+showcase_tile_color = Only with its accent color
+showcase_tile_no_icon = Without an icon
+showcase_tile_disabled = Disabled: dimmed and without a link
+
 showcase_block_misc = Links, badges and pagination
 showcase_link_text = A paragraph with <a href="#">a link</a> in the middle of the text.
 showcase_msg_info = An informative message.
