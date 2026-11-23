@@ -64,6 +64,10 @@ pub use list_view::ListView;
 mod messages;
 pub use messages::Messages;
 
+pub mod mosaic;
+#[doc(inline)]
+pub use mosaic::Mosaic;
+
 pub mod nav;
 #[doc(inline)]
 pub use nav::Nav;

@@ -1,0 +1,73 @@
+// Styles of the `Mosaic` component.
+//
+// Compiled by `build.rs` into `static/css/mosaic.min.css`, apart from `basic.scss`: the component
+// loads them on its own, whatever the active theme is.
+//
+// Without JavaScript the items flow in CSS columns, top to bottom. `mosaic.js` adds `.mosaic-js`
+// and turns the mosaic into a grid: the grid gives the number and width of the columns, and the
+// script puts each item in the first row of the shortest column (or run of columns, for an item
+// with `--mosaic-span`) and pushes it down below the previous one (`margin-top`). Items must
+// keep their own height (`align-items: start`) to be measured. The number of columns and the gaps
+// can be set per breakpoint by `Mosaic`, whose classes come later in the page.
+
+// Registered so that its computed value is a length in pixels, which the script reads, even when it
+// is written in `em`. Browsers without `@property` hand over the value as written.
+@property --mosaic-tolerance {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0px;
+}
+
+// Defaults with no specificity, so that any rule of a theme for `.mosaic` overrides them, even if
+// it comes before this file.
+:where(.mosaic) {
+    --mosaic-column-width: 16rem;
+    --mosaic-gap: 1rem;
+    --mosaic-row-gap: var(--mosaic-gap);
+    --mosaic-column-gap: var(--mosaic-gap);
+    // Same default as `fit-tolerance` of `display: grid-lanes`.
+    --mosaic-tolerance: 1em;
+}
+
+// Columns an item takes (a number or `full`) and column it is pinned to (0 if none), read by the
+// script and set by the classes of `mosaic::Item`. Reset on every item with no specificity, so that
+// the items of a mosaic nested in another one do not inherit them.
+:where(.mosaic > *) {
+    --mosaic-span: 1;
+    --mosaic-column: 0;
+}
+
+.mosaic {
+    columns: var(--mosaic-column-width);
+    column-gap: var(--mosaic-column-gap);
+}
+
+.mosaic > * {
+    break-inside: avoid;
+    margin-bottom: var(--mosaic-row-gap);
+}
+
+.mosaic-js {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--mosaic-column-width)), 1fr));
+    column-gap: var(--mosaic-column-gap);
+    // Not a gap between rows (there is only one), but the one the script leaves below each item.
+    row-gap: var(--mosaic-row-gap);
+    align-items: start;
+}
+
+.mosaic-js > * {
+    margin-bottom: 0;
+}
+
+// The layout worked out for the screen does not fit the page: print in CSS columns.
+@media print {
+    .mosaic-js {
+        display: block;
+    }
+
+    .mosaic-js > * {
+        margin-top: 0 !important;
+        margin-bottom: var(--mosaic-row-gap);
+    }
+}

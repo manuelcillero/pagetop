@@ -11,25 +11,35 @@ fn main() -> std::io::Result<()> {
     copy_dir("assets/img", "static/img")?;
     copy_dir("assets/js", "static/js")?;
 
-    // CSS: compila los estilos del tema Basic.
-    compile_scss("assets/scss/basic.scss", "static/css/basic.min.css")?;
+    // **< Recursos independientes del tema, por tipo y orden alfabético >**************************
 
-    // CSS: compila los estilos del componente `Intro`, independientes del tema.
+    // CSS: estilos del componente `Intro`.
     compile_scss("assets/scss/intro.scss", "static/css/intro.min.css")?;
 
-    // JS: minifica el manejo de `Dialog` del tema Basic.
+    // CSS: disposición del componente `Mosaic`.
+    compile_scss("assets/scss/mosaic.scss", "static/css/mosaic.min.css")?;
+
+    // JS: marcas de cambios sin aplicar de `ListFilter`.
+    minify_js("assets/js/list-filter.js", "static/js/list-filter.min.js")?;
+
+    // JS: aviso del resumen de `ListView` a los lectores de pantalla.
+    minify_js("assets/js/list-view.js", "static/js/list-view.min.js")?;
+
+    // JS: reparto en columnas de `Mosaic`.
+    minify_js("assets/js/mosaic.js", "static/js/mosaic.min.js")?;
+
+    // **< Recursos del tema Basic >****************************************************************
+
+    // CSS: estilos del tema.
+    compile_scss("assets/scss/basic.scss", "static/css/basic.min.css")?;
+
+    // JS: manejo de `Dialog`.
     minify_js(
         "assets/js/basic.dialog.init.js",
         "static/js/basic.dialog.min.js",
     )?;
 
-    // JS: minifica el aviso del resumen de `ListView` a los lectores de pantalla.
-    minify_js("assets/js/list-view.js", "static/js/list-view.min.js")?;
-
-    // JS: minifica las marcas de cambios sin aplicar de `ListFilter`, independientes del tema.
-    minify_js("assets/js/list-filter.js", "static/js/list-filter.min.js")?;
-
-    // JS: minifica la integración de `Dropdown` con `accessible-menu` del tema Basic.
+    // JS: integración de `Dropdown` con `accessible-menu`.
     minify_js(
         "assets/js/basic.dropdown.init.js",
         "static/js/basic.dropdown.min.js",
