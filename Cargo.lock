@@ -2284,6 +2284,7 @@ name = "pagetop-seaorm"
 version = "0.0.4"
 dependencies = [
  "pagetop",
+ "pagetop-seaorm",
  "sea-orm",
  "sea-schema",
  "serde",

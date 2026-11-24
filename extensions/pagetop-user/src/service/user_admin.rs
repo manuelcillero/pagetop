@@ -707,7 +707,7 @@ pub(crate) async fn taken_on_conflict(
     let AuthError::Database(db_err) = &err else {
         return err;
     };
-    if !matches!(db_err.sql_err(), Some(SqlErr::UniqueConstraintViolation(_))) {
+    if !db_err.is_unique_violation() {
         return err;
     }
     if let Some(username) = username

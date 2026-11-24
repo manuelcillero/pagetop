@@ -562,7 +562,7 @@ impl ProviderHandle {
             model.data = Set(data);
         }
         if let Err(err) = model.update(dbconn()).await {
-            if matches!(err.sql_err(), Some(SqlErr::UniqueConstraintViolation(_))) {
+            if err.is_unique_violation() {
                 return Err(AuthError::IdentityTaken);
             }
             return Err(err.into());

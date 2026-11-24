@@ -190,8 +190,9 @@ pub mod migration;
 
 static DBCONN: OnceLock<DatabaseConnection> = OnceLock::new();
 
-/// Errores que detienen el arranque de la aplicación al conectar con la base de datos o al aplicar
-/// las migraciones.
+/// Errores que detienen el arranque de la aplicación.
+///
+/// Se producen al conectar con la base de datos o al aplicar las migraciones.
 #[derive(Debug, thiserror::Error)]
 pub enum DbError {
     /// No se ha configurado el motor de base de datos (`database.db_type`).

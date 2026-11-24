@@ -28,3 +28,8 @@ serde.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 url.workspace = true
+
+[dev-dependencies]
+# Las pruebas necesitan un motor real: SQLite en memoria. Sólo con `path` (sin versión), para que
+# `cargo publish` la quite: con la versión buscaría el propio crate en crates.io.
+pagetop-seaorm = { path = ".", features = ["sqlite"] }

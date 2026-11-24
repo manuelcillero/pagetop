@@ -31,8 +31,8 @@
 //!   modelo leído: `model.into_active_model()`).
 //! - **Macros de derivación**: [`DeriveEntityModel`], [`DeriveColumn`], [`DerivePrimaryKey`],
 //!   [`DeriveRelation`], [`EnumIter`].
-//! - **Errores**: [`DbErr`], [`TransactionError`], [`SqlErr`] (para reconocer con
-//!   [`DbErr::sql_err()`] la violación de una restricción única o de clave ajena).
+//! - **Errores**: [`DbErr`], [`TransactionError`], [`DbErrExt`] (para reconocer la violación de
+//!   una restricción única o de clave ajena) y [`SqlErr`] (el detalle, con [`DbErr::sql_err()`]).
 //! - **Fechas**: [`DateTime`] es el de PageTop ([`pagetop::datetime::DateTime`]), no el alias de
 //!   `NaiveDateTime` que exporta SeaORM con ese nombre, para que `db::*` y el preludio de PageTop
 //!   puedan importarse juntos. Para las columnas de fecha y hora de una entidad se usa
@@ -408,6 +408,87 @@ pub fn flatten_txn_err<E: From<DbErr>>(err: TransactionError<E>) -> E {
         TransactionError::Connection(db_err) => db_err.into(),
         TransactionError::Transaction(err) => err,
     }
+}
+
+// **< DbErrExt >***********************************************************************************
+
+/// Reconoce en un [`DbErr`] la violación de una restricción de la base de datos.
+///
+/// No todo error de la base de datos es un fallo del sistema. Algunos los provocan los propios
+/// datos: un índice único rechaza un valor que ya existe, o una clave ajena impide borrar un
+/// registro que otros aún referencian. Son errores que conviene mostrar al usuario («ese nombre ya
+/// existe», «está en uso»), no tratar como un fallo interno.
+///
+/// Lo habitual es comprobar estos casos antes de escribir, pero la comprobación sola no basta: si
+/// dos peticiones guardan el mismo valor a la vez, las dos pueden superarla, y entonces es la
+/// restricción la que rechaza la segunda. Estos métodos reconocen ese rechazo, sea cual sea el
+/// motor de base de datos, para convertirlo en el mismo error que daría la comprobación.
+///
+/// Se importa con `use pagetop_seaorm::db::*;`.
+///
+/// ```rust,no_run
+/// use pagetop_seaorm::db::*;
+///
+/// #[derive(Debug)]
+/// enum TagError {
+///     NameTaken,
+///     Db(DbErr),
+/// }
+///
+/// // Duplicado que la comprobación previa no vio: lo rechazó el índice único.
+/// fn from_write(err: DbErr) -> TagError {
+///     if err.is_unique_violation() {
+///         TagError::NameTaken
+///     } else {
+///         TagError::Db(err)
+///     }
+/// }
+/// ```
+pub trait DbErrExt {
+    /// Devuelve `true` si una restricción de unicidad (clave primaria o índice único) rechazó la
+    /// escritura porque el valor ya existe.
+    fn is_unique_violation(&self) -> bool;
+
+    /// Devuelve `true` si una clave ajena rechazó la operación: al borrar o cambiar un registro que
+    /// otros aún referencian, o al escribir una referencia a un registro que no existe.
+    ///
+    /// Con SQLite reconoce también la de una clave ajena `ON DELETE RESTRICT` u
+    /// `ON UPDATE RESTRICT`, que [`DbErr::sql_err()`] no identifica.
+    fn is_foreign_key_violation(&self) -> bool;
+}
+
+impl DbErrExt for DbErr {
+    fn is_unique_violation(&self) -> bool {
+        matches!(self.sql_err(), Some(SqlErr::UniqueConstraintViolation(_)))
+    }
+
+    fn is_foreign_key_violation(&self) -> bool {
+        matches!(
+            self.sql_err(),
+            Some(SqlErr::ForeignKeyConstraintViolation(_))
+        ) || is_sqlite_restrict_violation(self)
+    }
+}
+
+// SQLite informa de una clave ajena `ON DELETE/UPDATE RESTRICT` con `SQLITE_CONSTRAINT_TRIGGER`
+// (1811), no con `SQLITE_CONSTRAINT_FOREIGNKEY` (787), y `sql_err()` de SeaORM sólo reconoce el
+// segundo. El código es el mismo que el de un `RAISE(ABORT)` de un *trigger*, así que se compara
+// también el mensaje.
+#[cfg(feature = "sqlite")]
+fn is_sqlite_restrict_violation(err: &DbErr) -> bool {
+    use sea_orm::sqlx;
+    match err {
+        DbErr::Exec(sea_orm::RuntimeErr::SqlxError(sqlx::Error::Database(e)))
+        | DbErr::Query(sea_orm::RuntimeErr::SqlxError(sqlx::Error::Database(e))) => {
+            e.code().as_deref() == Some("1811") && e.message() == "FOREIGN KEY constraint failed"
+        }
+        _ => false,
+    }
+}
+
+#[cfg(not(feature = "sqlite"))]
+fn is_sqlite_restrict_violation(_err: &DbErr) -> bool {
+    false
 }
 
 // **< Paginated / paginate >***********************************************************************
