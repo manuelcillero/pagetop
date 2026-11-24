@@ -109,10 +109,7 @@ pub(crate) fn delete_dialog() -> Dialog {
         .with_child(Html::with(|cx| {
             html! { p { (Lc::t("confirm-delete-role", &LOCALES_USER).using(cx)) } }
         }))
-        .with_footer(
-            Button::plain(Lc::t("btn-cancel", &LOCALES_USER))
-                .with_prop(PropsOp::set("data-dialog-dismiss", "modal")),
-        )
+        .with_footer(Button::dismiss())
         .with_footer(Html::with(
             |_cx| html! { span id="role-delete-confirm-action" {} },
         ))
@@ -237,8 +234,7 @@ async fn actions_cell(
         (None, None)
     } else {
         let edit_href = cx.route(role_path(id, "edit"));
-        let edit_button = Button::anchor(Lc::t("btn-edit", &LOCALES_USER), edit_href)
-            .with_style(button::Style::Solid(Intent::Primary))
+        let edit_button = Button::edit(edit_href)
             .with_size(button::Size::Small)
             .render(cx)
             .await;
@@ -252,8 +248,7 @@ async fn actions_cell(
             .alter_param("page", page.to_string())
             .to_string();
 
-        let delete_button = Button::plain(Lc::t("btn-delete", &LOCALES_USER))
-            .with_style(button::Style::Solid(Intent::Severe))
+        let delete_button = Button::delete()
             .with_size(button::Size::Small)
             .with_prop(PropsOp::set(hx::GET, confirm_href))
             .with_prop(PropsOp::set(hx::TARGET, "#role-delete-confirm-action"))

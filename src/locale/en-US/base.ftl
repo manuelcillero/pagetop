@@ -1,6 +1,15 @@
 # Breadcrumb component.
 breadcrumb_label = Breadcrumb navigation
 
+# Button component.
+button_save = Save
+button_save_and_new = Save & New
+button_save_and_new_notice = Saved. You can create another record.
+button_edit = Edit
+button_delete = Delete
+button_cancel = Cancel
+button_back = Back
+
 # Dialog component.
 dialog_close = Close dialog
 

@@ -33,7 +33,7 @@ impl Component for AdminPasswordForm {
                     .with_password_label(Lc::t("field-new-password", &LOCALES_USER)),
             )
             .with_child(form_actions(
-                Lc::t("btn-save", &LOCALES_USER),
+                Button::save(),
                 cx.route(user_path(self.user_id(), "edit")),
             ));
 

@@ -259,12 +259,8 @@ help-admin-roles =
 
 # **< Admin: buttons and links >**
 
-btn-save               = Save
 btn-create-user        = New user
 btn-create-role        = New role
-btn-delete             = Delete
-btn-cancel             = Cancel
-btn-edit               = Edit
 btn-manage-permissions = Manage permissions
 btn-reset-password     = Reset password
 btn-block              = Block
@@ -275,7 +271,6 @@ btn-allow-linking        = Allow linking with { $provider }
 btn-cancel-linking       = Do not link with { $provider }
 btn-grant-admin        = Grant administrator
 btn-revoke-admin       = Revoke administrator
-link-back              = Back
 
 # **< Admin: confirmations and badges >**
 

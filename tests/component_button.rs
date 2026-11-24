@@ -162,6 +162,75 @@ async fn anchor_blank_opens_in_a_new_window() {
     assert!(!html.contains("rel="));
 }
 
+// The save button of a form: a translated submit button with the primary style.
+#[pagetop::test]
+async fn save_is_a_translated_primary_submit_button() {
+    for (language, text) in [("en-US", "Save"), ("es-ES", "Guardar")] {
+        let mut cx = Context::default().with_langid(&Locale::resolve(language));
+        let html = Button::save().render(&mut cx).await.into_string();
+        assert!(html.starts_with("<button"), "{html}");
+        assert!(html.contains(r#"type="submit""#), "{html}");
+        assert!(html.contains("button-primary"), "{html}");
+        assert!(html.contains(text), "{language}: {html}");
+    }
+}
+
+// Edit is a translated primary link; delete a translated severe plain button, without a link.
+#[pagetop::test]
+async fn edit_is_a_link_and_delete_a_plain_button() {
+    for (language, edit, delete) in [("en-US", "Edit", "Delete"), ("es-ES", "Editar", "Eliminar")] {
+        let mut cx = Context::default().with_langid(&Locale::resolve(language));
+        let html = Button::edit("/items/1/edit")
+            .render(&mut cx)
+            .await
+            .into_string();
+        assert!(html.starts_with("<a "), "{html}");
+        assert!(html.contains(r#"href="/items/1/edit"#), "{html}");
+        assert!(html.contains("button-primary"), "{html}");
+        assert!(html.contains(edit), "{language}: {html}");
+
+        let html = Button::delete().render(&mut cx).await.into_string();
+        assert!(html.starts_with("<button"), "{html}");
+        assert!(html.contains(r#"type="button""#), "{html}");
+        assert!(!html.contains("href"), "{html}");
+        assert!(html.contains("button-severe"), "{html}");
+        assert!(html.contains(delete), "{language}: {html}");
+    }
+}
+
+// The cancel button of a dialog: a translated plain button that closes it, not a link.
+#[pagetop::test]
+async fn dismiss_is_a_plain_button_that_closes_the_dialog() {
+    for (language, text) in [("en-US", "Cancel"), ("es-ES", "Cancelar")] {
+        let mut cx = Context::default().with_langid(&Locale::resolve(language));
+        let html = Button::dismiss().render(&mut cx).await.into_string();
+        assert!(html.starts_with("<button"), "{html}");
+        assert!(html.contains(r#"type="button""#), "{html}");
+        assert!(html.contains(r#"data-dialog-dismiss="modal""#), "{html}");
+        assert!(!html.contains("href"), "{html}");
+        assert!(html.contains("button-outline-neutral"), "{html}");
+        assert!(html.contains(text), "{language}: {html}");
+    }
+}
+
+// The links to leave a form or a detail page: a translated text and the link style.
+#[pagetop::test]
+async fn cancel_and_back_are_translated_links() {
+    for (language, cancel, back) in [("en-US", "Cancel", "Back"), ("es-ES", "Cancelar", "Volver")] {
+        let mut cx = Context::default().with_langid(&Locale::resolve(language));
+        for (mut button, text) in [
+            (Button::cancel("/items"), cancel),
+            (Button::back("/items"), back),
+        ] {
+            let html = button.render(&mut cx).await.into_string();
+            assert!(html.starts_with("<a "), "{html}");
+            assert!(html.contains(r#"href="/items"#), "{html}");
+            assert!(html.contains("button-link"), "{html}");
+            assert!(html.contains(text), "{language}: {html}");
+        }
+    }
+}
+
 // A disabled `<a>` has no native equivalent to `:disabled` that CSS can hook into, unlike a
 // `<button disabled>`; the `disabled` class is what both Basic (`.button.disabled`) and Bootsier
 // (Bootstrap's own `.btn.disabled`) actually style.

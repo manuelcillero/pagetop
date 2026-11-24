@@ -2,12 +2,16 @@ use crate::prelude::*;
 
 /// Componente para crear un **botón**.
 ///
-/// Renderiza un botón con soporte para las variantes:
+/// Un botón puede usarse dentro o fuera de un formulario. Se crea con uno de los constructores
+/// **básicos**, que reciben el texto, o con uno de los botones **habituales**, que ya traen el
+/// texto traducido y el estilo de su función.
 ///
-/// - [`Button::submit()`]: botón de envío (por defecto).
-/// - [`Button::reset()`]: botón de restablecimiento de valores.
-/// - [`Button::plain()`]: botón genérico sin comportamiento predeterminado.
-/// - [`Button::anchor()`]: enlace de navegación real con el aspecto de un botón.
+/// # Constructores básicos
+///
+/// - [`Button::submit()`]: botón de envío (`type="submit"`).
+/// - [`Button::reset()`]: botón de restablecimiento de valores (`type="reset"`).
+/// - [`Button::plain()`]: botón genérico sin comportamiento predeterminado (`type="button"`).
+/// - [`Button::anchor()`]: enlace de navegación real (`<a href=...>`) con el aspecto de un botón.
 /// - [`Button::anchor_blank()`]: igual, pero se abre en una nueva ventana o pestaña.
 ///
 /// No confundir [`Button::anchor()`] con [`button::Style::Link`]: el primero renderiza un `<a
@@ -15,23 +19,50 @@ use crate::prelude::*;
 /// aplica con [`with_style()`](Self::with_style) sobre cualquiera de las otras variantes, que
 /// siguen siendo un `<button>`.
 ///
-/// Un botón puede usarse dentro o fuera de un formulario.
+/// # Botones habituales
 ///
-/// # Ejemplo
+/// Las acciones que se repiten en casi cualquier aplicación tienen su propio constructor, para que
+/// todas las pantallas usen el mismo texto (traducido por PageTop) y el mismo estilo:
+///
+/// | Constructor                   | Elemento                 | Texto             | Estilo             | Para qué                                    |
+/// |-------------------------------|--------------------------|-------------------|--------------------|---------------------------------------------|
+/// | [`Button::save()`]            | `<button type="submit">` | «Guardar»         | `Solid(Primary)`   | Enviar un formulario.                       |
+/// | [`Button::save_and_new()`]    | `<button type="submit">` | «Guardar y nuevo» | `Outline(Primary)` | Guardar y crear otro registro.              |
+/// | [`Button::edit()`]            | `<a href>`               | «Editar»          | `Solid(Primary)`   | Ir al formulario de edición de un registro. |
+/// | [`Button::delete()`]          | `<button type="button">` | «Eliminar»        | `Solid(Severe)`    | Borrar un registro, tras confirmarlo.       |
+/// | [`Button::dismiss()`]         | `<button type="button">` | «Cancelar»        | `Outline(Neutral)` | Cerrar un [`Dialog`] sin hacer nada.        |
+/// | [`Button::cancel()`]          | `<a href>`               | «Cancelar»        | `Link`             | Salir de un formulario sin guardar.         |
+/// | [`Button::back()`]            | `<a href>`               | «Volver»          | `Link`             | Salir de una ficha de sólo lectura.         |
+///
+/// Siguen siendo un `Button` como cualquier otro, así que se pueden ajustar después (tamaño,
+/// icono, atributos...). Para un texto distinto se usa el constructor básico correspondiente.
+///
+/// # Ejemplos
 ///
 /// ```rust,no_run
 /// use pagetop::prelude::*;
 ///
-/// let save   = Button::submit(Lc::n("Save"));
-/// let cancel = Button::plain(Lc::n("Cancel"));
-/// let clear  = Button::reset(Lc::n("Clear"));
-/// let edit   = Button::anchor(Lc::n("Edit"), "/items/1/edit");
+/// let send  = Button::submit(Lc::n("Send"));
+/// let clear = Button::reset(Lc::n("Clear"));
+/// let docs  = Button::anchor_blank(Lc::n("Documentation"), "https://docs.rs/pagetop");
 ///
 /// // Con un icono al principio o al final de la etiqueta, o sólo con el icono.
 /// let add   = Button::plain(Lc::n("Add")).with_icon_start(Icon::with(icon::Core::Plus));
 /// let next  = Button::plain(Lc::n("Next")).with_icon_end(Icon::with(icon::Core::ChevronRight));
 /// let close = Button::plain(Lc::none())
 ///     .with_icon_start(Icon::with(icon::Core::Close).with_label(Lc::n("Close")));
+///
+/// // Botones habituales: la fila de acciones de un formulario de alta...
+/// let actions = Flex::new()
+///     .with_wrap(flex::Behavior::Wrap)
+///     .with_align(align::Items::Center)
+///     .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+///     .with_child(Button::save())
+///     .with_child(Button::save_and_new())
+///     .with_child(Button::cancel("/items"));
+///
+/// // ... y el botón de editar de una fila de una tabla.
+/// let edit = Button::edit("/items/1/edit").with_size(button::Size::Small);
 /// ```
 ///
 /// Cuando el botón activa el envío, el navegador incluye el par `name=value` en los datos del
@@ -45,6 +76,9 @@ use crate::prelude::*;
 ///     action: Option<String>, // p. ej., "save" o "delete"; `None` si el botón no tenía `name`.
 /// }
 /// ```
+///
+/// [`Button::save_and_new()`] ya lo resuelve así para el caso de «Guardar y nuevo», con
+/// [`button::SaveAndNew`] en el servidor.
 #[derive(AutoDefault, Clone, Debug, Getters)]
 pub struct Button {
     /// Devuelve identificador, clases CSS, atributos HTML y valores extra del componente.
@@ -244,6 +278,140 @@ impl Button {
             blank: true,
             ..Self::anchor(label, route)
         }
+    }
+
+    /// Crea el botón **«Guardar»** que envía un formulario.
+    ///
+    /// Es un [`Button::submit()`] con el texto traducido de PageTop y el estilo
+    /// [`button::Style::Solid`] con [`Intent::Primary`]: la acción principal del formulario. Para
+    /// otro texto («Enviar», «Aplicar cambios»...) se usa [`Button::submit()`] con el estilo que
+    /// convenga.
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let form = Form::new()
+    ///     .with_action("/items/new")
+    ///     .with_child(form::input::Field::text().with_name("name"))
+    ///     .with_child(Button::save());
+    /// ```
+    pub fn save() -> Self {
+        Self::submit(Lc::l("button_save")).with_style(button::Style::Solid(Intent::Primary))
+    }
+
+    /// Crea el botón **«Guardar y nuevo»** de un formulario de alta.
+    ///
+    /// Se coloca junto a [`Button::save()`] para guardar el registro y volver a un formulario vacío
+    /// en vez de al listado, cuando se van a crear varios seguidos. Es un [`Button::submit()`] con
+    /// el texto traducido de PageTop y el estilo [`button::Style::Outline`] con
+    /// [`Intent::Primary`], para que destaque menos que «Guardar».
+    ///
+    /// Al pulsarlo envía un campo que reconoce [`button::SaveAndNew`]: con él, el servidor sabe qué
+    /// botón se pulsó y puede mostrar el aviso de [`SaveAndNew::notice()`]. La documentación de
+    /// [`button::SaveAndNew`] tiene un ejemplo completo. No tiene sentido en un formulario de
+    /// edición.
+    ///
+    /// [`SaveAndNew::notice()`]: button::SaveAndNew::notice
+    pub fn save_and_new() -> Self {
+        Self::submit(Lc::l("button_save_and_new"))
+            .with_name("save_and_new")
+            .with_value("1")
+            .with_style(button::Style::Outline(Intent::Primary))
+    }
+
+    /// Crea el enlace **«Editar»** que lleva al formulario de edición de un registro.
+    ///
+    /// Es un [`Button::anchor()`] a `route` con el texto traducido de PageTop y el estilo
+    /// [`button::Style::Solid`] con [`Intent::Primary`]. Como cualquier enlace, no se renderiza si
+    /// el usuario no puede acceder a la ruta (ver [`Endpoint`]). En una fila de una tabla suele
+    /// usarse en tamaño pequeño:
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let edit = Button::edit("/items/1/edit").with_size(button::Size::Small);
+    /// ```
+    pub fn edit(route: impl Into<Route>) -> Self {
+        Self::anchor(Lc::l("button_edit"), route).with_style(button::Style::Solid(Intent::Primary))
+    }
+
+    /// Crea el botón **«Eliminar»** de un registro.
+    ///
+    /// Es un [`Button::plain()`] (`type="button"`) con el texto traducido de PageTop y el estilo
+    /// [`button::Style::Solid`] con [`Intent::Severe`]. No lleva ruta ni hace nada por sí mismo:
+    /// quien lo usa le añade la petición que borra y la confirmación previa, por ejemplo con HTMX o
+    /// abriendo un [`Dialog`]. Es un botón y no un enlace porque borrar nunca debe hacerse con una
+    /// petición `GET`.
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let delete = Button::delete()
+    ///     .with_prop(PropsOp::set("hx-post", "/items/1/delete"))
+    ///     .with_prop(PropsOp::set("hx-confirm", "Delete the record?"));
+    /// ```
+    pub fn delete() -> Self {
+        Self::plain(Lc::l("button_delete")).with_style(button::Style::Solid(Intent::Severe))
+    }
+
+    /// Crea el botón **«Cancelar»** que cierra un [`Dialog`] sin hacer nada.
+    ///
+    /// Es un [`Button::plain()`] (`type="button"`) con el texto traducido de PageTop, el estilo
+    /// [`button::Style::Outline`] con [`Intent::Neutral`] y el atributo
+    /// `data-dialog-dismiss="modal"`, que es el que cierra el diálogo (y que cada tema adapta a su
+    /// propio vocabulario). Se coloca en el pie del diálogo, junto al botón que confirma:
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let dialog = Dialog::new()
+    ///     .with_id("confirm-delete")
+    ///     .with_child(Html::with(|_| html! { p { "Delete the record?" } }))
+    ///     .with_footer(Button::dismiss())
+    ///     .with_footer(
+    ///         Button::delete()
+    ///             .with_prop(PropsOp::set("hx-post", "/items/1/delete"))
+    ///             .with_prop(PropsOp::set("data-dialog-dismiss", "modal")),
+    ///     );
+    /// ```
+    ///
+    /// Para salir de un formulario hacia otra página se usa [`Button::cancel()`], que es un enlace.
+    pub fn dismiss() -> Self {
+        Self::plain(Lc::l("button_cancel"))
+            .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
+            .with_style(button::Style::Outline(Intent::Neutral))
+    }
+
+    /// Crea el enlace **«Cancelar»** para salir de un formulario sin guardar.
+    ///
+    /// Es un [`Button::anchor()`] a `route` con el texto traducido de PageTop y el estilo
+    /// [`button::Style::Link`]. Se coloca junto al botón de envío, y `route` suele ser el listado o
+    /// la ficha de la que se vino:
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let actions = Flex::new()
+    ///     .with_wrap(flex::Behavior::Wrap)
+    ///     .with_align(align::Items::Center)
+    ///     .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+    ///     .with_child(Button::save())
+    ///     .with_child(Button::cancel("/items"));
+    /// ```
+    ///
+    /// Para cerrar un [`Dialog`] se usa [`Button::dismiss()`], que tiene el mismo texto pero no
+    /// navega.
+    pub fn cancel(route: impl Into<Route>) -> Self {
+        Self::anchor(Lc::l("button_cancel"), route).with_style(button::Style::Link)
+    }
+
+    /// Crea el enlace **«Volver»** para salir de una ficha o pantalla de sólo lectura.
+    ///
+    /// Es un [`Button::anchor()`] a `route` con el texto traducido de PageTop y el estilo
+    /// [`button::Style::Link`]. Un formulario usa [`Button::cancel()`] en su lugar, que deja claro
+    /// que no se guarda nada.
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let back = Button::back("/items");
+    /// ```
+    pub fn back(route: impl Into<Route>) -> Self {
+        Self::anchor(Lc::l("button_back"), route).with_style(button::Style::Link)
     }
 
     // **< Button BUILDER >*************************************************************************

@@ -1,6 +1,15 @@
 # Breadcrumb component.
 breadcrumb_label = Ruta de navegación
 
+# Button component.
+button_save = Guardar
+button_save_and_new = Guardar y nuevo
+button_save_and_new_notice = Guardado. Puedes crear otro registro.
+button_edit = Editar
+button_delete = Eliminar
+button_cancel = Cancelar
+button_back = Volver
+
 # Dialog component.
 dialog_close = Cerrar diálogo
 

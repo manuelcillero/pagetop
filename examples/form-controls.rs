@@ -326,11 +326,7 @@ async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                         .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
                                         .with_style(button::Style::Solid(Intent::Primary)),
                                 )
-                                .with_footer(
-                                    Button::plain(Lc::t("btn_cancel", &LOC))
-                                        .with_prop(PropsOp::set("data-dialog-dismiss", "modal"))
-                                        .with_style(button::Style::Outline(Intent::Neutral)),
-                                ),
+                                .with_footer(Button::dismiss()),
                         )
                         .with_child(
                             Button::plain(Lc::t("btn_delete", &LOC))

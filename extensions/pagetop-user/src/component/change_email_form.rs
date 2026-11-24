@@ -57,7 +57,8 @@ impl Component for ChangeEmailForm {
                     .with_required(true),
             )
             .with_child(profile_form_actions(
-                Lc::t("btn-change-email", &LOCALES_USER),
+                Button::submit(Lc::t("btn-change-email", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Primary)),
                 cx,
             ));
 

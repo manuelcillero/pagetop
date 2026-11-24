@@ -37,7 +37,8 @@ impl Component for ChangePasswordForm {
                     .with_password_label(Lc::t("field-new-password", &LOCALES_USER)),
             )
             .with_child(profile_form_actions(
-                Lc::t("btn-set-password", &LOCALES_USER),
+                Button::submit(Lc::t("btn-set-password", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Primary)),
                 cx,
             ));
 

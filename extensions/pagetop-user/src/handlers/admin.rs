@@ -66,8 +66,3 @@ pub(crate) fn map_auth_error(err: &AuthError) -> Lc {
         _ => Lc::t("error-internal", &LOCALES_USER),
     }
 }
-
-// Enlace para salir de una ficha de sólo lectura. Los formularios tienen `form_actions()`.
-pub(crate) fn back_link(route: impl Into<Route>) -> Button {
-    Button::anchor(Lc::t("link-back", &LOCALES_USER), route).with_style(button::Style::Link)
-}

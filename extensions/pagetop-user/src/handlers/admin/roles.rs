@@ -12,7 +12,7 @@ use crate::component::admin::{
 };
 use crate::config;
 use crate::entity::role;
-use crate::handlers::admin::{back_link, map_auth_error};
+use crate::handlers::admin::map_auth_error;
 use crate::permission::UserPermission;
 use crate::role_path;
 use crate::service::role_admin::{self, RolePageParams, RoleSortField};
@@ -255,7 +255,7 @@ pub(crate) async fn view_get(
     }
 
     Ok(page
-        .with_child(back_link(back_href))
+        .with_child(Button::back(back_href))
         .render()
         .await
         .into_response())
@@ -411,7 +411,7 @@ pub(crate) async fn delete_confirm_get(
         .alter_param("page", query.page.unwrap_or(1).max(1).to_string())
         .to_string();
 
-    let mut button = Button::plain(Lc::t("btn-delete", &LOCALES_USER))
+    let mut button = Button::delete()
         .with_prop(PropsOp::set(hx::POST, delete_href))
         .with_prop(PropsOp::set(hx::TARGET, "#role-table-wrapper"))
         .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))

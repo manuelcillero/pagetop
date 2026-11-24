@@ -79,15 +79,6 @@
   }
 }
 
-// Button set (button::ButtonSet): spaces its buttons with a gap instead of relying on Bootstrap's
-// .btn-group, which merges adjacent buttons into a single joined control.
-.button-set {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacer * .5;
-  margin: 1rem 0;
-}
-
 // Space below each block (Block), from Bootstrap's spacing unit, so consecutive blocks (and what
 // follows them) do not sit right together. Twice $spacer, as the 2rem of the Basic theme.
 .block {

@@ -85,7 +85,7 @@ impl Component for RoleForm {
             );
 
         form = form.with_child(form_actions(
-            Lc::t("btn-save", &LOCALES_USER),
+            Button::save(),
             cx.route(ADMIN_ROLES_PATH.as_str()),
         ));
 

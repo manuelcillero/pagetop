@@ -216,7 +216,7 @@ impl Component for UserForm {
 
         // En modo `Edit`, "Guardar" y "Cancelar" se renderizan fuera del formulario, junto al resto
         // de acciones de la pantalla (ver `USER_ADMIN_FORM_ID`).
-        let save = Lc::t("btn-save", &LOCALES_USER);
+        let save = Button::save();
         match self.mode() {
             UserFormMode::Edit => {}
             UserFormMode::Profile => {

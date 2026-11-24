@@ -187,8 +187,7 @@ async fn actions_cell(user: &UserListItem, viewer_is_admin: bool, cx: &mut Conte
     // El botón se renderiza aquí, no dentro del `Html::with()` de abajo: necesita pasar por su
     // propio ciclo de renderizado (`.render().await`) para que el tema activo lo estilice igual
     // que el resto de acciones (ver `pagetop-bootsier::theme::bs::button`).
-    let edit_button = Button::anchor(Lc::t("btn-edit", &LOCALES_USER), edit_href)
-        .with_style(button::Style::Solid(Intent::Primary))
+    let edit_button = Button::edit(edit_href)
         .with_size(button::Size::Small)
         .render(cx)
         .await;

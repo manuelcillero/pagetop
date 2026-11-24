@@ -87,24 +87,19 @@ pub(crate) fn error_banner(error: Option<Lc>) -> Html {
     })
 }
 
-// Enlace para salir de un formulario sin guardar.
-pub(crate) fn cancel_link(route: impl Into<Route>) -> Button {
-    Button::anchor(Lc::t("btn-cancel", &LOCALES_USER), route).with_style(button::Style::Link)
-}
-
 // Botonera de un formulario: el botón de envío y, en la misma fila, el enlace para salir sin
 // guardar.
-pub(crate) fn form_actions(submit: Lc, cancel: impl Into<Route>) -> Flex {
+pub(crate) fn form_actions(submit: Button, cancel: impl Into<Route>) -> Flex {
     Flex::new()
         .with_wrap(flex::Behavior::Wrap)
         .with_align(align::Items::Center)
         .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
-        .with_child(Button::submit(submit).with_style(button::Style::Solid(Intent::Primary)))
-        .with_child(cancel_link(cancel))
+        .with_child(submit)
+        .with_child(Button::cancel(cancel))
 }
 
 // Botonera de los formularios del perfil propio, que al cancelar vuelven al perfil.
-pub(crate) fn profile_form_actions(submit: Lc, cx: &Context) -> Flex {
+pub(crate) fn profile_form_actions(submit: Button, cx: &Context) -> Flex {
     form_actions(submit, cx.route(PROFILE_PATH))
 }
 

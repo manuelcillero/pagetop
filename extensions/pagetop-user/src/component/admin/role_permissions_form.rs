@@ -5,7 +5,6 @@
 use pagetop::prelude::*;
 
 use crate::ADMIN_ROLES_PATH;
-use crate::LOCALES_USER;
 use crate::component::form_actions;
 use crate::role_path;
 
@@ -53,7 +52,7 @@ impl Component for RolePermissionsForm {
         }
 
         form = form.with_child(form_actions(
-            Lc::t("btn-save", &LOCALES_USER),
+            Button::save(),
             cx.route(ADMIN_ROLES_PATH.as_str()),
         ));
 

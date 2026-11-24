@@ -12,12 +12,12 @@ use crate::actions::AdminUserFormExtras;
 use crate::component::admin::{
     AdminPasswordForm, USER_ADMIN_FORM_ID, UserForm, UserFormMode, UserTable,
 };
-use crate::component::{cancel_link, user_details};
+use crate::component::user_details;
 use crate::config;
 use crate::entity::{role, user};
 use crate::error::AuthError;
 use crate::handlers::account::managed_or;
-use crate::handlers::admin::{back_link, map_auth_error};
+use crate::handlers::admin::map_auth_error;
 use crate::mail::{Notice, send_notice};
 use crate::password;
 use crate::permission::UserPermission;
@@ -500,12 +500,8 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     }
 
     container
-        .with_child(
-            Button::submit(Lc::t("btn-save", &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Primary))
-                .with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)),
-        )
-        .with_child(cancel_link(cx.route(ADMIN_USERS_PATH.as_str())))
+        .with_child(Button::save().with_prop(PropsOp::set("form", USER_ADMIN_FORM_ID)))
+        .with_child(Button::cancel(cx.route(ADMIN_USERS_PATH.as_str())))
 }
 
 /// GET /admin/user/users/{id}/edit - Formulario de edición de usuario.
@@ -636,7 +632,7 @@ pub(crate) async fn view_get(
         .with_child(details_block)
         .with_child(roles_block)
         .with_child(ChildOp::AddMany(AdminUserFormExtras::collect(id)))
-        .with_child(back_link(back_href))
+        .with_child(Button::back(back_href))
         .render()
         .await
         .into_response())

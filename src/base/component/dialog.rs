@@ -13,7 +13,8 @@ use crate::prelude::*;
 /// - `data-dialog-toggle="modal"` más `data-dialog-target="#id"` en el `Button` que abre el
 ///   diálogo.
 /// - `data-dialog-dismiss="modal"` en cualquier `Button` que deba cerrarlo (el botón de cierre de
-///   la cabecera ya lo lleva).
+///   la cabecera ya lo lleva). [`Button::dismiss()`] crea el botón «Cancelar» habitual con ese
+///   atributo, y se puede añadir a cualquier otro que deba cerrar el diálogo al pulsarlo.
 ///
 /// Sólo en los componentes `Button` **podrán renombrarse automáticamente estos atributos al
 /// vocabulario propio de cada tema**; cualquier otro elemento deberá usar directamente el nombre
@@ -31,12 +32,14 @@ use crate::prelude::*;
 ///     .with_child(
 ///         Html::with(|_| html! { p { "Are you sure you want to delete this record?" } })
 ///     )
+///     .with_footer(Button::dismiss())
 ///     .with_footer(
-///         Button::plain(Lc::n("Cancel")).with_prop(PropsOp::set("data-dialog-dismiss", "modal")),
-///     )
-///     .with_footer(Button::submit(Lc::n("Delete")));
+///         Button::delete()
+///             .with_prop(PropsOp::set("hx-post", "/items/1/delete"))
+///             .with_prop(PropsOp::set("data-dialog-dismiss", "modal")),
+///     );
 ///
-/// let opener = Button::plain(Lc::n("Delete"))
+/// let opener = Button::delete()
 ///     .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
 ///     .with_prop(PropsOp::set("data-dialog-target", "#confirm-delete"));
 /// ```
