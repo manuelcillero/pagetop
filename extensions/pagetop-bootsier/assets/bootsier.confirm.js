@@ -5,7 +5,7 @@
     // would issue a request carries `hx-confirm`. Intercepting it here upgrades every
     // `hx-confirm` in the project to a Bootstrap modal, without touching the element that
     // requested it or the request itself: cancelling is a no-op, confirming resumes the exact
-    // same request via `evt.detail.issueRequest(true)`.
+    // same request via `event.detail.issueRequest(true)`.
     if (typeof bootstrap === 'undefined' || !bootstrap.Modal) { return; }
 
     var modalEl = null;
@@ -40,10 +40,10 @@
         acceptBtn.textContent = okLabel;
 
         acceptBtn.addEventListener('click', function () {
-            var evt = pendingEvent;
+            var pending = pendingEvent;
             pendingEvent = null;
             bootstrap.Modal.getInstance(modalEl).hide();
-            if (evt) { evt.detail.issueRequest(true); }
+            if (pending) { pending.detail.issueRequest(true); }
         });
 
         modalEl.addEventListener('hidden.bs.modal', function () {
@@ -51,12 +51,14 @@
         });
     }
 
-    document.addEventListener('htmx:confirm', function (evt) {
-        if (!evt.detail.question) { return; }
-        evt.preventDefault();
+    document.addEventListener('htmx:confirm', function (event) {
+        // Already handled by someone else, such as the shared dialog of `pagetop-htmx`
+        // (`hx_confirm`), which listens in the capture phase.
+        if (!event.detail.question || event.defaultPrevented) { return; }
+        event.preventDefault();
         ensureModal();
-        questionEl.textContent = evt.detail.question;
-        pendingEvent = evt;
+        questionEl.textContent = event.detail.question;
+        pendingEvent = event;
         bootstrap.Modal.getOrCreateInstance(modalEl).show();
     });
 }());

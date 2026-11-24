@@ -48,9 +48,10 @@ impl Extension for MyApp {
 ```
 
 A partir de ese momento, todas las páginas de la aplicación incluirán automáticamente el script de
-HTMX 2, y las que tengan algún listado ([`ListView`]), unos pocos estilos que lo atenúan mientras
-se actualiza. Puedes usar los atributos `hx-*` directamente en tus componentes o el código HTML
-generado:
+HTMX 2; las que tengan algún listado ([`ListView`]), unos pocos estilos que lo atenúan mientras se
+actualiza; y las que tengan el diálogo de confirmación del borrado ([`hx_confirm`]), el script que lo
+conecta con los botones de cada fila. Puedes usar los atributos `hx-*` directamente en tus
+componentes o el código HTML generado:
 
 ```rust
 use pagetop::prelude::*;
@@ -94,6 +95,7 @@ use pagetop::prelude::*;
 include_locales!(LOCALES_HTMX);
 
 pub mod hx;
+pub mod hx_confirm;
 pub mod hx_filter;
 pub mod hx_pager;
 pub mod hx_select;
@@ -104,6 +106,7 @@ pub mod response;
 /// Prelude de `pagetop-htmx`.
 pub mod prelude {
     pub use crate::hx;
+    pub use crate::hx_confirm;
     pub use crate::hx_filter;
     pub use crate::hx_pager;
     pub use crate::hx_select;
@@ -116,9 +119,9 @@ pub mod prelude {
 ///
 /// Poner esta extensión en [`dependencies()`](pagetop::core::extension::Extension::dependencies)
 /// hace que todas las páginas de la aplicación incluyan automáticamente el script de HTMX mediante
-/// un atributo [`defer`](pagetop::html::JavaScript::defer), y las que tienen algún listado
-/// ([`ListView`]), los estilos con los que se atenúa mientras se actualiza. No es necesaria ninguna
-/// configuración adicional.
+/// un atributo [`defer`](pagetop::html::JavaScript::defer); las que tienen algún listado
+/// ([`ListView`]), los estilos con los que se atenúa mientras se actualiza; y las que tienen el
+/// diálogo de [`hx_confirm`], su script. No es necesaria ninguna configuración adicional.
 ///
 /// # Ejemplo
 ///
@@ -154,6 +157,7 @@ impl Extension for Htmx {
         actions![
             action::page::BeforeRenderBody::new(add_htmx_script),
             action::component::BeforeRender::<ListView>::new(add_list_loading_styles),
+            action::component::BeforeRender::<Dialog>::new(hx_confirm::add_confirm_script),
         ]
     }
 

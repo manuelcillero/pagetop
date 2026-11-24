@@ -14,5 +14,12 @@
         if (modal.parentElement !== document.body) {
             document.body.appendChild(modal);
         }
+        // Bootstrap focuses the modal itself when shown and ignores `autofocus`, which a native
+        // `<dialog>` honours (Basic): give the focus to the button that asks for it, such as
+        // "Cancel" in a confirmation, so both themes behave the same.
+        modal.addEventListener('shown.bs.modal', function () {
+            var autofocus = modal.querySelector('[autofocus]');
+            if (autofocus) { autofocus.focus(); }
+        });
     });
 }());

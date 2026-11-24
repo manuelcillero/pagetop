@@ -98,3 +98,83 @@ async fn list_helpers_cancel_overlapping_requests_and_mark_the_list_while_loadin
         assert!(html.contains(r##"hx-indicator="#item-list""##), "{html}");
     }
 }
+
+// **< hx_confirm >*********************************************************************************
+
+// The ids the script (`hx-confirm.js`) relies on.
+const DIALOG_TARGET: &str = r##"data-dialog-target="#hx-confirm-dialog""##;
+const QUESTION_ID: &str = "hx-confirm-dialog-question";
+
+#[pagetop::test]
+async fn confirm_opens_the_shared_dialog_with_the_question() {
+    let mut button = hx_confirm::confirm(
+        Button::delete()
+            .with_hidden_label(Lc::n("A1"))
+            .with_prop(PropsOp::set(hx::POST, "/plots/1/delete")),
+        "Delete the plot «A1»?",
+    );
+    let html = button.render(&mut Context::default()).await.into_string();
+
+    assert!(html.contains(r#"hx-post="/plots/1/delete""#), "{html}");
+    assert!(
+        html.contains(r#"hx-confirm="Delete the plot «A1»?""#),
+        "{html}"
+    );
+    assert!(html.contains(r#"data-hx-confirm="true""#), "{html}");
+    assert!(html.contains(r#"data-dialog-toggle="modal""#), "{html}");
+    assert!(html.contains(DIALOG_TARGET), "{html}");
+}
+
+#[pagetop::test]
+async fn confirm_escapes_the_question() {
+    let mut button = hx_confirm::confirm(Button::delete(), r#"Delete "<b>"?"#);
+    let html = button.render(&mut Context::default()).await.into_string();
+
+    assert!(
+        html.contains(r#"hx-confirm="Delete &quot;&lt;b&gt;&quot;?""#),
+        "{html}"
+    );
+}
+
+#[pagetop::test]
+async fn the_dialog_is_named_described_and_starts_on_cancel() {
+    for (language, title, cancel, delete) in [
+        ("en-US", "Confirm deletion", "Cancel", "Delete"),
+        ("es-ES", "Confirmar la eliminación", "Cancelar", "Eliminar"),
+    ] {
+        let mut cx = cx_with_lang(language);
+        let html = hx_confirm::dialog().render(&mut cx).await.into_string();
+
+        assert!(html.contains(r#"id="hx-confirm-dialog""#), "{html}");
+        assert!(
+            html.contains(r#"aria-labelledby="hx-confirm-dialog-label""#),
+            "{html}"
+        );
+        assert!(html.contains(title), "{language}: {html}");
+        assert!(
+            html.contains(&format!(r#"aria-describedby="{QUESTION_ID}""#)),
+            "{html}"
+        );
+        assert!(
+            html.contains(&format!(r#"<p id="{QUESTION_ID}"></p>"#)),
+            "{html}"
+        );
+
+        // Cancel comes first in the footer and takes the initial focus; accept closes the dialog.
+        let cancel_at = html.find(cancel).expect(&html);
+        let delete_at = html.rfind(delete).expect(&html);
+        assert!(cancel_at < delete_at, "{html}");
+        let footer = &html[html.find("dialog-footer").expect(&html)..];
+        let first_button = &footer[..footer.find("</button>").expect(footer)];
+        assert!(first_button.contains("autofocus"), "{first_button}");
+        assert!(
+            footer.contains(r#"data-hx-confirm-accept="true""#),
+            "{footer}"
+        );
+        assert_eq!(
+            footer.matches(r#"data-dialog-dismiss="modal""#).count(),
+            2,
+            "{footer}"
+        );
+    }
+}
