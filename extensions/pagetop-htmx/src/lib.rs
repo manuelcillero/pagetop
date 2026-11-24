@@ -96,6 +96,7 @@ include_locales!(LOCALES_HTMX);
 pub mod hx;
 pub mod hx_filter;
 pub mod hx_pager;
+pub mod hx_select;
 pub mod hx_table;
 pub mod request;
 pub mod response;
@@ -105,6 +106,7 @@ pub mod prelude {
     pub use crate::hx;
     pub use crate::hx_filter;
     pub use crate::hx_pager;
+    pub use crate::hx_select;
     pub use crate::hx_table;
     pub use crate::request::HtmxRequestExt;
     pub use crate::response::HtmxResponse;

@@ -226,10 +226,7 @@ impl Component for Field {
     }
 
     fn setup(&mut self, _cx: &mut Context) {
-        if let Some(container_id) = self
-            .id()
-            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
-        {
+        if let Some(container_id) = self.container_id() {
             self.alter_prop(PropsOp::ensure_id(container_id));
         }
 
@@ -238,8 +235,7 @@ impl Component for Field {
     }
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
-        let container_id = self.id();
-        let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
+        let select_id = self.select_id();
         let help = form::parts::Help::new(self.help_text(), select_id.as_deref());
         let label = form::parts::Label::new(self.label(), select_id.as_deref())
             .with_required(*self.required());
@@ -408,5 +404,32 @@ impl Field {
     pub fn with_disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
+    }
+
+    // **< Field GETTERS >**************************************************************************
+
+    /// Devuelve el identificador que tendrá el elemento `<select>` al renderizarse.
+    ///
+    /// El campo se pinta como un contenedor con el identificador del componente (o, sin él,
+    /// `edit-{name}`) y, dentro, el `<select>` con ese mismo identificador terminado en `-select`.
+    /// Sirve para apuntar al `<select>` desde fuera del campo, por ejemplo para sustituir sus
+    /// opciones con HTMX, sin repetir esa convención. Devuelve `None` si el campo no tiene ni
+    /// identificador ni nombre.
+    ///
+    /// ```rust
+    /// # use pagetop::prelude::*;
+    /// let field = form::select::Field::new().with_name("country");
+    /// assert_eq!(field.select_id().as_deref(), Some("edit-country-select"));
+    /// ```
+    pub fn select_id(&self) -> Option<String> {
+        self.container_id().map(|id| util::join!(id, "-select"))
+    }
+
+    // **< Field PRIVATE >**************************************************************************
+
+    // Identificador del contenedor: el propio del componente o, sin él, `edit-{name}`.
+    fn container_id(&self) -> Option<String> {
+        self.id()
+            .or_else(|| self.name().as_deref().map(|n| util::join!("edit-", n)))
     }
 }

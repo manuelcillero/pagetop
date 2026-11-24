@@ -17,6 +17,7 @@ authors.workspace = true
 
 [dependencies]
 pagetop.workspace = true
+serde.workspace = true
 serde_json.workspace = true
 
 [build-dependencies]

@@ -2244,6 +2244,7 @@ version = "0.1.0"
 dependencies = [
  "pagetop",
  "pagetop-build",
+ "serde",
  "serde_json",
 ]
 
