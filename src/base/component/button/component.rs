@@ -97,6 +97,8 @@ pub struct Button {
     value: AttrValue,
     /// Devuelve la etiqueta del botón.
     label: Lc,
+    /// Devuelve el texto que completa la etiqueta sólo para los lectores de pantalla.
+    hidden_label: Lc,
     /// Devuelve el icono al principio del botón, antes de la etiqueta (si lo hay).
     icon_start: Embed<Icon>,
     /// Devuelve el icono al final del botón, después de la etiqueta (si lo hay).
@@ -162,6 +164,18 @@ impl Component for Button {
         // Sin iconos, el contenido es la etiqueta tal cual. Con alguno, un espacio separa cada
         // pieza de la siguiente, sólo si las dos tienen contenido.
         let label = self.label().using(cx);
+        // El texto oculto va justo detrás de la etiqueta, antes del icono final: así el nombre
+        // accesible contiene la etiqueta tal como se ve, y el espacio que los separa no se ve.
+        let label = match self
+            .hidden_label()
+            .lookup(cx)
+            .filter(|hidden| !hidden.is_empty())
+        {
+            Some(hidden) => html! {
+                (label) span class="visually-hidden" { " " (hidden) }
+            },
+            None => label,
+        };
         let content = if self.icon_start().get().is_none() && self.icon_end().get().is_none() {
             label
         } else {
@@ -323,11 +337,14 @@ impl Button {
     /// Es un [`Button::anchor()`] a `route` con el texto traducido de PageTop y el estilo
     /// [`button::Style::Solid`] con [`Intent::Primary`]. Como cualquier enlace, no se renderiza si
     /// el usuario no puede acceder a la ruta (ver [`Endpoint`]). En una fila de una tabla suele
-    /// usarse en tamaño pequeño:
+    /// usarse en tamaño pequeño y con el nombre del registro para los lectores de pantalla (ver
+    /// [`with_hidden_label()`](Self::with_hidden_label)):
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let edit = Button::edit("/items/1/edit").with_size(button::Size::Small);
+    /// let edit = Button::edit("/items/1/edit")
+    ///     .with_size(button::Size::Small)
+    ///     .with_hidden_label(Lc::n("Item 1"));
     /// ```
     pub fn edit(route: impl Into<Route>) -> Self {
         Self::anchor(Lc::l("button_edit"), route).with_style(button::Style::Solid(Intent::Primary))
@@ -337,15 +354,18 @@ impl Button {
     ///
     /// Es un [`Button::plain()`] (`type="button"`) con el texto traducido de PageTop y el estilo
     /// [`button::Style::Solid`] con [`Intent::Severe`]. No lleva ruta ni hace nada por sí mismo:
-    /// quien lo usa le añade la petición que borra y la confirmación previa, por ejemplo con HTMX o
-    /// abriendo un [`Dialog`]. Es un botón y no un enlace porque borrar nunca debe hacerse con una
-    /// petición `GET`.
+    /// quien lo usa le añade la petición que borra y la confirmación previa, por ejemplo con HTMX
+    /// (la extensión `pagetop-htmx` confirma en un [`Dialog`] compartido por todo el listado con su
+    /// módulo `hx_confirm`). Es un botón y no un enlace porque borrar nunca debe hacerse con una
+    /// petición `GET`. En una fila de una tabla, como [`Button::edit()`], conviene darle el nombre
+    /// del registro con [`with_hidden_label()`](Self::with_hidden_label):
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
     /// let delete = Button::delete()
+    ///     .with_hidden_label(Lc::n("Item 1"))
     ///     .with_prop(PropsOp::set("hx-post", "/items/1/delete"))
-    ///     .with_prop(PropsOp::set("hx-confirm", "Delete the record?"));
+    ///     .with_prop(PropsOp::set("hx-confirm", "Delete «Item 1»?"));
     /// ```
     pub fn delete() -> Self {
         Self::plain(Lc::l("button_delete")).with_style(button::Style::Solid(Intent::Severe))
@@ -467,6 +487,27 @@ impl Button {
     /// Establece la etiqueta visible del botón (usa [`Lc::none()`] para quitarla).
     pub fn with_label(mut self, label: Lc) -> Self {
         self.label = label;
+        self
+    }
+
+    /// Completa la etiqueta con un texto que sólo leen los lectores de pantalla (usa [`Lc::none()`]
+    /// para quitarlo).
+    ///
+    /// Sirve para los botones que se repiten con el mismo texto, como los de cada fila de una
+    /// tabla: un lector de pantalla no distingue un «Editar» de otro, pero sí «Editar
+    /// Administradores» de «Editar Editores». El texto se añade tras la etiqueta, separado por un
+    /// espacio, en un `<span class="visually-hidden">`, así que quien ve la pantalla sigue leyendo
+    /// sólo «Editar» y el nombre accesible contiene la etiqueta tal como se ve, como pide WCAG
+    /// (2.5.3, *Label in Name*).
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let edit = Button::edit("/roles/2/edit")
+    ///     .with_size(button::Size::Small)
+    ///     .with_hidden_label(Lc::n("Administradores"));
+    /// ```
+    pub fn with_hidden_label(mut self, label: Lc) -> Self {
+        self.hidden_label = label;
         self
     }
 

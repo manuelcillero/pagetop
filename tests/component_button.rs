@@ -46,6 +46,45 @@ async fn title_attribute_can_be_cleared_with_lc_none() {
     assert!(!html.contains("title="));
 }
 
+// The hidden label completes the visible one for screen readers, right after it and escaped.
+#[pagetop::test]
+async fn hidden_label_follows_the_visible_label() {
+    let mut button = Button::delete().with_hidden_label(Lc::n("<Admins>"));
+    let html = button.render(&mut Context::default()).await.into_string();
+
+    assert!(
+        html.contains(r#"Delete<span class="visually-hidden"> &lt;Admins&gt;</span></button>"#),
+        "{html}"
+    );
+}
+
+#[pagetop::test]
+async fn hidden_label_is_absent_by_default_and_when_empty() {
+    for mut button in [
+        Button::edit("/items/1/edit"),
+        Button::edit("/items/1/edit").with_hidden_label(Lc::n("")),
+        Button::edit("/items/1/edit")
+            .with_hidden_label(Lc::n("Item 1"))
+            .with_hidden_label(Lc::none()),
+    ] {
+        let html = button.render(&mut Context::default()).await.into_string();
+        assert!(!html.contains("visually-hidden"), "{html}");
+    }
+}
+
+// With icons, the hidden label stays attached to the label, before the end icon.
+#[pagetop::test]
+async fn hidden_label_goes_before_the_end_icon() {
+    let mut button = Button::plain(Lc::n("Next"))
+        .with_hidden_label(Lc::n("page"))
+        .with_icon_end(Icon::with(icon::Core::ChevronRight));
+    let html = button.render(&mut Context::default()).await.into_string();
+
+    let hidden = html.find("visually-hidden").expect(&html);
+    let icon = html.rfind("<svg").expect(&html);
+    assert!(hidden < icon, "{html}");
+}
+
 #[pagetop::test]
 async fn style_class_reflects_intent_and_style() {
     let mut button = Button::submit(Lc::n("Save")).with_style(button::Style::Solid(Intent::Severe));
