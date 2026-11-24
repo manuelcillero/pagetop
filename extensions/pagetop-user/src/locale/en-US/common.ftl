@@ -274,7 +274,7 @@ btn-revoke-admin       = Revoke administrator
 
 # **< Admin: confirmations and badges >**
 
-confirm-delete-role    = Delete this role? This cannot be undone.
+confirm-delete-role    = Delete the role "{ $name }"? This cannot be undone.
 confirm-change-status  = Change this account's status?
 confirm-grant-admin    = Grant unrestricted access to this account?
 confirm-revoke-admin   = Revoke this account's unrestricted access?

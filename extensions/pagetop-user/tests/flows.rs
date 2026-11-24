@@ -200,6 +200,7 @@ async fn account_flows() {
     anonymous_visitors_are_offered_to_sign_in(&client).await;
     user_and_role_lists_remember_their_state(&client).await;
     remembered_sessions_are_renewed_alongside_other_cookies(&client).await;
+    roles_are_deleted_after_confirming_in_the_shared_dialog(&client).await;
 }
 
 async fn registration_requires_confirming_the_address(client: &Client) {
@@ -935,4 +936,73 @@ async fn remembered_sessions_are_renewed_alongside_other_cookies(client: &Client
             && c.contains("Max-Age=")),
         "{cookies:?}"
     );
+}
+
+// Each row asks to confirm the deletion in the dialog shared by the whole page, naming the role in
+// the question and, for screen readers, in its buttons; the request goes straight to the deletion,
+// without the route that used to prepare the confirmation.
+async fn roles_are_deleted_after_confirming_in_the_shared_dialog(client: &Client) {
+    let admin = client.login("admin", "admin-password").await.unwrap();
+    let fields = form(&[("machine_name", "editors"), ("label", "Editors")]);
+    let created = client
+        .post("/admin/user/roles/new", &fields, Some(&admin))
+        .await;
+    assert_eq!(created.status, Status::SEE_OTHER);
+
+    let list = "/admin/user/roles?sort=label&dir=asc&page=1";
+    let page = client.get(list, Some(&admin)).await;
+    assert_eq!(page.status, Status::OK);
+    let body = &page.body;
+    assert_eq!(
+        body.matches(r#"id="hx-confirm-dialog""#).count(),
+        1,
+        "{body}"
+    );
+    assert!(
+        body.contains(
+            r#"hx-confirm="Delete the role &quot;Editors&quot;? This cannot be undone.""#
+        ),
+        "{body}"
+    );
+    assert!(
+        body.matches(r#"<span class="visually-hidden"> Editors</span>"#)
+            .count()
+            >= 3,
+        "{body}"
+    );
+
+    let start = body.find(r#"hx-post="/admin/user/roles/"#).expect(body) + 9;
+    let delete = &body[start..start + body[start..].find('"').unwrap()];
+    let delete = delete.replace("&amp;", "&");
+    // The row carries the list state, so the refreshed list keeps its order and page.
+    for param in ["sort=label", "dir=asc", "page=1"] {
+        assert!(delete.contains(param), "{delete}");
+    }
+    let id = delete
+        .trim_start_matches("/admin/user/roles/")
+        .split('/')
+        .next()
+        .unwrap();
+    let removed = client
+        .get(
+            &format!("/admin/user/roles/{id}/delete/confirm"),
+            Some(&admin),
+        )
+        .await;
+    assert_eq!(removed.status, Status::NOT_FOUND);
+
+    let request = web::test::TestRequest::post()
+        .uri(&delete)
+        .header("hx-request", "true")
+        .header("cookie", admin.as_str());
+    let reply = client.send(request).await;
+    assert_eq!(reply.status, Status::OK);
+    assert!(
+        reply.body.contains(r#"id="role-table-wrapper""#),
+        "{}",
+        reply.body
+    );
+    assert!(!reply.body.contains("Editors"), "{}", reply.body);
+    // The dialog stays in the page, out of the refreshed list.
+    assert!(!reply.body.contains("hx-confirm-dialog"), "{}", reply.body);
 }

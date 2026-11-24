@@ -570,10 +570,6 @@ impl Extension for User {
                 web::post(handlers::admin::roles::delete_post),
             )
             .admin_route(
-                &format!("{ADMIN_ROLES}/{{id}}/delete/confirm"),
-                web::get(handlers::admin::roles::delete_confirm_get),
-            )
-            .admin_route(
                 &format!("{ADMIN_ROLES}/{{id}}/permissions"),
                 web::get(handlers::admin::roles::permissions_get)
                     .post(handlers::admin::roles::permissions_post),

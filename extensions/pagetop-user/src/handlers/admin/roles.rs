@@ -8,13 +8,12 @@ use pagetop_htmx::prelude::*;
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
 use crate::component::admin::{
-    PermissionGroups, RoleForm, RoleFormMode, RolePermissionsForm, RoleTable, delete_dialog,
+    PermissionGroups, RoleForm, RoleFormMode, RolePermissionsForm, RoleTable,
 };
 use crate::config;
 use crate::entity::role;
 use crate::handlers::admin::map_auth_error;
 use crate::permission::UserPermission;
-use crate::role_path;
 use crate::service::role_admin::{self, RolePageParams, RoleSortField};
 
 #[derive(Deserialize)]
@@ -62,7 +61,7 @@ pub(crate) async fn list_get(
         Ok(Page::admin(request)
             .with_title(title)
             .with_child(table)
-            .with_child(delete_dialog())
+            .with_child(hx_confirm::dialog())
             .render()
             .await
             .into_response())
@@ -336,8 +335,8 @@ fn role_view_permissions(groups: &PermissionGroups) -> Vec<Block> {
 /// POST /admin/user/roles/{id}/delete - Elimina un rol (rechazado si está bloqueado o en uso).
 ///
 /// Vuelve a mostrar la página/orden indicados en `sort`/`dir`/`page` (propagados desde la fila que
-/// inició el borrado, ver `delete_confirm_get`), tanto si el borrado tiene éxito como si falla, en
-/// vez de reiniciar siempre a la primera página.
+/// inició el borrado), tanto si el borrado tiene éxito como si falla, en vez de reiniciar siempre a
+/// la primera página.
 pub(crate) async fn delete_post(
     request: HttpRequest,
     web::Path(id): web::Path<i32>,
@@ -384,40 +383,6 @@ pub(crate) async fn delete_post(
             Err(_) => Err(ErrorPage::BadRequest(request)),
         }
     }
-}
-
-// **< delete_confirm_get >*************************************************************************
-
-/// GET /admin/user/roles/{id}/delete/confirm - Botón de confirmación de borrado para esta fila,
-/// insertado vía htmx en el diálogo de confirmación compartido por toda la tabla (ver
-/// `delete_dialog()`), con la URL de borrado de este rol ya incrustada.
-///
-/// Propaga `sort`/`dir`/`page` (recibidos como query string desde la propia fila) hacia la URL de
-/// borrado, para que `delete_post` pueda volver a mostrar la misma página tras el borrado, en vez
-/// de reiniciar siempre al listado por defecto.
-pub(crate) async fn delete_confirm_get(
-    request: HttpRequest,
-    web::Path(id): web::Path<i32>,
-    web::Query(query): web::Query<RolesQuery>,
-) -> Result<Response, ErrorPage> {
-    let mut cx = Context::admin(request);
-    let delete_href = cx
-        .route(role_path(id, "delete"))
-        .alter_param(
-            "sort",
-            RoleSortField::from_query(query.sort.as_deref()).as_str(),
-        )
-        .alter_param("dir", SortDir::from_query(query.dir.as_deref()))
-        .alter_param("page", query.page.unwrap_or(1).max(1).to_string())
-        .to_string();
-
-    let mut button = Button::delete()
-        .with_prop(PropsOp::set(hx::POST, delete_href))
-        .with_prop(PropsOp::set(hx::TARGET, "#role-table-wrapper"))
-        .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP))
-        .with_prop(PropsOp::set("data-dialog-dismiss", "modal"));
-
-    Ok(HtmxResponse::new(button.render(&mut cx).await).into_response())
 }
 
 // **< permissions_get / permissions_post >*********************************************************

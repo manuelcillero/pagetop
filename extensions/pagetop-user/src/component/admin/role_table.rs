@@ -2,7 +2,7 @@
 
 use pagetop::prelude::*;
 use pagetop_htmx::hx_table::sort_link;
-use pagetop_htmx::{hx, hx_pager};
+use pagetop_htmx::{hx, hx_confirm, hx_pager};
 
 use crate::ADMIN_ROLES_PATH;
 use crate::LOCALES_USER;
@@ -100,21 +100,6 @@ impl Component for RoleTable {
     }
 }
 
-// Diálogo de confirmación de borrado, compartido por todas las filas: el botón de borrar de cada
-// una lo abre y carga en él su botón de confirmación (ver `delete_confirm_get` en los *handlers* de
-// roles). Va en la página, fuera del listado, para que HTMX no lo reemplace al actualizarlo.
-pub(crate) fn delete_dialog() -> Dialog {
-    Dialog::new()
-        .with_id("confirm-delete-role")
-        .with_child(Html::with(|cx| {
-            html! { p { (Lc::t("confirm-delete-role", &LOCALES_USER).using(cx)) } }
-        }))
-        .with_footer(Button::dismiss())
-        .with_footer(Html::with(
-            |_cx| html! { span id="role-delete-confirm-action" {} },
-        ))
-}
-
 #[builder_impl]
 impl RoleTable {
     // **< RoleTable BUILDER >**********************************************************************
@@ -194,8 +179,10 @@ fn label_cell(role: &RoleListItem) -> Html {
 }
 
 // Construye la celda de acciones: gestionar permisos si se tiene `user:admin_permissions`, y
-// editar/borrar sólo si el rol no está bloqueado por el sistema. Devuelve un componente `Html` para
-// que el marcado se genere cuando `Table` renderice la celda, no al construir la fila.
+// editar/borrar sólo si el rol no está bloqueado por el sistema. Cada botón lleva el nombre del rol
+// para los lectores de pantalla, y el de borrar pide confirmación en el diálogo compartido de la
+// página (`hx_confirm::dialog()`, ver `list_get`). Devuelve un componente `Html` para que el
+// marcado se genere cuando `Table` renderice la celda, no al construir la fila.
 async fn actions_cell(
     role: &RoleListItem,
     sort: RoleSortField,
@@ -204,7 +191,9 @@ async fn actions_cell(
     cx: &mut Context,
 ) -> Html {
     let id = role.id;
-    let locked = role.locked;
+    let name = crate::role_label(id, &role.label)
+        .lookup(cx)
+        .unwrap_or_default();
 
     let can_manage_permissions = cx
         .request()
@@ -223,6 +212,7 @@ async fn actions_cell(
             )
             .with_style(button::Style::Solid(Intent::Neutral))
             .with_size(button::Size::Small)
+            .with_hidden_label(Lc::n(name.clone()))
             .render(cx)
             .await,
         )
@@ -230,32 +220,40 @@ async fn actions_cell(
         None
     };
 
-    let (edit_button, delete_button) = if locked {
+    let (edit_button, delete_button) = if role.locked {
         (None, None)
     } else {
         let edit_href = cx.route(role_path(id, "edit"));
         let edit_button = Button::edit(edit_href)
             .with_size(button::Size::Small)
+            .with_hidden_label(Lc::n(name.clone()))
             .render(cx)
             .await;
 
         // Viaja como query string para que, tanto si el borrado falla como si tiene éxito, la tabla
         // vuelva a mostrarse en la misma página/orden en que estaba, en vez de reiniciarse.
-        let confirm_href = cx
-            .route(role_path(id, "delete/confirm"))
+        let delete_href = cx
+            .route(role_path(id, "delete"))
             .alter_param("sort", sort.as_str())
             .alter_param("dir", dir)
             .alter_param("page", page.to_string())
             .to_string();
+        let question = Lc::t("confirm-delete-role", &LOCALES_USER)
+            .with_arg("name", name.clone())
+            .lookup(cx)
+            .unwrap_or_default();
 
-        let delete_button = Button::delete()
-            .with_size(button::Size::Small)
-            .with_prop(PropsOp::set(hx::GET, confirm_href))
-            .with_prop(PropsOp::set(hx::TARGET, "#role-delete-confirm-action"))
-            .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
-            .with_prop(PropsOp::set("data-dialog-target", "#confirm-delete-role"))
-            .render(cx)
-            .await;
+        let delete_button = hx_confirm::confirm(
+            Button::delete()
+                .with_size(button::Size::Small)
+                .with_hidden_label(Lc::n(name))
+                .with_prop(PropsOp::set(hx::POST, delete_href))
+                .with_prop(PropsOp::set(hx::TARGET, "#role-table-wrapper"))
+                .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP)),
+            question,
+        )
+        .render(cx)
+        .await;
 
         (Some(edit_button), Some(delete_button))
     };

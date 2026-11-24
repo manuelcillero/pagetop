@@ -189,6 +189,7 @@ async fn actions_cell(user: &UserListItem, viewer_is_admin: bool, cx: &mut Conte
     // que el resto de acciones (ver `pagetop-bootsier::theme::bs::button`).
     let edit_button = Button::edit(edit_href)
         .with_size(button::Size::Small)
+        .with_hidden_label(Lc::n(user.username.clone()))
         .render(cx)
         .await;
 

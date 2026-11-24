@@ -275,7 +275,7 @@ btn-revoke-admin       = Revocar administrador
 
 # **< Administración: confirmaciones y distintivos >**
 
-confirm-delete-role    = ¿Eliminar este rol? Esta acción no se puede deshacer.
+confirm-delete-role    = ¿Eliminar el rol «{ $name }»? Esta acción no se puede deshacer.
 confirm-change-status  = ¿Cambiar el estado de esta cuenta?
 confirm-grant-admin    = ¿Conceder acceso total a esta cuenta?
 confirm-revoke-admin   = ¿Revocar el acceso total de esta cuenta?
