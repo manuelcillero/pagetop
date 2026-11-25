@@ -201,6 +201,7 @@ async fn account_flows() {
     user_and_role_lists_remember_their_state(&client).await;
     remembered_sessions_are_renewed_alongside_other_cookies(&client).await;
     roles_are_deleted_after_confirming_in_the_shared_dialog(&client).await;
+    blocking_and_unrestricted_access_are_confirmed_naming_the_account(&client).await;
 }
 
 async fn registration_requires_confirming_the_address(client: &Client) {
@@ -954,7 +955,7 @@ async fn roles_are_deleted_after_confirming_in_the_shared_dialog(client: &Client
     assert_eq!(page.status, Status::OK);
     let body = &page.body;
     assert_eq!(
-        body.matches(r#"id="hx-confirm-dialog""#).count(),
+        body.matches(r#"id="hx-confirm-delete""#).count(),
         1,
         "{body}"
     );
@@ -1004,5 +1005,75 @@ async fn roles_are_deleted_after_confirming_in_the_shared_dialog(client: &Client
     );
     assert!(!reply.body.contains("Editors"), "{}", reply.body);
     // The dialog stays in the page, out of the refreshed list.
-    assert!(!reply.body.contains("hx-confirm-dialog"), "{}", reply.body);
+    assert!(!reply.body.contains("hx-confirm-delete"), "{}", reply.body);
+}
+
+// Blocking an account and granting or revoking its unrestricted access ask for confirmation in
+// their own dialogs, naming the account; activating it does not. With HTMX, a failure sends the
+// browser back to the edit page with the error as a message, instead of a page nested in the
+// button.
+async fn blocking_and_unrestricted_access_are_confirmed_naming_the_account(client: &Client) {
+    let id = verified_account(client, "hana", "hana@example.com", "hana-password").await;
+    let admin = client.login("admin", "admin-password").await.unwrap();
+    let edit = format!("/admin/user/users/{id}/edit");
+
+    let page = client.get(&edit, Some(&admin)).await.body;
+    assert_eq!(
+        page.matches(r#"id="hx-confirm-block-account""#).count(),
+        1,
+        "{page}"
+    );
+    assert!(
+        page.contains(r#"data-hx-confirm="block-account""#),
+        "{page}"
+    );
+    assert!(
+        page.contains(
+            r#"hx-confirm="Block the account &quot;hana&quot;? Its sessions will be closed"#
+        ),
+        "{page}"
+    );
+    assert_eq!(
+        page.matches(r#"id="hx-confirm-admin-access""#).count(),
+        1,
+        "{page}"
+    );
+    assert!(
+        page.contains(r#"hx-confirm="Grant unrestricted access to the account &quot;hana&quot;?"#),
+        "{page}"
+    );
+    assert!(page.contains("Grant unrestricted access</"), "{page}");
+
+    // Once blocked, activating it again does not ask.
+    let status = format!("/admin/user/users/{id}/status");
+    let reply = client.post(&status, "status=blocked", Some(&admin)).await;
+    assert_eq!(reply.status, Status::SEE_OTHER);
+    let page = client.get(&edit, Some(&admin)).await.body;
+    assert!(!page.contains("hx-confirm-block-account"), "{page}");
+    assert!(!page.contains("Block the account"), "{page}");
+    assert!(page.contains("hx-confirm-admin-access"), "{page}");
+
+    // Blocking oneself fails: the browser goes back to the edit page and shows the error there.
+    let users = client.get("/admin/user/users", Some(&admin)).await.body;
+    let name = users.find("> admin</span>").expect(&users);
+    let start = users[..name].rfind("/admin/user/users/").expect(&users);
+    let own_edit = &users[start..start + users[start..].find('"').unwrap()];
+    let own_status = own_edit.replace("/edit", "/status");
+    let request = web::test::TestRequest::post()
+        .uri(&own_status)
+        .form("status=blocked")
+        .header("hx-request", "true")
+        .header("cookie", admin.as_str());
+    let reply = client.send(request).await;
+    assert_eq!(reply.status, Status::OK);
+    assert_eq!(reply.header("hx-redirect"), own_edit);
+    assert!(reply.body.is_empty(), "{}", reply.body);
+    let flash = reply.header("set-cookie").split(';').next().unwrap();
+    assert!(flash.starts_with("pagetop_flash="), "{flash}");
+    let cookies = format!("{admin}; {flash}");
+    let page = client.get(own_edit, Some(&cookies)).await.body;
+    assert!(
+        page.contains("You cannot block your own account."),
+        "{page}"
+    );
 }

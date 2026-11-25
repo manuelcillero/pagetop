@@ -129,26 +129,26 @@ mail-preview-reset-external         = Notice of a password managed elsewhere
 
 # **< Error messages >**
 
-error-invalid-credentials   = Invalid username or password.
-error-account-blocked       = Your account is blocked. Please contact the administrator.
-error-account-pending       = Please verify your email address before signing in.
-error-account-locked        = Too many failed attempts. Please try again later.
-error-password-mismatch     = Passwords do not match.
-error-password-too-short    = Password must be at least { $n } characters.
-error-invalid-timezone      = Invalid timezone.
-error-invalid-language      = Invalid language.
-error-invalid-theme         = Invalid theme.
-error-about-too-long        = The "About me" text must be at most { $n } characters.
-error-display-name-too-long = The display name must be at most { $n } characters.
-error-username-taken        = This username is already taken or can be mistaken for an existing one.
-error-invalid-username      = The username is not valid: check the rules shown below the field.
-error-invalid-email         = The email address is not valid.
-error-email-taken           = This email address is already registered.
-error-same-email            = The new address is the same as the current one.
-error-too-many-requests     = Too many requests. Please try again later.
-error-token-invalid         = This link is invalid or has expired.
-error-current-password      = The current password is incorrect.
-error-internal              = An unexpected error occurred. Please try again.
+error-invalid-credentials       = Invalid username or password.
+error-account-blocked           = Your account is blocked. Please contact the administrator.
+error-account-pending           = Please verify your email address before signing in.
+error-account-locked            = Too many failed attempts. Please try again later.
+error-password-mismatch         = Passwords do not match.
+error-password-too-short        = Password must be at least { $n } characters.
+error-invalid-timezone          = Invalid timezone.
+error-invalid-language          = Invalid language.
+error-invalid-theme             = Invalid theme.
+error-about-too-long            = The "About me" text must be at most { $n } characters.
+error-display-name-too-long     = The display name must be at most { $n } characters.
+error-username-taken            = This username is already taken or can be mistaken for an existing one.
+error-invalid-username          = The username is not valid: check the rules shown below the field.
+error-invalid-email             = The email address is not valid.
+error-email-taken               = This email address is already registered.
+error-same-email                = The new address is the same as the current one.
+error-too-many-requests         = Too many requests. Please try again later.
+error-token-invalid             = This link is invalid or has expired.
+error-current-password          = The current password is incorrect.
+error-internal                  = An unexpected error occurred. Please try again.
 error-account-awaiting-approval = Your account is waiting for an administrator to approve it.
 error-external-unavailable      = Your password cannot be checked right now. Please try again later.
 error-login-disallowed          = Your account has no access to this application.
@@ -259,31 +259,34 @@ help-admin-roles =
 
 # **< Admin: buttons and links >**
 
-btn-create-user        = New user
-btn-create-role        = New role
-btn-manage-permissions = Manage permissions
-btn-reset-password     = Reset password
-btn-block              = Block
-btn-activate           = Activate
+btn-create-user          = New user
+btn-create-role          = New role
+btn-manage-permissions   = Manage permissions
+btn-reset-password       = Reset password
+btn-block                = Block
+btn-activate             = Activate
 btn-create-external-user = New { $provider } account
 btn-approve              = Approve
 btn-allow-linking        = Allow linking with { $provider }
 btn-cancel-linking       = Do not link with { $provider }
-btn-grant-admin        = Grant administrator
-btn-revoke-admin       = Revoke administrator
+btn-grant-admin          = Grant administrator
+btn-revoke-admin         = Revoke administrator
 
 # **< Admin: confirmations and badges >**
 
-confirm-delete-role    = Delete the role "{ $name }"? This cannot be undone.
-confirm-change-status  = Change this account's status?
-confirm-grant-admin    = Grant unrestricted access to this account?
-confirm-revoke-admin   = Revoke this account's unrestricted access?
-badge-system-role      = System
-badge-admin            = Administrator
-badge-no-permissions   = No permissions
-empty-users-list       = No users found.
-empty-roles-list       = No roles found.
-empty-role-permissions = This role has no permissions.
+confirm-delete-role        = Delete the role "{ $name }"? This cannot be undone.
+confirm-block-title        = Block account
+confirm-block-account      = Block the account "{ $name }"? Its sessions will be closed and it will not be able to sign in until it is activated again.
+confirm-grant-admin-title  = Grant unrestricted access
+confirm-grant-admin        = Grant unrestricted access to the account "{ $name }"? It will be able to do everything, regardless of its roles.
+confirm-revoke-admin-title = Revoke unrestricted access
+confirm-revoke-admin       = Revoke unrestricted access from the account "{ $name }"? It will only be able to do what its roles allow.
+badge-system-role          = System
+badge-admin                = Administrator
+badge-no-permissions       = No permissions
+empty-users-list           = No users found.
+empty-roles-list           = No roles found.
+empty-role-permissions     = This role has no permissions.
 
 # **< Admin: error messages >**
 

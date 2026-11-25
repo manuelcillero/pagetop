@@ -181,7 +181,7 @@ fn label_cell(role: &RoleListItem) -> Html {
 // Construye la celda de acciones: gestionar permisos si se tiene `user:admin_permissions`, y
 // editar/borrar sólo si el rol no está bloqueado por el sistema. Cada botón lleva el nombre del rol
 // para los lectores de pantalla, y el de borrar pide confirmación en el diálogo compartido de la
-// página (`hx_confirm::dialog()`, ver `list_get`). Devuelve un componente `Html` para que el
+// página (`hx_confirm::dialog_delete()`, ver `list_get`). Devuelve un componente `Html` para que el
 // marcado se genere cuando `Table` renderice la celda, no al construir la fila.
 async fn actions_cell(
     role: &RoleListItem,
@@ -243,7 +243,7 @@ async fn actions_cell(
             .lookup(cx)
             .unwrap_or_default();
 
-        let delete_button = hx_confirm::confirm(
+        let delete_button = hx_confirm::confirm_delete(
             Button::delete()
                 .with_size(button::Size::Small)
                 .with_hidden_label(Lc::n(name))

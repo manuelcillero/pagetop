@@ -308,6 +308,7 @@ async fn render_user_edit(request: HttpRequest, id: i32, error: Option<Lc>) -> R
     let policy = provider::account_policy(&user).await;
     let status = UserStatus::from_i16(user.status);
     let is_admin = user.is_admin;
+    let username = user.username.clone();
     let form = UserForm::new()
         .with_policy(policy)
         .with_username(user.username)
@@ -319,16 +320,17 @@ async fn render_user_edit(request: HttpRequest, id: i32, error: Option<Lc>) -> R
         .with_theme(user.theme.unwrap_or_default())
         .with_roles(roles)
         .with_error(error);
-    render_edit_page(request, id, status, is_admin, form).await
+    render_edit_page(request, id, &username, status, is_admin, form).await
 }
 
-// Pantalla de edición del usuario `id` con `form` ya relleno, sea con los datos guardados o con los
-// enviados que no se pudieron guardar. Siempre lleva la botonera de `edit_actions()`, porque en
-// modo `Edit` el botón "Guardar" está en ella y no dentro del formulario, y lo que añadan otras
-// extensiones con `AdminUserFormExtras`.
+// Pantalla de edición del usuario `id` (con su nombre de usuario guardado, `username`) con `form`
+// ya relleno, sea con los datos guardados o con los enviados que no se pudieron guardar. Siempre
+// lleva la botonera de `edit_actions()`, porque en modo `Edit` el botón "Guardar" está en ella y no
+// dentro del formulario, y lo que añadan otras extensiones con `AdminUserFormExtras`.
 async fn render_edit_page(
     request: HttpRequest,
     id: i32,
+    username: &str,
     status: UserStatus,
     is_admin: bool,
     form: UserForm,
@@ -352,6 +354,7 @@ async fn render_edit_page(
     let actions = edit_actions(
         id,
         EditActions {
+            username: username.to_string(),
             status,
             target_is_admin: is_admin,
             can_toggle_admin,
@@ -400,6 +403,7 @@ async fn linking_options(user_id: i32, is_admin: bool) -> Vec<(&'static str, Lc,
 
 // Estado de la cuenta que decide qué botones lleva la edición.
 struct EditActions {
+    username: String,
     status: UserStatus,
     target_is_admin: bool,
     can_toggle_admin: bool,
@@ -407,6 +411,10 @@ struct EditActions {
     can_reset_password: bool,
     linking: Vec<(&'static str, Lc, bool)>,
 }
+
+// Nombres de los diálogos de confirmación de la edición (ver `hx_confirm::dialog()`).
+const BLOCK_DIALOG: &str = "block-account";
+const ADMIN_DIALOG: &str = "admin-access";
 
 // Botonera de la edición: el enlace a la pantalla de restablecer contraseña, los botones de
 // bloqueo/activación (sólo si `can_change_status`), de vinculación con proveedores y de
@@ -416,8 +424,10 @@ struct EditActions {
 // "Guardar" (envía el `<form>` de `UserForm` vía el atributo `form`, ver `USER_ADMIN_FORM_ID`),
 // "Cancelar" y "Restablecer contraseña" son botones sueltos; bloqueo/activación y
 // concesión/revocación de admin van cada uno en su propio `Form`, con un campo `Hidden` para el
-// nuevo valor, para conservar el envío nativo sin JavaScript, mejorado con `hx-post`/`hx-confirm`.
-// Todos son hijos directos del mismo `Flex`, que los alinea en fila con espaciado uniforme.
+// nuevo valor, para conservar el envío nativo sin JavaScript. Bloquear y conceder o revocar el
+// acceso total piden antes confirmación, cada uno en su diálogo (`hx_confirm::dialog()`), que se
+// añade a la misma botonera; activar o aprobar se deshace sin consecuencias y no la pide. Todos son
+// hijos directos del mismo `Flex`, que los alinea en fila con espaciado uniforme.
 fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     // Una cuenta pendiente de verificar su email también se puede activar directamente, p. ej. si
     // el correo de verificación no llegó; una pendiente de aprobación se aprueba.
@@ -426,28 +436,46 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
         UserStatus::Blocked | UserStatus::Pending => ("active", "btn-activate"),
         UserStatus::AwaitingApproval => ("active", "btn-approve"),
     };
-    let (next_is_admin, admin_label_key, admin_confirm_key) = if state.target_is_admin {
-        ("false", "btn-revoke-admin", "confirm-revoke-admin")
-    } else {
-        ("true", "btn-grant-admin", "confirm-grant-admin")
-    };
+    let (next_is_admin, admin_label_key, admin_title_key, admin_confirm_key) =
+        if state.target_is_admin {
+            (
+                "false",
+                "btn-revoke-admin",
+                "confirm-revoke-admin-title",
+                "confirm-revoke-admin",
+            )
+        } else {
+            (
+                "true",
+                "btn-grant-admin",
+                "confirm-grant-admin-title",
+                "confirm-grant-admin",
+            )
+        };
 
     let password_href = cx.route(user_path(user_id, "password"));
     let status_action = cx.route(user_path(user_id, "status"));
     let admin_action = cx.route(user_path(user_id, "admin"));
 
-    let mut status_form = Form::new()
-        .with_action(status_action.clone())
-        .with_method(form::Method::Post)
-        .with_prop(PropsOp::set(hx::POST, status_action.to_string()))
-        .with_child(form::Hidden::field("status", next_status))
-        .with_child(
-            Button::submit(Lc::t(label_key, &LOCALES_USER))
-                .with_style(button::Style::Solid(Intent::Neutral)),
+    let blocks = next_status == "blocked";
+    let mut status_button = Button::submit(Lc::t(label_key, &LOCALES_USER))
+        .with_style(button::Style::Solid(Intent::Neutral));
+    if blocks {
+        let question = Lc::t("confirm-block-account", &LOCALES_USER)
+            .with_arg("name", state.username.clone())
+            .lookup(cx)
+            .unwrap_or_default();
+        status_button = hx_confirm::confirm(
+            BLOCK_DIALOG,
+            status_button.with_prop(PropsOp::set(hx::POST, status_action.to_string())),
+            question,
         );
-    if let Some(confirm) = Lc::t("confirm-change-status", &LOCALES_USER).lookup(cx) {
-        status_form = status_form.with_prop(PropsOp::set(hx::CONFIRM, confirm));
     }
+    let status_form = Form::new()
+        .with_action(status_action)
+        .with_method(form::Method::Post)
+        .with_child(form::Hidden::field("status", next_status))
+        .with_child(status_button);
 
     let mut container = Flex::new()
         .with_wrap(flex::Behavior::Wrap)
@@ -461,6 +489,14 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     }
     if state.can_change_status {
         container = container.with_child(status_form);
+        if blocks {
+            container = container.with_child(hx_confirm::dialog(
+                BLOCK_DIALOG,
+                Lc::t("confirm-block-title", &LOCALES_USER),
+                Button::plain(Lc::t("btn-block", &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Severe)),
+            ));
+        }
     }
 
     let identity_action = cx.route(user_path(user_id, "identity"));
@@ -485,18 +521,31 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     }
 
     if state.can_toggle_admin {
-        let admin_button = Button::submit(Lc::t(admin_label_key, &LOCALES_USER))
-            .with_style(button::Style::Solid(Intent::Severe));
-        let mut admin_form = Form::new()
-            .with_action(admin_action.clone())
-            .with_method(form::Method::Post)
-            .with_prop(PropsOp::set(hx::POST, admin_action.to_string()))
-            .with_child(form::Hidden::field("is_admin", next_is_admin))
-            .with_child(admin_button);
-        if let Some(confirm) = Lc::t(admin_confirm_key, &LOCALES_USER).lookup(cx) {
-            admin_form = admin_form.with_prop(PropsOp::set(hx::CONFIRM, confirm));
-        }
-        container = container.with_child(admin_form);
+        let question = Lc::t(admin_confirm_key, &LOCALES_USER)
+            .with_arg("name", state.username.clone())
+            .lookup(cx)
+            .unwrap_or_default();
+        let admin_button = hx_confirm::confirm(
+            ADMIN_DIALOG,
+            Button::submit(Lc::t(admin_label_key, &LOCALES_USER))
+                .with_style(button::Style::Solid(Intent::Severe))
+                .with_prop(PropsOp::set(hx::POST, admin_action.to_string())),
+            question,
+        );
+        container = container
+            .with_child(
+                Form::new()
+                    .with_action(admin_action)
+                    .with_method(form::Method::Post)
+                    .with_child(form::Hidden::field("is_admin", next_is_admin))
+                    .with_child(admin_button),
+            )
+            .with_child(hx_confirm::dialog(
+                ADMIN_DIALOG,
+                Lc::t(admin_title_key, &LOCALES_USER),
+                Button::plain(Lc::t(admin_label_key, &LOCALES_USER))
+                    .with_style(button::Style::Solid(Intent::Severe)),
+            ));
     }
 
     container
@@ -599,7 +648,7 @@ pub(crate) async fn edit_post(
                 .with_theme(form.theme)
                 .with_roles(roles)
                 .with_error(map_auth_error(&err));
-            Ok(render_edit_page(request, id, status, user.is_admin, form).await)
+            Ok(render_edit_page(request, id, &user.username, status, user.is_admin, form).await)
         }
     }
 }
@@ -722,23 +771,8 @@ pub(crate) async fn status_post(
         "blocked" => UserStatus::Blocked,
         _ => UserStatus::Active,
     };
-    // Ver comentario equivalente en `admin_post`: el botón envía la petición vía `hx-post` (para el
-    // diálogo `hx-confirm`) sin `hx-target`, así que un `Redirect` normal terminaría anidado dentro
-    // del propio `<form>`. `HtmxResponse::redirect()` fuerza una navegación real en el cliente.
-    let is_htmx = request.is_htmx();
-
-    match user_admin::set_user_status(id, new_status, account.id()).await {
-        Ok(()) => {
-            let cx = Context::admin(request);
-            let edit_href = cx.route(user_path(id, "edit"));
-            if is_htmx {
-                Ok(HtmxResponse::empty().redirect(edit_href).into_response())
-            } else {
-                Ok(Redirect::see_other(edit_href).into_response())
-            }
-        }
-        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err))).await),
-    }
+    let result = user_admin::set_user_status(id, new_status, account.id()).await;
+    Ok(reload_edit_page(request, id, result).await)
 }
 
 // **< admin_post >*********************************************************************************
@@ -766,24 +800,39 @@ pub(crate) async fn admin_post(
     }
 
     let new_is_admin = form.is_admin == "true";
-    // El botón envía la petición vía `hx-post` (para el diálogo `hx-confirm`), sin `hx-target`: si
-    // se responde con un `Redirect` normal, HTMX sigue la redirección con `fetch` y sustituye el
-    // propio `<form>` (destino por defecto sin `hx-target`) por la página completa que devuelve,
-    // anidándola dentro de sí misma. `HtmxResponse::redirect()` evita eso: instruye al cliente
-    // (cabecera `HX-Redirect`) para que navegue de verdad a la URL, en vez de intentar un `swap`.
-    let is_htmx = request.is_htmx();
+    let result = user_admin::set_user_admin(id, new_is_admin, account.id()).await;
+    Ok(reload_edit_page(request, id, result).await)
+}
 
-    match user_admin::set_user_admin(id, new_is_admin, account.id()).await {
-        Ok(()) => {
-            let cx = Context::admin(request);
-            let edit_href = cx.route(user_path(id, "edit"));
-            if is_htmx {
-                Ok(HtmxResponse::empty().redirect(edit_href).into_response())
-            } else {
-                Ok(Redirect::see_other(edit_href).into_response())
-            }
+// Vuelve a la edición del usuario `id` tras bloquear o activar la cuenta (`status_post`) o conceder
+// o revocar su acceso total (`admin_post`).
+//
+// Sin JavaScript, redirige si ha ido bien y, si no, vuelve a mostrar la edición con el error. Con
+// HTMX (el botón confirmado en su diálogo envía la petición con `hx-post`, sin `hx-target`), la
+// página que se devolviera sustituiría al propio botón, y HTMX seguiría también un `Redirect` con
+// `fetch` hasta el mismo resultado. Por eso se le pide al navegador que vaya de verdad a la edición
+// (`HtmxResponse::redirect()`, cabecera `HX-Redirect`), con el error, si lo hay, como mensaje para
+// esa página.
+async fn reload_edit_page(
+    request: HttpRequest,
+    id: i32,
+    result: Result<(), AuthError>,
+) -> Response {
+    let error = result.err().map(|err| map_auth_error(&err));
+    if !request.is_htmx() {
+        if let Some(error) = error {
+            return render_user_edit(request, id, Some(error)).await;
         }
-        Err(err) => Ok(render_user_edit(request, id, Some(map_auth_error(&err))).await),
+        let cx = Context::admin(request);
+        return Redirect::see_other(cx.route(user_path(id, "edit"))).into_response();
+    }
+    let cx = Context::admin(request);
+    let response = HtmxResponse::empty()
+        .redirect(cx.route(user_path(id, "edit")))
+        .into_response();
+    match error {
+        Some(error) => response.with_message(&cx, MessageLevel::Error, error),
+        None => response,
     }
 }
 

@@ -129,26 +129,26 @@ mail-preview-reset-external         = Aviso de contraseña gestionada fuera
 
 # **< Mensajes de error >**
 
-error-invalid-credentials   = Usuario o contraseña incorrectos.
-error-account-blocked       = Tu cuenta está bloqueada. Contacta con el administrador.
-error-account-pending       = Verifica tu dirección de email antes de iniciar sesión.
-error-account-locked        = Demasiados intentos fallidos. Inténtalo de nuevo más tarde.
-error-password-mismatch     = Las contraseñas no coinciden.
-error-password-too-short    = La contraseña debe tener al menos { $n } caracteres.
-error-invalid-timezone      = Zona horaria no válida.
-error-invalid-language      = Idioma no válido.
-error-invalid-theme         = Tema no válido.
-error-about-too-long        = El texto «Sobre mí» no puede superar { $n } caracteres.
-error-display-name-too-long = El nombre visible no puede superar { $n } caracteres.
-error-username-taken        = Este nombre de usuario ya está en uso o se confunde con otro existente.
-error-invalid-username      = El nombre de usuario no es válido: revisa las reglas indicadas bajo el campo.
-error-invalid-email         = La dirección de correo no es válida.
-error-email-taken           = Esta dirección de email ya está registrada.
-error-same-email            = La nueva dirección es la misma que la actual.
-error-too-many-requests     = Demasiadas solicitudes. Inténtalo de nuevo más tarde.
-error-token-invalid         = Este enlace no es válido o ha caducado.
-error-current-password      = La contraseña actual no es correcta.
-error-internal              = Se ha producido un error inesperado. Inténtalo de nuevo.
+error-invalid-credentials       = Usuario o contraseña incorrectos.
+error-account-blocked           = Tu cuenta está bloqueada. Contacta con el administrador.
+error-account-pending           = Verifica tu dirección de email antes de iniciar sesión.
+error-account-locked            = Demasiados intentos fallidos. Inténtalo de nuevo más tarde.
+error-password-mismatch         = Las contraseñas no coinciden.
+error-password-too-short        = La contraseña debe tener al menos { $n } caracteres.
+error-invalid-timezone          = Zona horaria no válida.
+error-invalid-language          = Idioma no válido.
+error-invalid-theme             = Tema no válido.
+error-about-too-long            = El texto «Sobre mí» no puede superar { $n } caracteres.
+error-display-name-too-long     = El nombre visible no puede superar { $n } caracteres.
+error-username-taken            = Este nombre de usuario ya está en uso o se confunde con otro existente.
+error-invalid-username          = El nombre de usuario no es válido: revisa las reglas indicadas bajo el campo.
+error-invalid-email             = La dirección de correo no es válida.
+error-email-taken               = Esta dirección de email ya está registrada.
+error-same-email                = La nueva dirección es la misma que la actual.
+error-too-many-requests         = Demasiadas solicitudes. Inténtalo de nuevo más tarde.
+error-token-invalid             = Este enlace no es válido o ha caducado.
+error-current-password          = La contraseña actual no es correcta.
+error-internal                  = Se ha producido un error inesperado. Inténtalo de nuevo.
 error-account-awaiting-approval = Tu cuenta está pendiente de que un administrador la apruebe.
 error-external-unavailable      = No se puede comprobar tu contraseña en este momento. Inténtalo de nuevo más tarde.
 error-login-disallowed          = Tu cuenta no tiene acceso a esta aplicación.
@@ -260,31 +260,34 @@ help-admin-roles =
 
 # **< Administración: botones y enlaces >**
 
-btn-create-user        = Nuevo usuario
-btn-create-role        = Nuevo rol
-btn-manage-permissions = Gestionar permisos
-btn-reset-password     = Restablecer contraseña
-btn-block              = Bloquear
-btn-activate           = Activar
+btn-create-user          = Nuevo usuario
+btn-create-role          = Nuevo rol
+btn-manage-permissions   = Gestionar permisos
+btn-reset-password       = Restablecer contraseña
+btn-block                = Bloquear
+btn-activate             = Activar
 btn-create-external-user = Nueva cuenta de { $provider }
 btn-approve              = Aprobar
 btn-allow-linking        = Permitir vincular con { $provider }
 btn-cancel-linking       = No vincular con { $provider }
-btn-grant-admin        = Conceder administrador
-btn-revoke-admin       = Revocar administrador
+btn-grant-admin          = Conceder administrador
+btn-revoke-admin         = Revocar administrador
 
 # **< Administración: confirmaciones y distintivos >**
 
-confirm-delete-role    = ¿Eliminar el rol «{ $name }»? Esta acción no se puede deshacer.
-confirm-change-status  = ¿Cambiar el estado de esta cuenta?
-confirm-grant-admin    = ¿Conceder acceso total a esta cuenta?
-confirm-revoke-admin   = ¿Revocar el acceso total de esta cuenta?
-badge-system-role      = Sistema
-badge-admin            = Administrador
-badge-no-permissions   = Sin permisos
-empty-users-list       = No se han encontrado usuarios.
-empty-roles-list       = No se han encontrado roles.
-empty-role-permissions = Este rol no tiene permisos.
+confirm-delete-role        = ¿Eliminar el rol «{ $name }»? Esta acción no se puede deshacer.
+confirm-block-title        = Bloquear la cuenta
+confirm-block-account      = ¿Bloquear la cuenta «{ $name }»? Se cerrarán sus sesiones y no podrá iniciar sesión hasta que se active de nuevo.
+confirm-grant-admin-title  = Conceder acceso total
+confirm-grant-admin        = ¿Conceder acceso total a la cuenta «{ $name }»? Podrá hacerlo todo, sin depender de sus roles.
+confirm-revoke-admin-title = Revocar acceso total
+confirm-revoke-admin       = ¿Revocar el acceso total de la cuenta «{ $name }»? Sólo podrá hacer lo que permitan sus roles.
+badge-system-role          = Sistema
+badge-admin                = Administrador
+badge-no-permissions       = Sin permisos
+empty-users-list           = No se han encontrado usuarios.
+empty-roles-list           = No se han encontrado roles.
+empty-role-permissions     = Este rol no tiene permisos.
 
 # **< Administración: mensajes de error >**
 

@@ -61,7 +61,7 @@ pub(crate) async fn list_get(
         Ok(Page::admin(request)
             .with_title(title)
             .with_child(table)
-            .with_child(hx_confirm::dialog())
+            .with_child(hx_confirm::dialog_delete())
             .render()
             .await
             .into_response())
