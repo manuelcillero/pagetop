@@ -14,6 +14,7 @@ impl Extension for TestApp {
             .public_route("/page", web::get(render_page))
             .public_route("/list", web::get(render_list))
             .public_route("/confirm", web::get(render_confirm))
+            .public_route("/named-confirm", web::get(render_named_confirm))
             .public_route("/dialog", web::get(render_other_dialog))
     }
 }
@@ -34,7 +35,18 @@ async fn render_list(request: HttpRequest) -> Result<Markup, ErrorPage> {
 
 async fn render_confirm(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
-        .with_child(pagetop_htmx::hx_confirm::dialog())
+        .with_child(pagetop_htmx::hx_confirm::dialog_delete())
+        .render()
+        .await
+}
+
+async fn render_named_confirm(request: HttpRequest) -> Result<Markup, ErrorPage> {
+    Page::new(request)
+        .with_child(pagetop_htmx::hx_confirm::dialog(
+            "block",
+            Lc::n("Block account"),
+            Button::plain(Lc::n("Block")),
+        ))
         .render()
         .await
 }
@@ -111,12 +123,14 @@ async fn pages_with_a_list_embed_the_list_loading_styles_and_others_do_not() {
 async fn only_pages_with_the_confirm_dialog_load_its_script() {
     let app = web::test::init_router(Application::prepare(&TestApp).await.test());
 
-    let req = web::test::TestRequest::get().uri("/confirm").to_request();
-    let body = web::test::read_body_text(web::test::send_request(&app, req).await).await;
-    assert!(
-        body.contains(r#"src="/htmx/js/hx-confirm.min.js?v="#),
-        "{body}"
-    );
+    for uri in ["/confirm", "/named-confirm"] {
+        let req = web::test::TestRequest::get().uri(uri).to_request();
+        let body = web::test::read_body_text(web::test::send_request(&app, req).await).await;
+        assert!(
+            body.contains(r#"src="/htmx/js/hx-confirm.min.js?v="#),
+            "{uri}: {body}"
+        );
+    }
 
     for uri in ["/page", "/dialog"] {
         let req = web::test::TestRequest::get().uri(uri).to_request();

@@ -102,12 +102,12 @@ async fn list_helpers_cancel_overlapping_requests_and_mark_the_list_while_loadin
 // **< hx_confirm >*********************************************************************************
 
 // The ids the script (`hx-confirm.js`) relies on.
-const DIALOG_TARGET: &str = r##"data-dialog-target="#hx-confirm-dialog""##;
-const QUESTION_ID: &str = "hx-confirm-dialog-question";
+const DIALOG_TARGET: &str = r##"data-dialog-target="#hx-confirm-delete""##;
+const QUESTION_ID: &str = "hx-confirm-delete-question";
 
 #[pagetop::test]
 async fn confirm_opens_the_shared_dialog_with_the_question() {
-    let mut button = hx_confirm::confirm(
+    let mut button = hx_confirm::confirm_delete(
         Button::delete()
             .with_hidden_label(Lc::n("A1"))
             .with_prop(PropsOp::set(hx::POST, "/plots/1/delete")),
@@ -120,14 +120,14 @@ async fn confirm_opens_the_shared_dialog_with_the_question() {
         html.contains(r#"hx-confirm="Delete the plot «A1»?""#),
         "{html}"
     );
-    assert!(html.contains(r#"data-hx-confirm="true""#), "{html}");
+    assert!(html.contains(r#"data-hx-confirm="delete""#), "{html}");
     assert!(html.contains(r#"data-dialog-toggle="modal""#), "{html}");
     assert!(html.contains(DIALOG_TARGET), "{html}");
 }
 
 #[pagetop::test]
 async fn confirm_escapes_the_question() {
-    let mut button = hx_confirm::confirm(Button::delete(), r#"Delete "<b>"?"#);
+    let mut button = hx_confirm::confirm_delete(Button::delete(), r#"Delete "<b>"?"#);
     let html = button.render(&mut Context::default()).await.into_string();
 
     assert!(
@@ -143,11 +143,14 @@ async fn the_dialog_is_named_described_and_starts_on_cancel() {
         ("es-ES", "Confirmar la eliminación", "Cancelar", "Eliminar"),
     ] {
         let mut cx = cx_with_lang(language);
-        let html = hx_confirm::dialog().render(&mut cx).await.into_string();
+        let html = hx_confirm::dialog_delete()
+            .render(&mut cx)
+            .await
+            .into_string();
 
-        assert!(html.contains(r#"id="hx-confirm-dialog""#), "{html}");
+        assert!(html.contains(r#"id="hx-confirm-delete""#), "{html}");
         assert!(
-            html.contains(r#"aria-labelledby="hx-confirm-dialog-label""#),
+            html.contains(r#"aria-labelledby="hx-confirm-delete-label""#),
             "{html}"
         );
         assert!(html.contains(title), "{language}: {html}");
@@ -177,4 +180,67 @@ async fn the_dialog_is_named_described_and_starts_on_cancel() {
             "{footer}"
         );
     }
+}
+
+// A named dialog has its own title and accept button, which only resumes the held request (it must
+// not submit a form) and closes the dialog; the button names the dialog it opens.
+#[pagetop::test]
+async fn a_named_dialog_confirms_its_own_action() {
+    let mut dialog = hx_confirm::dialog(
+        "block",
+        Lc::n("Block account"),
+        Button::submit(Lc::n("Block")).with_style(button::Style::Solid(Intent::Severe)),
+    );
+    let html = dialog.render(&mut Context::default()).await.into_string();
+    assert!(html.contains(r#"id="hx-confirm-block""#), "{html}");
+    assert!(html.contains("Block account"), "{html}");
+    assert!(
+        html.contains(r#"aria-describedby="hx-confirm-block-question""#),
+        "{html}"
+    );
+    assert!(
+        html.contains(r#"<p id="hx-confirm-block-question"></p>"#),
+        "{html}"
+    );
+    let footer = &html[html.find("dialog-footer").expect(&html)..];
+    let accept = &footer[footer.rfind("<button").expect(footer)..];
+    assert!(accept.contains(r#"type="button""#), "{accept}");
+    assert!(
+        accept.contains(r#"data-hx-confirm-accept="true""#),
+        "{accept}"
+    );
+    assert!(accept.contains("Block"), "{accept}");
+
+    let mut button = hx_confirm::confirm(
+        "block",
+        Button::submit(Lc::n("Block")).with_prop(PropsOp::set(hx::POST, "/users/7/block")),
+        "Block the account «ana»?",
+    );
+    let html = button.render(&mut Context::default()).await.into_string();
+    assert!(html.contains(r#"type="submit""#), "{html}");
+    assert!(
+        html.contains(r#"hx-confirm="Block the account «ana»?""#),
+        "{html}"
+    );
+    assert!(html.contains(r#"data-hx-confirm="block""#), "{html}");
+    assert!(
+        html.contains(r##"data-dialog-target="#hx-confirm-block""##),
+        "{html}"
+    );
+}
+
+#[pagetop::test]
+#[should_panic(expected = "must only have ASCII letters, digits")]
+async fn a_dialog_name_that_cannot_be_a_selector_is_an_error() {
+    let _ = hx_confirm::dialog(
+        "block.account",
+        Lc::n("Block"),
+        Button::plain(Lc::n("Block")),
+    );
+}
+
+#[pagetop::test]
+#[should_panic(expected = "must only have ASCII letters, digits")]
+async fn an_empty_dialog_name_is_an_error() {
+    let _ = hx_confirm::confirm("", Button::submit(Lc::n("Block")), "Block?");
 }

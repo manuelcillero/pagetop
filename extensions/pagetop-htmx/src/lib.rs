@@ -49,9 +49,9 @@ impl Extension for MyApp {
 
 A partir de ese momento, todas las páginas de la aplicación incluirán automáticamente el script de
 HTMX 2; las que tengan algún listado ([`ListView`]), unos pocos estilos que lo atenúan mientras se
-actualiza; y las que tengan el diálogo de confirmación del borrado ([`hx_confirm`]), el script que lo
-conecta con los botones de cada fila. Puedes usar los atributos `hx-*` directamente en tus
-componentes o el código HTML generado:
+actualiza; y las que tengan algún diálogo de confirmación ([`hx_confirm`]), el script que lo conecta
+con sus botones. Puedes usar los atributos `hx-*` directamente en tus componentes o el código HTML
+generado:
 
 ```rust
 use pagetop::prelude::*;
@@ -120,7 +120,7 @@ pub mod prelude {
 /// Poner esta extensión en [`dependencies()`](pagetop::core::extension::Extension::dependencies)
 /// hace que todas las páginas de la aplicación incluyan automáticamente el script de HTMX mediante
 /// un atributo [`defer`](pagetop::html::JavaScript::defer); las que tienen algún listado
-/// ([`ListView`]), los estilos con los que se atenúa mientras se actualiza; y las que tienen el
+/// ([`ListView`]), los estilos con los que se atenúa mientras se actualiza; y las que tienen algún
 /// diálogo de [`hx_confirm`], su script. No es necesaria ninguna configuración adicional.
 ///
 /// # Ejemplo
