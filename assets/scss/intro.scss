@@ -1,26 +1,41 @@
 // Styles of the `Intro` component.
 //
 // Compiled by `build.rs` into `static/css/intro.min.css`, apart from `basic.scss`: the component
-// loads them on its own, whatever the active theme is.
+// loads them on its own, whatever the active theme is. Every color is set here, so the intro looks
+// the same with any theme: a dark hero, a light panel for the contents and a dark footer.
 
 :root {
     --intro-bg-img: url('/pagetop/img/intro-header.jpg');
     --intro-bg-img-set: image-set(url('/pagetop/img/intro-header.avif') type('image/avif'), url('/pagetop/img/intro-header.webp') type('image/webp'), var(--intro-bg-img) type('image/jpeg'));
     --intro-bg-img-sm: url('/pagetop/img/intro-header-sm.jpg');
     --intro-bg-img-sm-set: image-set(url('/pagetop/img/intro-header-sm.avif') type('image/avif'), url('/pagetop/img/intro-header-sm.webp') type('image/webp'), var(--intro-bg-img-sm) type('image/jpeg'));
-    --intro-bg-color: #7a430e;
-    --intro-bg-block-1: #ffb84b;
-    --intro-bg-block-2: #ffc66f;
-    --intro-bg-block-3: #ffd493;
-    --intro-bg-block-4: #ffe3b7;
-    --intro-bg-block-5: #fff1db;
-    --intro-bg-block-6: #ffffff;
+    --intro-bg-color: #21160d;
+    --intro-bg-footer: #120c07;
+    --intro-amber: #ffb84b;
+    --intro-orange: #e0561b;
+    --intro-lime: #ddff95;
+    --intro-gradient: linear-gradient(135deg, var(--intro-amber) 0%, var(--intro-orange) 100%);
     --intro-color: #1a202c;
-    --intro-color-gray: #e8e3da;
-    --intro-color-link: #8b2500;
-    --intro-focus-outline: 2px solid var(--intro-color-link);
-    --intro-focus-outline-offset: 2px;
-    --intro-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    // A warm, soft white for the panel instead of pure white, easier on the eyes.
+    --intro-panel: #fcfaf6;
+    --intro-color-light: #f6eadb;
+    --intro-color-gray: #b9ad9f;
+    --intro-color-link: #ffb84b;
+    --intro-color-brand: #b4410f;
+    --intro-radius: 1rem;
+    --intro-focus-outline: 3px solid var(--intro-amber);
+    --intro-focus-outline-offset: 3px;
+    --intro-shadow: 0 2.5rem 5rem -2rem rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --intro-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+// Screens with a wide gamut get more vivid versions of the same accents.
+@media (color-gamut: p3) {
+    :root {
+        --intro-amber: oklch(0.84 0.19 72);
+        --intro-orange: oklch(0.65 0.24 38);
+        --intro-lime: oklch(0.95 0.19 125);
+    }
 }
 
 body {
@@ -29,494 +44,588 @@ body {
 
 // Media queries: 768px and 992px match the default `Md` and `Lg` breakpoints of the core.
 
+// The intro spans the whole viewport width, whatever the container of the theme is. The picture of
+// the header fades into the background color, under two warm glows.
+
 .intro {
     position: relative;
-    color: var(--intro-color);
-    background-color: var(--intro-bg-color);
-
     left: 50%;
     right: 50%;
+    width: 100vw;
     margin-left: -50vw;
     margin-right: -50vw;
-    width: 100vw;
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+
+    // The aurora overflows the intro on purpose; it must not tint the theme around it. `hidden`
+    // only for browsers without `clip`, which neither support the reveal on scroll.
+    overflow: hidden;
+    overflow: clip;
+    color: var(--intro-color);
+    background-color: var(--intro-bg-color);
+    background-image:
+        var(--intro-grain),
+        linear-gradient(180deg, rgba(33, 22, 13, 0.45) 0, rgba(33, 22, 13, 0.78) 18rem, var(--intro-bg-color) 34rem),
+        var(--intro-bg-img-sm);
+    background-image:
+        var(--intro-grain),
+        linear-gradient(180deg, rgba(33, 22, 13, 0.45) 0, rgba(33, 22, 13, 0.78) 18rem, var(--intro-bg-color) 34rem),
+        var(--intro-bg-img-sm-set);
+    background-position: left top, center top, center top;
+    background-size: 180px 180px, auto, max(100%, 48rem) auto;
+    background-repeat: repeat, no-repeat, no-repeat;
+}
+@media (width >= 992px) {
+    .intro {
+        background-image:
+            var(--intro-grain),
+            linear-gradient(180deg, rgba(33, 22, 13, 0.45) 0, rgba(33, 22, 13, 0.78) 18rem, var(--intro-bg-color) 38rem),
+            var(--intro-bg-img);
+        background-image:
+            var(--intro-grain),
+            linear-gradient(180deg, rgba(33, 22, 13, 0.45) 0, rgba(33, 22, 13, 0.78) 18rem, var(--intro-bg-color) 38rem),
+            var(--intro-bg-img-set);
+    }
 }
 
-.intro section {
-    position: relative;
-    text-align: center;
+// Aurora: two layers of warm glows drifting slowly in opposite directions behind the header. They
+// move with `transform` only, so the browser does not repaint them.
+
+.intro::before,
+.intro::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    top: -6rem;
+    left: -10%;
+    right: -10%;
+    height: 48rem;
+    pointer-events: none;
+    will-change: transform;
+}
+.intro::before {
+    background:
+        radial-gradient(30rem 20rem at 80% 22%, rgba(255, 184, 75, 0.42), transparent 70%),
+        radial-gradient(24rem 14rem at 45% 30%, rgba(221, 255, 149, 0.09), transparent 70%);
+    animation: intro-aurora-1 26s ease-in-out infinite alternate;
+}
+.intro::after {
+    background:
+        radial-gradient(28rem 18rem at 12% 55%, rgba(224, 86, 27, 0.38), transparent 70%),
+        radial-gradient(20rem 14rem at 65% 70%, rgba(180, 65, 15, 0.22), transparent 70%);
+    animation: intro-aurora-2 32s ease-in-out infinite alternate;
+}
+@keyframes intro-aurora-1 {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+        transform: translate3d(-6%, 4%, 0) scale(1.1);
+    }
+    100% {
+        transform: translate3d(4%, -2%, 0) scale(1.05);
+    }
+}
+@keyframes intro-aurora-2 {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1.05);
+    }
+    50% {
+        transform: translate3d(7%, -4%, 0) scale(0.95);
+    }
+    100% {
+        transform: translate3d(-3%, 3%, 0) scale(1.1);
+    }
+}
+
+// Only the own pieces of the intro: the contents keep the box model chosen by the theme.
+:where(.intro, .intro-header, .intro-header-name, .intro-button-link, .intro-text, .intro-text-body,
+    .intro-text-lead, .intro-pill, .intro-footer, .intro-footer-body),
+:where(.intro, .intro-header, .intro-header-mascot)::before,
+:where(.intro, .intro-header-mascot)::after {
+    box-sizing: border-box;
 }
 
 // Intro Header
 
 .intro-header {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column-reverse;
+    align-items: center;
+    gap: 1.5rem;
     width: 100%;
-    max-width: 80rem;
+    max-width: 76rem;
     margin: 0 auto;
-    padding-bottom: 4rem;
-    background-image: var(--intro-bg-img-sm);
-    background-image: var(--intro-bg-img-sm-set);
-    background-position: top center;
-    background-position-y: -1rem;
-    background-size: contain;
-    background-repeat: no-repeat;
+    padding: 2.5rem 1.25rem 5rem;
+}
+// Dot grid behind the header, fading out from the middle. It spans the whole viewport width.
+.intro-header::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    background-image: radial-gradient(circle, rgba(255, 232, 200, 0.24) 1px, transparent 1.5px);
+    background-size: 1.5rem 1.5rem;
+    background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 60% 75% at 50% 40%, #000 10%, transparent 75%);
+    mask-image: radial-gradient(ellipse 60% 75% at 50% 40%, #000 10%, transparent 75%);
+    pointer-events: none;
 }
 .intro-header-body {
-    padding: 0;
-    background: none;
+    width: 100%;
+    text-align: center;
 }
 .intro-header-title {
-    margin: 0 0 0 1.5rem;
-    text-align: left;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
-    color: #dceefb;
-    padding: clamp(0rem, -5.4892rem + 23.4206vw, 9.5rem) 1rem 1rem;
-    font-size: clamp(1.5rem, 0.7231rem + 3.3149vw, 3.375rem);
-    font-style: italic;
-    font-weight: 600;
-    line-height: 110%;
-    text-shadow: 0 0.125rem 0.1875rem rgba(0, 0, 0, 0.3);
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--intro-color-light);
+    font-size: clamp(1.25rem, 0.95rem + 1.3vw, 2rem);
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: normal;
+    text-shadow: none;
+    text-wrap: balance;
 }
-.intro-header-title > span {
-    background: linear-gradient(180deg, #ddff95 30%, #ffb84b 100%);
+// The gradient fits the title, not the whole width of the header.
+.intro-header-name {
+    align-self: center;
+    max-width: 100%;
+    padding-bottom: 0.1em;
+    background: linear-gradient(100deg, var(--intro-lime) 0%, var(--intro-amber) 55%, var(--intro-orange) 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: clamp(2.25rem, 1.3177rem + 3.9779vw, 6.5rem);
-    font-style: normal;
-    font-weight: 700;
-    line-height: 135%;
-    text-shadow: none;
+    color: var(--intro-amber);
+    font-size: clamp(2.75rem, 1.6rem + 5vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    filter: drop-shadow(0 0 1.75rem rgba(255, 184, 75, 0.28));
 }
+
+// Words highlighted in the slogan, such as the name of the application in the default one.
+.intro-header-slogan strong {
+    color: var(--intro-amber);
+    font-weight: 700;
+}
+
+// The mascot floats over a glowing halo and a dashed ring that turns slowly.
+
 .intro-header-img {
     display: flex;
-    justify-content: flex-start;
-    text-align: right;
-    width: 100%;
+    justify-content: center;
+    flex-shrink: 0;
 }
 .intro-header-mascot {
-    margin: 2rem;
-    flex-shrink: 1;
-    width: 280px;
-    height: 280px;
+    position: relative;
+    width: 7.5rem;
+    height: 7.5rem;
+    animation: intro-float 6s ease-in-out infinite;
+}
+.intro-header-mascot::before,
+.intro-header-mascot::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+.intro-header-mascot::before {
+    inset: -30%;
+    background: radial-gradient(circle, rgba(255, 184, 75, 0.45) 0%, rgba(224, 86, 27, 0.18) 45%, transparent 70%);
+    filter: blur(0.5rem);
+}
+.intro-header-mascot::after {
+    inset: -14%;
+    border: 2px dashed rgba(255, 184, 75, 0.35);
+    animation: intro-spin 40s linear infinite;
+}
+.intro-header-mascot svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 1.25rem 1.5rem rgba(0, 0, 0, 0.5));
+}
+// Eyelids over the eyes of the mascot (same view box), shown for an instant every few seconds.
+.intro-header-mascot .intro-header-blink {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    filter: none;
+    opacity: 0;
+    animation: intro-blink 5s infinite;
+}
+.intro-header-blink circle {
+    fill: rgb(255, 184, 75);
+}
+.intro-header-blink path {
+    fill: none;
+    stroke: rgb(10, 11, 9);
+    stroke-width: 34;
+    stroke-linecap: round;
+}
+@keyframes intro-blink {
+    0%, 92%, 100% {
+        opacity: 0;
+    }
+    93%, 96% {
+        opacity: 1;
+    }
+}
+@keyframes intro-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-0.75rem);
+    }
+}
+@keyframes intro-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (width >= 768px) {
+    .intro-header-mascot {
+        width: 9.5rem;
+        height: 9.5rem;
+    }
 }
 @media (width >= 992px) {
     .intro-header {
-        background-image: var(--intro-bg-img);
-        background-image: var(--intro-bg-img-set);
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 3rem;
+        padding: 4.5rem 2.5rem 9rem;
     }
-    .intro-header-title {
-        padding: 0 2rem 2.6rem 2rem;
+    .intro-header-body {
+        flex: 1 1 auto;
+        text-align: left;
+    }
+    .intro-header-name {
+        align-self: flex-start;
     }
     .intro-header-img {
-        justify-content: flex-end;
+        margin-right: 4.5rem;
     }
     .intro-header-mascot {
-        margin-right: 12rem;
+        width: 12.5rem;
+        height: 12.5rem;
+    }
+}
+
+// Call to action: a gradient button with a main line (`strong`), a second line and an arrow. The
+// arrow points up and to the right when the link opens in a new window or tab.
+
+.intro-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+.intro-button-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 100%;
+    padding: 0.9rem 1rem 0.9rem 1.75rem;
+    border-radius: 999px;
+    color: #fff !important;
+    background: var(--intro-gradient);
+    box-shadow: 0 0.75rem 2rem -0.5rem rgba(224, 86, 27, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    text-align: left;
+    text-decoration: none !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.intro-button-link:hover {
+    transform: translateY(-0.2rem);
+    box-shadow: 0 1.25rem 2.5rem -0.5rem rgba(224, 86, 27, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.intro-button-link:focus-visible {
+    outline: var(--intro-focus-outline);
+    outline-offset: var(--intro-focus-outline-offset);
+}
+.intro-button-text {
+    display: flex;
+    flex-direction: column;
+    text-wrap: balance;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.92);
+}
+.intro-button-text strong {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+}
+.intro-button-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--intro-orange);
+    background: #fff;
+    transition: transform 0.2s ease;
+}
+.intro-button-arrow svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+.intro-button-link[target='_blank'] .intro-button-arrow svg {
+    transform: rotate(-45deg);
+}
+.intro-button-link:hover .intro-button-arrow {
+    transform: translateX(0.2rem);
+}
+@media (width >= 992px) {
+    .intro-button {
+        justify-content: flex-start;
     }
 }
 
 // Intro Content
 
 .intro-content {
-    height: auto;
-    margin-top: 1.6rem;
     width: 100%;
+    margin-top: -3rem;
 }
 .intro-content-body {
-    box-sizing: border-box;
     max-width: 80rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-.intro-content-body:before,
-.intro-content-body:after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    background: linear-gradient(130deg, rgba(13, 44, 91, 0) 0%, #ddff95 77.4%);
-    margin: 0 -1.2rem;
-    filter: blur(2.75rem);
-    opacity: 0.8;
-    inset: unset;
-}
-.intro-content-body:before {
-    top: -1rem;
-}
-.intro-content-body:after {
-    bottom: -1rem;
-}
-@media (width < 768px) {
-    .intro-content-body {
-        margin-top: -9.8rem;
-    }
-}
-@media (width >= 992px) {
-    .intro-content {
-        margin-top: 0;
-    }
-    .intro-content-body {
-        margin-top: -5.7rem;
-    }
-    .intro-content-body:before,
-    .intro-content-body:after {
-        inset: 11.75rem;
-    }
-}
-
-.intro-button {
-    width: 100%;
     margin: 0 auto;
 }
-.intro-button-link {
-    background: #7f1d1d;
-    background-image: linear-gradient(to bottom, rgba(255,0,0,0.8), rgba(255,255,255,0));
-    background-position: top left, center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    border-radius: 0.75rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    font-size: 1.5rem;
-    line-height: 1.3;
-    text-decoration: none !important;
-    transition: transform 0.3s ease-in-out !important;
-    position: relative;
-    overflow: hidden;
-    min-width: 28.875rem;
-    min-height: 7.6875rem;
-    outline: none;
-}
-.intro-button-link:focus-visible {
-    outline: var(--intro-focus-outline);
-    outline-offset: var(--intro-focus-outline-offset);
-}
-.intro-button-link::before {
-    content: '';
-    position: absolute;
-    top: -13.125rem;
-    left: -10rem;
-    height: 26.25rem;
-    width: 26.25rem;
-    background: linear-gradient(135deg, #ec7bae 50.41%, #9600b8 70.41%);
-    transform: rotate(45deg);
-    transition: transform 0.3s ease-in-out;
-    z-index: 5;
-}
-.intro-button-text {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    transition: all 0.5s ease-in-out;
-    position: relative;
-    z-index: 10;
-    padding: 1rem 1.5rem;
-    text-align: left;
-    color: white;
-    font-size: 1.65rem;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 130.023%;
-    letter-spacing: 0.0075rem;
-}
-.intro-button-text strong {
-    font-size: 2.625rem;
-    font-weight: 600;
-    line-height: 130.023%;
-    letter-spacing: 0.013125rem;
-}
-.intro-button-link span {
-    position: absolute;
-    display: block;
-    pointer-events: none;
-}
-.intro-button-link span:nth-child(1) {
-    height: 8px;
-    width: 100%;
-    top: 0;
-    left: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0), #f6e58d);
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    transform: translateX(-100%);
-    animation: span1 8s linear infinite;
-    animation-delay: 1s;
-}
-@keyframes span1 {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
-}
-.intro-button-link span:nth-child(2) {
-    width: 8px;
-    height: 100%;
-    top: 0;
-    right: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), #f6e58d);
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    transform: translateY(100%);
-    animation: span2 4s linear infinite;
-    animation-delay: 5s;
-}
-@keyframes span2 {
-    0% {
-        transform: translateY(-100%);
-    }
-    100% {
-        transform: translateY(100%);
-    }
-}
-.intro-button-link span:nth-child(3) {
-    height: 8px;
-    width: 100%;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(to left, rgba(0, 0, 0, 0), #f6e58d);
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    transform: translateX(100%);
-    animation: span3 8s linear infinite;
-    animation-delay: 7s;
-}
-@keyframes span3 {
-    0% {
-        transform: translateX(100%);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
-}
-.intro-button-link:hover span {
-    animation-play-state: paused;
-}
-@media (width < 768px) {
-    .intro-header {
-        padding-bottom: 9rem;;
-    }
-    .intro-button-link {
-        height: 6.25rem;
-        min-width: auto;
-        border-radius: 0;
-    }
-    .intro-button-text {
-        display: inline;
-        padding-top: .5rem;
-    }
-}
-@media (width >= 768px) {
-    .intro-button {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        max-width: 29.375rem;
-        margin-bottom: 0;
-    }
-    .intro-button-link:hover {
-        transition: all .5s;
-        transform: rotate(-3deg) scale(1.125);
-    }
-}
-
 .intro-text {
+    position: relative;
     z-index: 1;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    align-items: center;
+    margin: 0;
+    background: var(--intro-panel);
     text-align: left;
-    margin-bottom: 0;
-    background: #fff;
-    position: relative;
 }
 .intro-text-body {
-    padding: 2.5rem 1.063rem 0.75rem;
-    overflow: hidden;
     width: 100%;
+    padding: 2.5rem 1.063rem 0.75rem;
+    // `clip` and not `hidden`: a scroll container would become the timeline of the reveal effect.
+    // `hidden` only for browsers without `clip`, which neither support that effect.
+    overflow: hidden;
+    overflow: clip;
+    border-radius: inherit;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+}
+.intro-text-body p {
+    text-wrap: pretty;
 }
 .intro-text-lead {
     width: 100%;
-    font-size: 1.5rem;
     margin: 0 0 1.5rem;
-}
-@media (width >= 768px) {
-    .intro-button + .intro-text-body {
-        padding-top: 7rem;
-    }
+    font-size: 1.375rem;
+    line-height: 1.5;
 }
 @media (width >= 992px) {
-    .intro-header {
-        padding-bottom: 9rem;;
-    }
-    .intro-text,
-    .intro-text-body {
-        border-radius: 0.75rem;
+    .intro-content {
+        margin-top: -6rem;
     }
     .intro-text {
-        box-shadow: var(--intro-shadow);
-        max-width: min(60rem, 100vw - 4rem);
-        margin: 0 auto 6rem;
-    }
-    .intro-text-narrow {
-        max-width: min(50rem, 100vw - 4rem);
-    }
-    .intro-text-wide {
-        max-width: min(67rem, 100vw - 4rem);
-    }
-    .intro-text-full {
         max-width: min(74rem, 100vw - 4rem);
+        margin: 0 auto 5rem;
+        border-radius: var(--intro-radius);
+        box-shadow: var(--intro-shadow);
     }
     .intro-text-body {
-        padding-left: 4.5rem;
-        padding-right: 4.5rem;
+        padding: 3.5rem 4.5rem 0.75rem;
     }
 }
+
+// Blocks: a bold title over a short gradient bar, and some room between them.
 
 .intro-text-body .block {
     position: relative;
+    margin-bottom: 2.5rem;
 }
 .intro-text-body .block-title {
-    margin: 1em 0 .8em;
+    margin: 0 0 1.25rem;
+    color: var(--intro-color);
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
 }
 .intro-text-body .block-title span {
     display: inline-block;
-    padding: 10px 30px 14px;
-    margin: 30px 20px 0;
-    background: white;
-    border: 5px solid;
-    border-radius: 30px;
-    box-shadow: 0 0 0 5px white, inset 0 0 0 5px white;
-    border-color: orangered;
-    transform: rotate(-3deg) translateY(-25%);
 }
-.intro-text-body .block-title:before {
-    content: "";
-    height: 5px;
-    position: absolute;
-    top: 50px;
-    left: -15%;
-    width: 130%;
-    z-index: -5;
-    background: orangered;
-    box-shadow: 0 0 0 5px white, 0 -10px 0 5px white;
-    transform: rotate(2deg) translateY(-50%);
-    transform-origin: top left;
-}
-.intro-text-body .block-title:after {
-    content: "";
-    height: 120%;
-    position: absolute;
-    top: 42px;
-    left: -25%;
-    width: 150%;
-    z-index: -10;
-    background: var(--intro-bg-block-1);
-    transform: rotate(2deg);
-}
-.intro-text-body .block:nth-of-type(6n+1) .block-title:after {
-    background: var(--intro-bg-block-1);
-}
-.intro-text-body .block:nth-of-type(6n+2) .block-title:after {
-    background: var(--intro-bg-block-2);
-}
-.intro-text-body .block:nth-of-type(6n+3) .block-title:after {
-    background: var(--intro-bg-block-3);
-}
-.intro-text-body .block:nth-of-type(6n+4) .block-title:after {
-    background: var(--intro-bg-block-4);
-}
-.intro-text-body .block:nth-of-type(6n+5) .block-title:after {
-    background: var(--intro-bg-block-5);
-}
-.intro-text-body .block:nth-of-type(6n+6) .block-title:after {
-    background: var(--intro-bg-block-6);
+.intro-text-body .block-title span::after {
+    content: '';
+    display: block;
+    width: 3.5rem;
+    height: 0.3rem;
+    margin-top: 0.6rem;
+    border-radius: 999px;
+    background: var(--intro-gradient);
 }
 
-#intro-badges {
-    min-height: 3.2rem;
-    text-align: center;
-    visibility: hidden;
+// Each piece of the panel (and each title and piece of the blocks) fades in and rises a little
+// as it enters the viewport, driven by the scroll itself (no script). The range is a fixed length,
+// so tall blocks do not stay half faded for long; pieces already in view when the page loads are
+// shown at once. It animates `translate` and `scale`, not `transform`, so it never overrides the
+// hover effects of the contents.
+
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .intro-text-body > :not(.block),
+        .intro-text-body .block-title,
+        .intro-text-body .block-body > * {
+            animation: intro-reveal linear both;
+            animation-timeline: view();
+            animation-range: entry 0 entry 10rem;
+        }
+    }
 }
-#intro-badges img {
-    margin-bottom: 0.25rem;
+@keyframes intro-reveal {
+    from {
+        opacity: 0;
+        translate: 0 2.5rem;
+        scale: 0.98;
+    }
+    to {
+        opacity: 1;
+        translate: none;
+        scale: none;
+    }
 }
-#intro-release:not([src]) {
-    display: none;
+
+// Links in the text of the panel take the colors of the intro, whatever the theme is. Links with a
+// class of their own (buttons, cards...) keep their styles.
+
+.intro-text-body a:not([class]) {
+    color: var(--intro-color-brand);
+    text-decoration: underline;
+    text-decoration-color: rgba(180, 65, 15, 0.35);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: color 0.2s, text-decoration-color 0.2s;
+}
+.intro-text-body a:not([class]):hover {
+    color: var(--intro-orange);
+    text-decoration-color: currentColor;
+}
+
+// Data of the running version in the default presentation: name and value in each pill.
+
+.intro-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0 0 1.75rem;
+    padding: 0;
+    list-style: none;
+}
+.intro-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid rgba(180, 65, 15, 0.22);
+    border-radius: 999px;
+    background: #fff3e2;
+}
+.intro-pill-key {
+    color: #8a5a35;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+.intro-pill-val {
+    color: var(--intro-color-brand);
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
 }
 
 // Intro Footer
 
 .intro-footer {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    background-color: black;
+    padding: 2.5rem 0 2rem;
     color: var(--intro-color-gray);
-    padding-bottom: 2rem;
+    background: var(--intro-bg-footer);
+    border-top: 1px solid rgba(255, 184, 75, 0.15);
 }
-
 .intro-footer-body {
     display: flex;
-    justify-content: center;
     flex-direction: column;
-    margin: 0 auto;
-    padding: 0 10.625rem;
+    align-items: center;
+    gap: 1.75rem;
     max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
-.intro-footer-body a:visited {
-    color: var(--intro-color-gray);
+.intro-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
 }
 // The footer has its own dark surface, so its links don't inherit the theme's link colors.
-.intro-footer-links a {
-    color: currentColor;
-    text-decoration: underline;
-    transition: font-size 0.2s, text-decoration-color 0.2s;
+.intro-footer-links a,
+.intro-footer-links a:visited {
+    padding: 0.35rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: var(--intro-color-light);
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+.intro-footer-links a:hover {
+    border-color: var(--intro-color-link);
+    color: var(--intro-color-link);
+    background: rgba(255, 184, 75, 0.08);
 }
 .intro-footer-links a:focus-visible {
     outline: var(--intro-focus-outline);
     outline-offset: var(--intro-focus-outline-offset);
 }
-.intro-footer-links a:hover,
-.intro-footer-links a:hover:visited {
-    text-decoration-color: var(--intro-color-link);
+.intro-footer-links em {
+    flex-basis: 100%;
+    margin-top: 0.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.7;
 }
-.intro-footer-logo,
-.intro-footer-links {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-.intro-footer-logo {
-    max-height: 12.625rem;
-}
-.intro-footer-logo svg {
-    width: 100%;
-}
-.intro-footer-links {
-    gap: 1.875rem;
-    flex-wrap: wrap;
-    margin-top: 2rem;
-}
-@media (width < 768px) {
-    .intro-footer-logo {
-        display: none;
+
+@media (prefers-reduced-motion: reduce) {
+    .intro::before,
+    .intro::after,
+    .intro-header-mascot,
+    .intro-header-mascot::after,
+    .intro-header-mascot .intro-header-blink {
+        animation: none;
     }
-}
-@media (width < 992px) {
-    .intro-footer-body {
-        padding: 0 1rem;
+    .intro-button-link,
+    .intro-button-arrow {
+        transition: none;
     }
 }

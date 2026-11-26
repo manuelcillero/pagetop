@@ -24,7 +24,6 @@ async fn navbar_menus(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .with_assets(demo_scroll_styles());
 
     let mut intro = Intro::custom()
-        .with_width(intro::Width::Full)
         .with_title(Lc::n("PageTop"))
         .with_slogan(Lc::t("menus_slogan", &LOC))
         .with_child(Html::with(|cx| {

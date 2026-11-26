@@ -1,6 +1,26 @@
 use pagetop_build::{StaticFilesBundle, compile_scss, copy_dir, copy_file, minify_js};
 
 fn main() -> std::io::Result<()> {
+    // Fecha de publicación de la versión que se compila, tomada de su entrada en `CHANGELOG.md`
+    // (`## 0.5.0 (2026-05-03)`), para que `Intro` la muestre sin consultar ningún servicio externo.
+    // Queda vacía si la versión aún no figura en el `CHANGELOG`.
+    println!("cargo:rerun-if-changed=CHANGELOG.md");
+    let heading = format!("## {} (", env!("CARGO_PKG_VERSION"));
+    let date = std::fs::read_to_string("CHANGELOG.md")
+        .ok()
+        .and_then(|changelog| {
+            changelog.lines().find_map(|line| {
+                line.trim_end()
+                    .strip_prefix(&heading)
+                    .and_then(|rest| rest.strip_suffix(')'))
+                    .map(str::to_owned)
+            })
+        })
+        .unwrap_or_default();
+    println!("cargo:rustc-env=PAGETOP_RELEASE_DATE={date}");
+
+    // **< Preparación del directorio de recursos estáticos >***************************************
+
     // Regenera `static/` desde cero sólo si hay cambios en `assets/`.
     println!("cargo:rerun-if-changed=assets");
     let _ = std::fs::remove_dir_all("static");

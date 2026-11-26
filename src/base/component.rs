@@ -51,8 +51,7 @@ pub mod image;
 #[doc(inline)]
 pub use image::Image;
 
-pub mod intro;
-#[doc(inline)]
+mod intro;
 pub use intro::Intro;
 
 mod list_filter;

@@ -44,18 +44,17 @@ timezone_region_etc = Otras
 
 # Intro component.
 intro_default_title = ¡Hola, mundo!
-intro_default_slogan = Descubre⚡{ $app }
-intro_default_button = Una solución web creada con <strong>PageTop</strong>
+intro_default_slogan = <strong>{ $app }</strong> ya está en marcha
+intro_default_button = <strong>Conoce PageTop</strong> Soluciones web modulares en Rust
 
-intro_pagetop_label = Versión de PageTop en Crates.io
-intro_release_label = Publicado
+intro_release_label = Publicada
 intro_license_label = Licencia
 
 intro_text1 = PageTop es un <strong>entorno de desarrollo web basado en Rust</strong>, pensado para construir soluciones web modulares, extensibles y configurables.
-intro_text2 = PageTop reivindica la esencia de la web clásica, renderiza en el servidor (SSR) utilizando componentes <em>HTML-first</em>, CSS y JavaScript, <strong>con el rendimiento y la seguridad de Rust</strong>.
+intro_text2 = PageTop recupera la esencia de la web clásica: genera el HTML en el servidor (SSR) con componentes <em>HTML-first</em>, CSS y JavaScript, <strong>con el rendimiento y la seguridad de Rust</strong>.
 
 intro_code = Código
-intro_have_fun = Programar es crear
+intro_have_fun = Sólo necesitas una idea para empezar
 
 # ListFilter component.
 list_filter_submit = Filtrar
