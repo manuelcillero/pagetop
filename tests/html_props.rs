@@ -1,5 +1,12 @@
 use pagetop::prelude::*;
 
+// Value of a generic attribute in the default language (`None` if missing).
+fn text(p: &Props, name: &str) -> Option<String> {
+    p.get_prop(name)
+        .and_then(|v| v.lookup(&Locale::default()))
+        .map(|v| v.into_owned())
+}
+
 // **< Construction & invariants >******************************************************************
 
 #[pagetop::test]
@@ -14,14 +21,14 @@ async fn props_default_renders_nothing() {
 #[pagetop::test]
 async fn props_new_creates_first_attr() {
     let p = Props::new("hx-get", "/api");
-    assert_eq!(p.get_prop("hx-get"), Some("/api".to_string()));
+    assert_eq!(text(&p, "hx-get").as_deref(), Some("/api"));
 }
 
 #[pagetop::test]
 async fn props_get_missing_key_returns_none() {
     let p = Props::new("hx-get", "/api");
-    assert_eq!(p.get_prop("hx-post"), None);
-    assert_eq!(p.get_prop(""), None);
+    assert!(p.get_prop("hx-post").is_none());
+    assert!(p.get_prop("").is_none());
 }
 
 // **< PropsOp::set >*******************************************************************************
@@ -31,14 +38,14 @@ async fn props_set_adds_new_attrs() {
     let p = Props::default()
         .with_prop(PropsOp::set("hx-get", "/api"))
         .with_prop(PropsOp::set("hx-swap", "outerHTML"));
-    assert_eq!(p.get_prop("hx-get"), Some("/api".to_string()));
-    assert_eq!(p.get_prop("hx-swap"), Some("outerHTML".to_string()));
+    assert_eq!(text(&p, "hx-get").as_deref(), Some("/api"));
+    assert_eq!(text(&p, "hx-swap").as_deref(), Some("outerHTML"));
 }
 
 #[pagetop::test]
 async fn props_set_replaces_existing_value() {
     let p = Props::new("hx-get", "/old").with_prop(PropsOp::set("hx-get", "/new"));
-    assert_eq!(p.get_prop("hx-get"), Some("/new".to_string()));
+    assert_eq!(text(&p, "hx-get").as_deref(), Some("/new"));
 }
 
 #[pagetop::test]
@@ -71,15 +78,15 @@ async fn props_remove_existing_attr() {
     let p = Props::new("a", "1")
         .with_prop(PropsOp::set("b", "2"))
         .with_prop(PropsOp::remove("a"));
-    assert_eq!(p.get_prop("a"), None);
-    assert_eq!(p.get_prop("b"), Some("2".to_string()));
+    assert!(p.get_prop("a").is_none());
+    assert_eq!(text(&p, "b").as_deref(), Some("2"));
 }
 
 #[pagetop::test]
 async fn props_remove_nonexistent_key_is_noop() {
     let p = Props::new("a", "1").with_prop(PropsOp::remove("missing"));
-    assert_eq!(p.get_prop("a"), Some("1".to_string()));
-    assert_eq!(p.get_prop("missing"), None);
+    assert_eq!(text(&p, "a").as_deref(), Some("1"));
+    assert!(p.get_prop("missing").is_none());
 }
 
 #[pagetop::test]
@@ -90,6 +97,36 @@ async fn props_renders_nothing_after_removing_last_attr() {
         html! { span (p.unpack(&mut cx)) {} }.into_string(),
         "<span></span>"
     );
+}
+
+// **< Reserved names: id, class and style >********************************************************
+
+// `id`, `class` and `style` have their own operations (SetId, AddClasses, ClearClasses, AddStyle,
+// ClearStyles...); the generic ones reject them.
+
+#[pagetop::test]
+#[should_panic(expected = "has its own PropsOp variants")]
+async fn props_set_rejects_id() {
+    let _ = Props::default().with_prop(PropsOp::set("id", "x"));
+}
+
+#[pagetop::test]
+#[should_panic(expected = "has its own PropsOp variants")]
+async fn props_rename_rejects_class_as_target() {
+    let _ = Props::new("data-x", "a").with_prop(PropsOp::rename("data-x", "class"));
+}
+
+#[pagetop::test]
+#[should_panic(expected = "has its own PropsOp variants")]
+async fn props_remove_rejects_style() {
+    let _ = Props::default().with_prop(PropsOp::remove("style"));
+}
+
+// HTML attribute names are case-insensitive: `Class` would be rendered as a second `class`.
+#[pagetop::test]
+#[should_panic(expected = "has its own PropsOp variants")]
+async fn props_set_rejects_reserved_names_in_any_case() {
+    let _ = Props::default().with_prop(PropsOp::set("Class", "x"));
 }
 
 // **< HTML Escaped >*******************************************************************************
@@ -296,23 +333,28 @@ async fn props_is_empty_false_with_class() {
     assert!(!Props::classes("btn").is_empty());
 }
 
-// **< get_prop("id") >*****************************************************************************
+// **< get_id >*************************************************************************************
 
 #[pagetop::test]
-async fn get_prop_id_returns_none_by_default() {
-    assert_eq!(Props::default().get_prop("id"), None);
+async fn get_id_returns_none_by_default() {
+    assert_eq!(Props::default().get_id(), None);
 }
 
 #[pagetop::test]
-async fn get_prop_id_returns_normalized_value() {
+async fn get_id_returns_normalized_value() {
     let p = Props::default().with_id("My Button");
-    assert_eq!(p.get_prop("id"), Some("my_button".to_string()));
+    assert_eq!(p.get_id(), Some("my_button".to_string()));
 }
 
+// `id`, `class` and `style` are not generic attributes: they have their own getters.
 #[pagetop::test]
-async fn get_prop_id_matches_get_id() {
-    let p = Props::default().with_id("Header");
-    assert_eq!(p.get_prop("id"), p.get_id());
+async fn get_prop_does_not_return_id_class_or_style() {
+    let p = Props::classes("btn")
+        .with_id("x")
+        .with_prop(PropsOp::add_style("color", "red"));
+    for name in ["id", "class", "style"] {
+        assert!(p.get_prop(name).is_none(), "{name}");
+    }
 }
 
 // **< Regression & edge cases >********************************************************************
@@ -345,9 +387,9 @@ async fn props_chained_set_and_remove_yields_expected_state() {
         .with_prop(PropsOp::set("c", "3"))
         .with_prop(PropsOp::remove("b"))
         .with_prop(PropsOp::set("a", "updated"));
-    assert_eq!(p.get_prop("a"), Some("updated".to_string()));
-    assert_eq!(p.get_prop("b"), None);
-    assert_eq!(p.get_prop("c"), Some("3".to_string()));
+    assert_eq!(text(&p, "a").as_deref(), Some("updated"));
+    assert!(p.get_prop("b").is_none());
+    assert_eq!(text(&p, "c").as_deref(), Some("3"));
     let mut cx = Context::default();
     assert_eq!(
         html! { span (p.unpack(&mut cx)) {} }.into_string(),

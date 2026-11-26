@@ -30,7 +30,7 @@ mod attr;
 pub use attr::{AttrName, AttrValue};
 
 mod props;
-pub use props::{Props, PropsError, PropsExtra, PropsOp};
+pub use props::{PropValue, Props, PropsError, PropsExtra, PropsOp};
 
 mod unit;
 pub use unit::UnitValue;

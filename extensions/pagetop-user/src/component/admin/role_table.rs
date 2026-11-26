@@ -238,10 +238,7 @@ async fn actions_cell(
             .alter_param("dir", dir)
             .alter_param("page", page.to_string())
             .to_string();
-        let question = Lc::t("confirm-delete-role", &LOCALES_USER)
-            .with_arg("name", name.clone())
-            .lookup(cx)
-            .unwrap_or_default();
+        let question = Lc::t("confirm-delete-role", &LOCALES_USER).with_arg("name", name.clone());
 
         let delete_button = hx_confirm::confirm_delete(
             Button::delete()

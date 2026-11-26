@@ -1,5 +1,5 @@
 mod op;
-pub use op::PropsOp;
+pub use op::{PropValue, PropsOp};
 
 mod extra;
 pub use extra::PropsExtra;

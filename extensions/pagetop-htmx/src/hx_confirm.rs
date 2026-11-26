@@ -8,8 +8,8 @@
 //! - [`dialog()`] crea un diálogo con nombre, con su título y su botón de aceptar («Bloquear»,
 //!   «Conceder acceso»...). Se añade una vez a la página, **fuera de lo que actualice HTMX**, para
 //!   que no lo sustituya. Una página puede tener varios.
-//! - [`confirm()`] prepara el botón que pide confirmación en ese diálogo: la pregunta viaja en su
-//!   propio `hx-confirm`, y el botón abre el diálogo.
+//! - [`confirm()`] prepara el botón que pide confirmación en ese diálogo: la pregunta, traducida al
+//!   idioma de la petición, viaja en su propio `hx-confirm`, y el botón abre el diálogo.
 //! - [`dialog_delete()`] y [`confirm_delete()`] hacen lo mismo para el borrado, con un diálogo que
 //!   comparten todas las filas de un listado. La pregunta de cada fila lleva el nombre del
 //!   registro.
@@ -47,7 +47,7 @@
 //!                 .with_prop(PropsOp::set(hx::POST, delete_route))
 //!                 .with_prop(PropsOp::set(hx::TARGET, "#plots"))
 //!                 .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML)),
-//!             util::join!("Delete the plot «", name, "»?"),
+//!             Lc::n(util::join!("Delete the plot «", name, "»?")),
 //!         );
 //!         table.alter_row(table::Row::new().with_cell(name).with_cell(delete));
 //!     }
@@ -99,7 +99,7 @@ const DELETE_DIALOG: &str = "delete";
 /// let block = hx_confirm::confirm(
 ///     "block",
 ///     Button::submit(Lc::n("Block")).with_prop(PropsOp::set(hx::POST, "/users/7/block")),
-///     "Block the account «ana»? They will not be able to sign in.",
+///     Lc::n("Block the account «ana»? They will not be able to sign in."),
 /// );
 /// ```
 pub fn dialog(name: impl AsRef<str>, title: Lc, accept: Button) -> Dialog {
@@ -139,14 +139,16 @@ pub fn dialog_delete() -> Dialog {
 /// Antes de enviar su petición, `button` pregunta `question` en el diálogo `name` de [`dialog()`].
 /// `button` ya lleva la petición (`hx::POST` y, si hace falta, su `hx::TARGET` y su `hx::SWAP`); si
 /// es el botón de enviar de un formulario, la petición incluye los campos del formulario.
-/// `question` es el texto ya traducido. Añade `hx::CONFIRM` con la pregunta y los atributos
+/// `question` va en `hx::CONFIRM` como atributo localizado ([`PropsOp::set()`] con un [`Lc`]): se
+/// traduce al renderizar el botón, con el idioma de la petición; si no tiene traducción, el botón
+/// se queda sin `hx::CONFIRM` y el diálogo se abre sin pregunta. Añade también los atributos
 /// `data-dialog-*` que abren el diálogo. `name` sigue las mismas reglas que en [`dialog()`]. Ver el
 /// ejemplo de [`dialog()`].
-pub fn confirm(name: impl AsRef<str>, button: Button, question: impl Into<String>) -> Button {
+pub fn confirm(name: impl AsRef<str>, button: Button, question: Lc) -> Button {
     let name = name.as_ref();
     debug_assert_valid_name(name);
     button
-        .with_prop(PropsOp::set(hx::CONFIRM, question.into()))
+        .with_prop(PropsOp::set(hx::CONFIRM, question))
         .with_prop(PropsOp::set("data-hx-confirm", name.to_string()))
         .with_prop(PropsOp::set("data-dialog-toggle", "modal"))
         .with_prop(PropsOp::set(
@@ -163,7 +165,7 @@ pub fn confirm(name: impl AsRef<str>, button: Button, question: impl Into<String
 /// Para los lectores de pantalla, dale también el nombre del registro al propio botón con
 /// [`Button::with_hidden_label()`]: todas las filas tienen un «Eliminar» igual. Ver el ejemplo del
 /// [módulo](self).
-pub fn confirm_delete(button: Button, question: impl Into<String>) -> Button {
+pub fn confirm_delete(button: Button, question: Lc) -> Button {
     confirm(DELETE_DIALOG, button, question)
 }
 

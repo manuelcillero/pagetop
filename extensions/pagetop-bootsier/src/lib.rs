@@ -312,16 +312,6 @@ impl Theme for Bootsier {
     }
 
     fn before_render_page_body(&self, page: &mut Page) {
-        // Etiquetas de los botones del modal de confirmación que sustituye al `confirm()` nativo
-        // de htmx (ver `bootsier.confirm.js`); se leen aquí porque este es el único punto con
-        // acceso al `Context` para resolverlas antes de escribirlas en el `<body>`.
-        let confirm_ok = Lc::t("confirm_ok", &LOCALES_BOOTSIER)
-            .lookup(page)
-            .unwrap_or_default();
-        let confirm_cancel = Lc::t("confirm_cancel", &LOCALES_BOOTSIER)
-            .lookup(page)
-            .unwrap_or_default();
-
         // Las URLs de las fuentes deben coincidir exactamente con las declaradas en @font-face de
         // _bootsier-custom.scss; cualquier discrepancia hace que el navegador descargue dos veces.
         page.alter_assets(Preload::font("/bootsier/fonts/bootsier.font.woff2").with_weight(-99))
@@ -353,8 +343,16 @@ impl Theme for Bootsier {
                     .with_version(BOOTSTRAP_VERSION)
                     .with_weight(-99),
             )
-            .alter_body_props(PropsOp::set("data-confirm-ok", confirm_ok))
-            .alter_body_props(PropsOp::set("data-confirm-cancel", confirm_cancel))
+            // Etiquetas de los botones del modal de confirmación que sustituye al `confirm()` nativo
+            // de htmx (ver `bootsier.confirm.js`).
+            .alter_body_props(PropsOp::set(
+                "data-confirm-ok",
+                Lc::t("confirm_ok", &LOCALES_BOOTSIER),
+            ))
+            .alter_body_props(PropsOp::set(
+                "data-confirm-cancel",
+                Lc::t("confirm_cancel", &LOCALES_BOOTSIER),
+            ))
             .alter_child_in(
                 &CoreRegions::Footer,
                 ChildOp::AddIfEmpty(PoweredBy::new().into()),

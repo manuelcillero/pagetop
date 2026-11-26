@@ -461,14 +461,10 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     let mut status_button = Button::submit(Lc::t(label_key, &LOCALES_USER))
         .with_style(button::Style::Solid(Intent::Neutral));
     if blocks {
-        let question = Lc::t("confirm-block-account", &LOCALES_USER)
-            .with_arg("name", state.username.clone())
-            .lookup(cx)
-            .unwrap_or_default();
         status_button = hx_confirm::confirm(
             BLOCK_DIALOG,
             status_button.with_prop(PropsOp::set(hx::POST, status_action.to_string())),
-            question,
+            Lc::t("confirm-block-account", &LOCALES_USER).with_arg("name", state.username.clone()),
         );
     }
     let status_form = Form::new()
@@ -521,16 +517,12 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
     }
 
     if state.can_toggle_admin {
-        let question = Lc::t(admin_confirm_key, &LOCALES_USER)
-            .with_arg("name", state.username.clone())
-            .lookup(cx)
-            .unwrap_or_default();
         let admin_button = hx_confirm::confirm(
             ADMIN_DIALOG,
             Button::submit(Lc::t(admin_label_key, &LOCALES_USER))
                 .with_style(button::Style::Solid(Intent::Severe))
                 .with_prop(PropsOp::set(hx::POST, admin_action.to_string())),
-            question,
+            Lc::t(admin_confirm_key, &LOCALES_USER).with_arg("name", state.username.clone()),
         );
         container = container
             .with_child(

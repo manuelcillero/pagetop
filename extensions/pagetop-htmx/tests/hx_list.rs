@@ -111,7 +111,7 @@ async fn confirm_opens_the_shared_dialog_with_the_question() {
         Button::delete()
             .with_hidden_label(Lc::n("A1"))
             .with_prop(PropsOp::set(hx::POST, "/plots/1/delete")),
-        "Delete the plot «A1»?",
+        Lc::n("Delete the plot «A1»?"),
     );
     let html = button.render(&mut Context::default()).await.into_string();
 
@@ -127,13 +127,40 @@ async fn confirm_opens_the_shared_dialog_with_the_question() {
 
 #[pagetop::test]
 async fn confirm_escapes_the_question() {
-    let mut button = hx_confirm::confirm_delete(Button::delete(), r#"Delete "<b>"?"#);
+    let mut button = hx_confirm::confirm_delete(Button::delete(), Lc::n(r#"Delete "<b>"?"#));
     let html = button.render(&mut Context::default()).await.into_string();
 
     assert!(
         html.contains(r#"hx-confirm="Delete &quot;&lt;b&gt;&quot;?""#),
         "{html}"
     );
+}
+
+#[pagetop::test]
+async fn confirm_translates_the_question_into_the_language_of_the_request() {
+    for (language, question) in [("en-US", "Delete"), ("es-ES", "Eliminar")] {
+        let mut button =
+            hx_confirm::confirm_delete(Button::plain(Lc::n("x")), Lc::l("button_delete"));
+        let html = button
+            .render(&mut cx_with_lang(language))
+            .await
+            .into_string();
+        assert!(
+            html.contains(&format!(r#" hx-confirm="{question}""#)),
+            "{language}: {html}"
+        );
+    }
+}
+
+// Without a translation the button has no question, but it still opens the dialog, which holds the
+// request as with any other question.
+#[pagetop::test]
+async fn a_question_without_translation_leaves_out_hx_confirm() {
+    let mut button = hx_confirm::confirm_delete(Button::plain(Lc::n("x")), Lc::l("no_such_key"));
+    let html = button.render(&mut Context::default()).await.into_string();
+    assert!(!html.contains(" hx-confirm="), "{html}");
+    assert!(html.contains(r#"data-hx-confirm="delete""#), "{html}");
+    assert!(html.contains(DIALOG_TARGET), "{html}");
 }
 
 #[pagetop::test]
@@ -214,7 +241,7 @@ async fn a_named_dialog_confirms_its_own_action() {
     let mut button = hx_confirm::confirm(
         "block",
         Button::submit(Lc::n("Block")).with_prop(PropsOp::set(hx::POST, "/users/7/block")),
-        "Block the account «ana»?",
+        Lc::n("Block the account «ana»?"),
     );
     let html = button.render(&mut Context::default()).await.into_string();
     assert!(html.contains(r#"type="submit""#), "{html}");
@@ -242,5 +269,5 @@ async fn a_dialog_name_that_cannot_be_a_selector_is_an_error() {
 #[pagetop::test]
 #[should_panic(expected = "must only have ASCII letters, digits")]
 async fn an_empty_dialog_name_is_an_error() {
-    let _ = hx_confirm::confirm("", Button::submit(Lc::n("Block")), "Block?");
+    let _ = hx_confirm::confirm("", Button::submit(Lc::n("Block")), Lc::n("Block?"));
 }

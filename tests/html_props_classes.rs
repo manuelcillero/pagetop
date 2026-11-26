@@ -170,29 +170,19 @@ async fn classes_replace_all_rejects_non_ascii_targets_is_noop() {
     assert_classes(&p, Some("a b c"));
 }
 
-// **< PropsOp::set / remove ("class") >************************************************************
+// **< PropsOp::clear_classes >*********************************************************************
 
 #[pagetop::test]
-async fn classes_reset_replaces_entire_list_and_dedups() {
-    let p = Props::classes("a b c").with_prop(PropsOp::set("class", "X  y  y  Z"));
+async fn classes_clear_then_add_replaces_entire_list_and_dedups() {
+    let p = Props::classes("a b c")
+        .with_prop(PropsOp::clear_classes())
+        .with_prop(PropsOp::add_classes("X  y  y  Z"));
     assert_classes(&p, Some("x y z"));
 }
 
 #[pagetop::test]
-async fn classes_reset_with_empty_input_clears() {
-    let p = Props::classes("a b").with_prop(PropsOp::set("class", " \n "));
-    assert_classes(&p, None);
-}
-
-#[pagetop::test]
-async fn classes_reset_with_non_ascii_is_noop() {
-    let p = Props::classes("a b").with_prop(PropsOp::set("class", "ñ"));
-    assert_classes(&p, Some("a b"));
-}
-
-#[pagetop::test]
-async fn classes_remove_attr_clears_all_classes() {
-    let p = Props::classes("btn primary").with_prop(PropsOp::remove("class"));
+async fn classes_clear_removes_all_classes() {
+    let p = Props::classes("btn primary").with_prop(PropsOp::clear_classes());
     assert_classes(&p, None);
 }
 
@@ -266,12 +256,12 @@ async fn props_is_classes_empty_false_after_add_classes() {
 }
 
 #[pagetop::test]
-async fn props_is_classes_empty_true_after_remove_class() {
-    let p = Props::classes("btn").with_prop(PropsOp::remove("class"));
+async fn props_is_classes_empty_true_after_clear_classes() {
+    let p = Props::classes("btn").with_prop(PropsOp::clear_classes());
     assert!(p.is_classes_empty());
 }
 
-// **< get_classes / get_prop("class") >************************************************************
+// **< get_classes >********************************************************************************
 
 #[pagetop::test]
 async fn classes_get_returns_none_when_empty_some_when_not() {
@@ -280,18 +270,9 @@ async fn classes_get_returns_none_when_empty_some_when_not() {
 }
 
 #[pagetop::test]
-async fn get_prop_class_returns_joined_classes() {
+async fn get_classes_returns_joined_classes() {
     let p = Props::classes("btn btn-primary").with_prop(PropsOp::add_classes("active"));
-    assert_eq!(
-        p.get_prop("class"),
-        Some("btn btn-primary active".to_string())
-    );
-}
-
-#[pagetop::test]
-async fn get_prop_class_matches_get_classes() {
-    let p = Props::classes("btn active");
-    assert_eq!(p.get_prop("class"), p.get_classes());
+    assert_eq!(p.get_classes(), Some("btn btn-primary active".to_string()));
 }
 
 // **< HTML rendering >*****************************************************************************
