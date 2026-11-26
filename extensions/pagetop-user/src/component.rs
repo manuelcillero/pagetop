@@ -90,10 +90,7 @@ pub(crate) fn error_banner(error: Option<Lc>) -> Html {
 // Botonera de un formulario: el botón de envío y, en la misma fila, el enlace para salir sin
 // guardar.
 pub(crate) fn form_actions(submit: Button, cancel: impl Into<Route>) -> Flex {
-    Flex::new()
-        .with_wrap(flex::Behavior::Wrap)
-        .with_align(align::Items::Center)
-        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+    Flex::buttons()
         .with_child(submit)
         .with_child(Button::cancel(cancel))
 }

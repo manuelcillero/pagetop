@@ -119,11 +119,7 @@ impl Component for ListView {
         let summary = Lc::l("list_view_summary")
             .with_number("count", u32::try_from(count).unwrap_or(u32::MAX))
             .lookup(cx);
-        let mut actions = Flex::new()
-            .with_prop(PropsOp::add_classes("list-view-actions"))
-            .with_wrap(flex::Behavior::Wrap)
-            .with_align(align::Items::Center)
-            .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)));
+        let mut actions = Flex::buttons().with_prop(PropsOp::add_classes("list-view-actions"));
         for action in self.actions().iter() {
             actions.alter_child(action.clone());
         }

@@ -422,9 +422,7 @@ fn buttons(outline: bool) -> Flex {
         true => button::Style::Outline(intent),
     };
 
-    let mut row = Flex::new()
-        .with_wrap(flex::Behavior::Wrap)
-        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)));
+    let mut row = Flex::buttons();
     for (label, intent) in [
         ("Primary", Intent::Primary),
         ("Neutral", Intent::Neutral),

@@ -191,9 +191,7 @@ fn profile_actions(
     can_change_password: bool,
     cx: &Context,
 ) -> Flex {
-    let mut actions = Flex::new()
-        .with_wrap(flex::Behavior::Wrap)
-        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)));
+    let mut actions = Flex::buttons();
     if can_edit {
         actions = actions.with_child(
             Button::anchor(

@@ -94,6 +94,28 @@ async fn gap_both_adds_a_single_gap_style() {
     assert!(assets.contains("_flex-gap_0_5rem_{gap:0.5rem}"));
 }
 
+// A row of buttons wraps, centres its items vertically and spaces them out, and it can still be
+// adjusted like any other Flex.
+#[pagetop::test]
+async fn buttons_is_a_wrapping_centred_row_with_a_gap() {
+    let mut cx = Context::default();
+    let mut row = Flex::buttons()
+        .with_justify(flex::ContentJustify::End)
+        .with_child(Button::save());
+    let html = row.render(&mut cx).await.into_string();
+    let assets = cx.render_assets().into_string();
+
+    assert!(html.contains("_flex_"), "{html}");
+    assert!(html.contains("_flex-wrap_wrap_"), "{html}");
+    assert!(html.contains("_flex-align-items_center_"), "{html}");
+    assert!(html.contains("_flex-justify_flex-end_"), "{html}");
+    assert!(assets.contains("{gap:0.5rem}"), "{assets}");
+    // Nothing is drawn without children, nor when none of them draws anything.
+    assert!(Flex::buttons().render(&mut cx).await.is_empty());
+    let mut hidden = Flex::buttons().with_child(Html::with(|_| html! {}));
+    assert!(hidden.render(&mut cx).await.is_empty());
+}
+
 #[pagetop::test]
 async fn gap_distinct_adds_row_and_column_gap_styles() {
     let mut cx = Context::default();

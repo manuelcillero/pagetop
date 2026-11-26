@@ -53,10 +53,7 @@ use crate::prelude::*;
 ///     .with_icon_start(Icon::with(icon::Core::Close).with_label(Lc::n("Close")));
 ///
 /// // Botones habituales: la fila de acciones de un formulario de alta...
-/// let actions = Flex::new()
-///     .with_wrap(flex::Behavior::Wrap)
-///     .with_align(align::Items::Center)
-///     .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+/// let actions = Flex::buttons()
 ///     .with_child(Button::save())
 ///     .with_child(Button::save_and_new())
 ///     .with_child(Button::cancel("/items"));
@@ -406,10 +403,7 @@ impl Button {
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
-    /// let actions = Flex::new()
-    ///     .with_wrap(flex::Behavior::Wrap)
-    ///     .with_align(align::Items::Center)
-    ///     .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
+    /// let actions = Flex::buttons()
     ///     .with_child(Button::save())
     ///     .with_child(Button::cancel("/items"));
     /// ```

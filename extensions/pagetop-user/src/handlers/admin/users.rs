@@ -474,10 +474,7 @@ fn edit_actions(user_id: i32, state: EditActions, cx: &mut Context) -> Flex {
         .with_child(form::Hidden::field("status", next_status))
         .with_child(status_button);
 
-    let mut container = Flex::new()
-        .with_wrap(flex::Behavior::Wrap)
-        .with_align(align::Items::Center)
-        .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)));
+    let mut container = Flex::buttons();
     if state.can_reset_password {
         container = container.with_child(
             Button::anchor(Lc::t("btn-reset-password", &LOCALES_USER), password_href)

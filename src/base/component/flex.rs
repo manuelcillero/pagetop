@@ -5,7 +5,8 @@ use crate::prelude::*;
 // **< DisplayFlex >********************************************************************************
 
 // Posicionamiento Flexbox del contenedor `Flex`. La API pública sólo expone los constructores
-// `Flex::new()`, `Flex::at()`, `Flex::inline()` y `Flex::inline_at()`, nunca la variante en sí.
+// `Flex::new()`, `Flex::at()`, `Flex::inline()` y `Flex::inline_at()` (y `Flex::buttons()`, que
+// parte de `new()`), nunca la variante en sí.
 #[derive(AutoDefault, Clone, Copy, Debug, PartialEq)]
 enum DisplayFlex {
     #[default]
@@ -145,6 +146,28 @@ impl Flex {
             display: Some(DisplayFlex::InlineAt(bp)),
             ..Default::default()
         }
+    }
+
+    /// Crea una **fila de botones**: un [`Flex::new()`] cuyos elementos pasan a la línea siguiente
+    /// cuando no caben, centrados en vertical y separados `0.5rem`.
+    ///
+    /// Es la fila de acciones de un formulario, de una ficha o de una celda de una tabla. Admite
+    /// cualquier componente, no sólo botones (un formulario con su botón, una insignia...). Como
+    /// cualquier `Flex`, no se renderiza si ninguno de sus hijos genera marcado (por ejemplo, si
+    /// todos son enlaces a rutas sin acceso), así que no hace falta comprobarlo antes de añadirla:
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let actions = Flex::buttons()
+    ///     .with_child(Button::save())
+    ///     .with_child(Button::save_and_new())
+    ///     .with_child(Button::cancel("/items"));
+    /// ```
+    pub fn buttons() -> Self {
+        Self::new()
+            .with_wrap(Behavior::Wrap)
+            .with_align(align::Items::Center)
+            .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))
     }
 
     // **< Flex BUILDER >***************************************************************************

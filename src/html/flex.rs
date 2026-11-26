@@ -4,7 +4,7 @@
 //! [`pagetop::base::component`] que permite estructurar un conjunto de componentes hijo como un
 //! grupo Flexbox sobre el que se aplican propiedades de presentación (dirección, ajuste de línea,
 //! alineación, espaciado), con sus propios constructores (`new()`, `at()`, `inline()`,
-//! `inline_at()`) y builders (`with_direction()`, `with_gap()`, etc.).
+//! `inline_at()` y `buttons()`) y builders (`with_direction()`, `with_gap()`, etc.).
 //!
 //! Por otro, aquí se define [`FlexItem`], que es la **configuración** que se aplica sobre un único
 //! elemento respecto a su contenedor flex padre (crecimiento, reducción, alineación individual,
