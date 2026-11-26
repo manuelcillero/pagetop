@@ -2,20 +2,20 @@ use pagetop::prelude::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct IntroSpacing;
+struct LayoutSpacing;
 
 #[async_trait]
-impl Extension for IntroSpacing {
+impl Extension for LayoutSpacing {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(intro_spacing))
+        routes.public_route("/", web::get(layout_spacing))
     }
 }
 
-async fn intro_spacing(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn layout_spacing(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_assets(demo_box_styles())
         .with_assets(demo_row_styles())
@@ -243,5 +243,5 @@ fn caption(title: Lc, code: Lc) -> Html {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroSpacing).await.run().await
+    Application::prepare(&LayoutSpacing).await.run().await
 }

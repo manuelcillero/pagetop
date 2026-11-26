@@ -3,10 +3,10 @@ use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct ThemeShowcase;
+struct ShowcaseThemes;
 
 #[async_trait]
-impl Extension for ThemeShowcase {
+impl Extension for ShowcaseThemes {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
@@ -85,11 +85,11 @@ impl Extension for ThemeShowcase {
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(theme_showcase))
+        routes.public_route("/", web::get(showcase_themes))
     }
 }
 
-async fn theme_showcase(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn showcase_themes(request: HttpRequest) -> Result<Markup, ErrorPage> {
     let mut page = Page::new(request)
         .with_title(Lc::t("showcase_title", &LOC))
         .with_child(fields_block())
@@ -959,5 +959,5 @@ fn misc_block() -> Block {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&ThemeShowcase).await.run().await
+    Application::prepare(&ShowcaseThemes).await.run().await
 }

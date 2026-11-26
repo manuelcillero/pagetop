@@ -2,20 +2,20 @@ use pagetop::prelude::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct IntroFlex;
+struct LayoutFlex;
 
 #[async_trait]
-impl Extension for IntroFlex {
+impl Extension for LayoutFlex {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(intro_flex))
+        routes.public_route("/", web::get(layout_flex))
     }
 }
 
-async fn intro_flex(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn layout_flex(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_assets(demo_box_styles())
         .with_assets(demo_row_styles())
@@ -544,5 +544,5 @@ fn caption(title: Lc, code: Lc) -> Html {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroFlex).await.run().await
+    Application::prepare(&LayoutFlex).await.run().await
 }

@@ -2,20 +2,20 @@ use pagetop::prelude::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct IntroGrid;
+struct LayoutGrid;
 
 #[async_trait]
-impl Extension for IntroGrid {
+impl Extension for LayoutGrid {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(intro_grid))
+        routes.public_route("/", web::get(layout_grid))
     }
 }
 
-async fn intro_grid(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn layout_grid(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_assets(demo_box_styles())
         .with_assets(demo_row_styles())
@@ -470,7 +470,7 @@ fn layout_block() -> Block {
 // **< HELPERS >************************************************************************************
 
 // Aspecto fijo de las cajas de muestra: esquinas rectas y borde claro, a diferencia de las cajas
-// redondeadas de `intro-flex.rs`, para distinguir a simple vista los ejemplos de Grid de los de
+// redondeadas de `layout-flex.rs`, para distinguir a simple vista los ejemplos de Grid de los de
 // Flex.
 fn demo_box_styles() -> AssetsOp {
     AssetsOp::add_responsive_styles(
@@ -539,5 +539,5 @@ fn caption(title: Lc, code: Lc) -> Html {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroGrid).await.run().await
+    Application::prepare(&LayoutGrid).await.run().await
 }

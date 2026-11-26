@@ -2,20 +2,20 @@ use pagetop::prelude::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct IntroMosaic;
+struct LayoutMosaic;
 
 #[async_trait]
-impl Extension for IntroMosaic {
+impl Extension for LayoutMosaic {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(intro_mosaic))
+        routes.public_route("/", web::get(layout_mosaic))
     }
 }
 
-async fn intro_mosaic(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn layout_mosaic(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_assets(demo_box_styles())
         .with_assets(nested_box_styles())
@@ -238,7 +238,7 @@ fn nested_block() -> Block {
 // **< HELPERS >************************************************************************************
 
 // Aspecto fijo de las cajas de muestra: verdes y de esquinas suaves, para distinguir a simple vista
-// los ejemplos de Mosaic de los de Grid (`intro-grid.rs`) y Flex (`intro-flex.rs`).
+// los ejemplos de Mosaic de los de Grid (`layout-grid.rs`) y Flex (`layout-flex.rs`).
 fn demo_box_styles() -> AssetsOp {
     AssetsOp::add_responsive_styles(
         None,
@@ -331,5 +331,5 @@ fn caption(title: Lc, code: Lc) -> Html {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroMosaic).await.run().await
+    Application::prepare(&LayoutMosaic).await.run().await
 }

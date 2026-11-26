@@ -2,16 +2,20 @@ use pagetop::prelude::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct IntroDatetime;
+struct LocaleDatetime;
 
 #[async_trait]
-impl Extension for IntroDatetime {
+impl Extension for LocaleDatetime {
+    fn dependencies(&self) -> Vec<ExtensionRef> {
+        vec![&pagetop_bootsier::Bootsier]
+    }
+
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(intro_datetime))
+        routes.public_route("/", web::get(locale_datetime))
     }
 }
 
-async fn intro_datetime(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn locale_datetime(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(
             Intro::custom()
@@ -98,11 +102,11 @@ fn formats_block() -> Block {
             .collect();
 
             let combos: Vec<(&str, String)> = [
-                ("Short + Short", DateFormat::Short, TimeFormat::Short),
-                ("Medium + Short", DateFormat::Medium, TimeFormat::Short),
-                ("Long + Long", DateFormat::Long, TimeFormat::Long),
-                ("Long + Short", DateFormat::Long, TimeFormat::Short),
-                ("Iso + Long", DateFormat::Iso, TimeFormat::Long),
+                ("Short+Short", DateFormat::Short, TimeFormat::Short),
+                ("Medium+Short", DateFormat::Medium, TimeFormat::Short),
+                ("Long+Long", DateFormat::Long, TimeFormat::Long),
+                ("Long+Short", DateFormat::Long, TimeFormat::Short),
+                ("Iso+Long", DateFormat::Iso, TimeFormat::Long),
             ]
             .into_iter()
             .map(|(label, date, time)| (label, cx.format_datetime(now, date, time)))
@@ -266,5 +270,5 @@ fn at_noon(date: NaiveDate) -> DateTime<Utc> {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroDatetime).await.run().await
+    Application::prepare(&LocaleDatetime).await.run().await
 }

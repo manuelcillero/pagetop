@@ -3,20 +3,20 @@ use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct NavbarMenus;
+struct ShowcaseNavbar;
 
 #[async_trait]
-impl Extension for NavbarMenus {
+impl Extension for ShowcaseNavbar {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(navbar_menus))
+        routes.public_route("/", web::get(showcase_navbar))
     }
 }
 
-async fn navbar_menus(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn showcase_navbar(request: HttpRequest) -> Result<Markup, ErrorPage> {
     let page = Page::new(request)
         .with_assets(demo_title_styles())
         .with_assets(demo_code_styles())
@@ -774,5 +774,5 @@ fn demo_scroll_styles() -> AssetsOp {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&NavbarMenus).await.run().await
+    Application::prepare(&ShowcaseNavbar).await.run().await
 }

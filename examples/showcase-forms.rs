@@ -3,20 +3,20 @@ use pagetop_bootsier::theme::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct FormControls;
+struct ShowcaseForms;
 
 #[async_trait]
-impl Extension for FormControls {
+impl Extension for ShowcaseForms {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_aliner::Aliner, &pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(form_controls).post(form_controls))
+        routes.public_route("/", web::get(showcase_forms).post(showcase_forms))
     }
 }
 
-async fn form_controls(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_child(
             Intro::custom()
@@ -463,5 +463,5 @@ fn form_lists() -> Form {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&FormControls).await.run().await
+    Application::prepare(&ShowcaseForms).await.run().await
 }

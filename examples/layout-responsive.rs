@@ -2,20 +2,20 @@ use pagetop::prelude::*;
 
 include_locales!(LOC from "examples/locale");
 
-struct IntroResponsive;
+struct LayoutResponsive;
 
 #[async_trait]
-impl Extension for IntroResponsive {
+impl Extension for LayoutResponsive {
     fn dependencies(&self) -> Vec<ExtensionRef> {
         vec![&pagetop_bootsier::Bootsier]
     }
 
     fn configure_router(&self, routes: Routes) -> Routes {
-        routes.public_route("/", web::get(intro_responsive))
+        routes.public_route("/", web::get(layout_responsive))
     }
 }
 
-async fn intro_responsive(request: HttpRequest) -> Result<Markup, ErrorPage> {
+async fn layout_responsive(request: HttpRequest) -> Result<Markup, ErrorPage> {
     Page::new(request)
         .with_assets(demo_box_styles())
         .with_assets(demo_row_styles())
@@ -259,5 +259,5 @@ fn caption(title: Lc, code: Lc) -> Html {
 
 #[pagetop::main]
 async fn main() -> std::io::Result<()> {
-    Application::prepare(&IntroResponsive).await.run().await
+    Application::prepare(&LayoutResponsive).await.run().await
 }
