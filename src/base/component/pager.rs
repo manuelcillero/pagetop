@@ -209,7 +209,9 @@ impl Component for Pager {
         // `base_path`. Pasa por `cx.route()` para preservar el parámetro `lang` si corresponde.
         let mut route = cx.route(base_path);
         for (key, value) in self.extra_query() {
-            route.alter_param(key, value);
+            if !value.is_empty() {
+                route.alter_param(key, value);
+            }
         }
 
         let first_disabled = page <= 1;
@@ -308,7 +310,9 @@ impl Component for Pager {
                     // sustituye por sus propios campos al enviarse, así que `extra_query` y `lang`
                     // no bastan para formar parte de la URL: viajan como campos ocultos.
                     for (key, val) in self.extra_query() {
-                        form = form.with_child(form::Hidden::field(key, val));
+                        if !val.is_empty() {
+                            form = form.with_child(form::Hidden::field(key, val));
+                        }
                     }
                     if let Some(lang) = route.param("lang") {
                         form = form.with_child(form::Hidden::field("lang", lang));
@@ -364,6 +368,9 @@ impl Pager {
     /// Añade un parámetro de consulta que debe viajar en el enlace de cada página, además de
     /// `page` (que `Pager` añade siempre al final). Llamar varias veces añade varios
     /// parámetros, en el orden en que se declaren.
+    ///
+    /// Un parámetro con el valor vacío no aparece en los enlaces ni en el formulario de salto, así
+    /// que se puede pasar el valor de un filtro sin comprobar antes si está rellenado.
     pub fn with_extra_query(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.extra_query.push((key.into(), value.into()));
         self

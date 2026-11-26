@@ -89,13 +89,13 @@ impl Component for RoleTable {
             cx.push_message(MessageLevel::Error, message.clone());
         }
         let mut list = ListView::new()
-            .with_id("role-table-wrapper")
+            .with_id("role-list")
             .with_action(
                 Button::anchor(Lc::t("btn-create-role", &LOCALES_USER), new_href)
                     .with_style(button::Style::Solid(Intent::Primary)),
             )
             .with_table(table)
-            .with_pager(hx_pager::boost(pager, "#role-table-wrapper"));
+            .with_pager(hx_pager::boost(pager, "#role-list"));
         Ok(list.render(cx).await)
     }
 }
@@ -158,7 +158,7 @@ impl RoleTable {
 
         table::Column::new(Lc::t(label_key, &LOCALES_USER)).with_sort(sort_link(
             route,
-            "#role-table-wrapper",
+            "#role-list",
             active,
         ))
     }
@@ -245,7 +245,7 @@ async fn actions_cell(
                 .with_size(button::Size::Small)
                 .with_hidden_label(Lc::n(name))
                 .with_prop(PropsOp::set(hx::POST, delete_href))
-                .with_prop(PropsOp::set(hx::TARGET, "#role-table-wrapper"))
+                .with_prop(PropsOp::set(hx::TARGET, "#role-list"))
                 .with_prop(PropsOp::set(hx::SWAP, hx::swap::OUTER_HTML_SCROLL_TOP)),
             question,
         )

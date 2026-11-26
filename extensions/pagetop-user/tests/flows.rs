@@ -199,6 +199,7 @@ async fn account_flows() {
     failed_logins_are_limited_by_address(&client).await;
     anonymous_visitors_are_offered_to_sign_in(&client).await;
     user_and_role_lists_remember_their_state(&client).await;
+    user_search_keeps_the_order_and_history_gets_whole_pages(&client).await;
     remembered_sessions_are_renewed_alongside_other_cookies(&client).await;
     roles_are_deleted_after_confirming_in_the_shared_dialog(&client).await;
     blocking_and_unrestricted_access_are_confirmed_naming_the_account(&client).await;
@@ -905,6 +906,49 @@ async fn user_and_role_lists_remember_their_state(client: &Client) {
     }
 }
 
+// The search form keeps the order of the table: the list carries it in hidden fields tied to the
+// form, rendered again with every update. And going back in the browser history (HTMX asks for the
+// page without `HX-Request`) gets the whole page, not just the list.
+async fn user_search_keeps_the_order_and_history_gets_whole_pages(client: &Client) {
+    let admin = client.login("admin", "admin-password").await.unwrap();
+    let uri = "/admin/user/users?sort=email&dir=desc";
+    let get = |headers: &'static [(&'static str, &'static str)]| {
+        let mut request = web::test::TestRequest::get().uri(uri);
+        for (name, value) in headers {
+            request = request.header(*name, *value);
+        }
+        client.send(with_session(request, Some(&admin)))
+    };
+    let sort = r#"<input type="hidden" form="user-filter" name="sort" value="email">"#;
+    let dir = r#"<input type="hidden" form="user-filter" name="dir" value="desc">"#;
+
+    let page = get(&[]).await;
+    assert_eq!(page.status, Status::OK);
+    assert!(page.body.contains(r#"id="user-filter""#), "{}", page.body);
+    assert!(
+        page.body.contains(sort) && page.body.contains(dir),
+        "{}",
+        page.body
+    );
+
+    let list = get(&[("hx-request", "true")]).await;
+    assert!(!list.body.contains("<html"), "{}", list.body);
+    assert!(list.body.contains(r#"id="user-list""#), "{}", list.body);
+    assert!(
+        list.body.contains(sort) && list.body.contains(dir),
+        "{}",
+        list.body
+    );
+
+    let restored = get(&[("hx-history-restore-request", "true")]).await;
+    assert!(restored.body.contains("<html"), "{}", restored.body);
+    assert!(
+        restored.body.contains(r#"id="user-filter""#),
+        "{}",
+        restored.body
+    );
+}
+
 // A "remember me" session renews its cookie even when the response sets another one, such as the
 // state of a list: otherwise the cookie would expire in the browser before the session does.
 async fn remembered_sessions_are_renewed_alongside_other_cookies(client: &Client) {
@@ -998,11 +1042,7 @@ async fn roles_are_deleted_after_confirming_in_the_shared_dialog(client: &Client
         .header("cookie", admin.as_str());
     let reply = client.send(request).await;
     assert_eq!(reply.status, Status::OK);
-    assert!(
-        reply.body.contains(r#"id="role-table-wrapper""#),
-        "{}",
-        reply.body
-    );
+    assert!(reply.body.contains(r#"id="role-list""#), "{}", reply.body);
     assert!(!reply.body.contains("Editors"), "{}", reply.body);
     // The dialog stays in the page, out of the refreshed list.
     assert!(!reply.body.contains("hx-confirm-delete"), "{}", reply.body);

@@ -88,6 +88,7 @@ pub(crate) async fn list_get(
 fn search_filter(current_query: Option<String>) -> ListFilter {
     hx_filter::boost(
         ListFilter::new()
+            .with_id("user-filter")
             .with_filter_action(ADMIN_USERS_PATH.as_str())
             .with_field(
                 form::input::Field::search()
@@ -96,7 +97,7 @@ fn search_filter(current_query: Option<String>) -> ListFilter {
                     .with_value(current_query.unwrap_or_default())
                     .with_placeholder(Lc::t("field-search-users", &LOCALES_USER)),
             ),
-        "#user-table-wrapper",
+        "#user-list",
     )
 }
 

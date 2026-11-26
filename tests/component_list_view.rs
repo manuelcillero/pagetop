@@ -84,3 +84,46 @@ async fn without_a_pager_the_summary_counts_the_rows() {
     let html = none.render(&mut Context::default()).await.into_string();
     assert!(html.contains(r#"data-summary="No results""#), "{html}");
 }
+
+// **< ListView - state kept by the filter >********************************************************
+
+#[pagetop::test]
+async fn filter_params_are_hidden_fields_of_the_filter_form() {
+    let mut list = ListView::new()
+        .with_table(table())
+        .with_filter_id("item-filter")
+        .with_filter_param("sort", "name")
+        .with_filter_param("dir", "desc")
+        .with_filter_param("empty", "");
+    let html = list.render(&mut Context::default()).await.into_string();
+
+    // Tied to the filter with `form`, so the browser submits them with it, from outside the form.
+    assert!(
+        html.contains(r#"<input type="hidden" form="item-filter" name="sort" value="name">"#),
+        "{html}"
+    );
+    assert!(
+        html.contains(r#"<input type="hidden" form="item-filter" name="dir" value="desc">"#),
+        "{html}"
+    );
+    assert!(!html.contains(r#"name="empty""#), "{html}");
+}
+
+#[pagetop::test]
+async fn without_filter_params_there_are_no_hidden_fields() {
+    let mut list = ListView::new()
+        .with_table(table())
+        .with_filter_id("item-filter");
+    let html = list.render(&mut Context::default()).await.into_string();
+
+    assert!(!html.contains(r#"type="hidden""#), "{html}");
+}
+
+#[pagetop::test]
+#[should_panic(expected = "ListView has filter params but no filter id")]
+async fn filter_params_without_a_filter_id_are_a_misuse() {
+    let mut list = ListView::new()
+        .with_table(table())
+        .with_filter_param("sort", "name");
+    list.render(&mut Context::default()).await;
+}

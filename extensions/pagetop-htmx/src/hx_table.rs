@@ -41,8 +41,8 @@ use crate::hx;
 ///   que resultarán de pulsar esta cabecera. Acepta cualquier tipo convertible a [`RoutePath`],
 ///   normalmente el resultado de [`Context::route()`], para que el enlace preserve el parámetro
 ///   `lang` cuando corresponda.
-/// - `target`: selector CSS del elemento que HTMX debe reemplazar (`hx-target`), típicamente el
-///   contenedor que envuelve la tabla completa.
+/// - `target`: selector CSS del elemento que HTMX debe reemplazar (`hx-target`), normalmente el
+///   [`ListView`] del listado (p. ej. `"#user-list"`).
 /// - `dir`: dirección de orden vigente de esta columna, o `None` si la tabla está ordenada
 ///   actualmente por otra columna. Se traslada tal cual a [`SortLink::with_dir()`].
 ///
@@ -68,7 +68,7 @@ use crate::hx;
 ///     .with_param("dir", next_dir);
 ///
 /// table::Column::new(Lc::n("User"))
-///     .with_sort(hx_table::sort_link(href, "#user-table-wrapper", active))
+///     .with_sort(hx_table::sort_link(href, "#user-list", active))
 /// # }
 /// ```
 ///
@@ -78,15 +78,15 @@ use crate::hx;
 /// [`Context::route()`]: pagetop::core::component::Contextual::route
 pub fn sort_link(
     href: impl Into<RoutePath>,
-    target: impl AsRef<str>,
+    target: impl Into<CowStr>,
     dir: impl Into<Option<SortDir>>,
 ) -> table::SortLink {
-    // Se materializa como `String` propio porque el mismo valor sirve para dos llamadas: como
-    // `RoutePath` en `SortLink::new()` (vía `href.as_str()`) y como `CowStr` en `PropsOp::set()`.
+    // El mismo valor sirve para dos llamadas: como `RoutePath` en `SortLink::new()` y como `CowStr`
+    // en `PropsOp::set()`.
     let href = href.into().to_string();
-    let target = target.as_ref().to_owned();
-    let sync = util::join!(target.as_str(), ":replace");
-    table::SortLink::new(href.as_ref())
+    let target: CowStr = target.into();
+    let sync = util::join!(target.as_ref(), ":replace");
+    table::SortLink::new(href.as_str())
         .with_dir(dir)
         .with_prop(PropsOp::set(hx::GET, href))
         .with_prop(PropsOp::set(hx::SYNC, sync))

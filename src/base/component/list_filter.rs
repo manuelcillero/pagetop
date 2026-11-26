@@ -41,6 +41,11 @@ use crate::base::component::form;
 /// Al enviar un formulario GET, el navegador descarta los parámetros que ya traiga la ruta de
 /// destino, así que el idioma (`lang`) de la ruta se conserva en un campo oculto.
 ///
+/// Por lo mismo, al filtrar se pierden la página y el orden del listado. Volver a la primera página
+/// es lo esperado, pero el orden se puede conservar: se le da un identificador al filtro con
+/// [`with_id()`] y el listado le añade el orden (ver
+/// [Conservar el orden al filtrar](ListView#conservar-el-orden-al-filtrar)).
+///
 /// Como [`ListView`], no sabe nada de HTMX. Para aplicar los filtros sin recargar la página, se le
 /// añaden los atributos necesarios con [`with_prop()`].
 ///
@@ -59,6 +64,7 @@ use crate::base::component::form;
 /// ```
 ///
 /// [`with_filter_action()`]: Self::with_filter_action
+/// [`with_id()`]: Self::with_id
 /// [`with_prop()`]: Self::with_prop
 /// [`with_auto_submit(true)`]: Self::with_auto_submit
 /// [`with_reset(false)`]: Self::with_reset

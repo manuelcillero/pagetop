@@ -322,6 +322,32 @@ async fn extra_query_travels_as_hidden_fields_in_the_jump_form() {
 }
 
 #[pagetop::test]
+async fn empty_extra_query_values_are_left_out_of_links_and_jump_form() {
+    let mut pager = Pager::new()
+        .with_base_path("/admin/users")
+        .with_extra_query("q", "")
+        .with_extra_query("sort", "email")
+        .with_current_page(1)
+        .with_items_per_page(20)
+        .with_total_items(97)
+        .with_jump(PagerVisibility::Always);
+
+    let html = pager.render(&mut Context::default()).await.into_string();
+
+    // An unfilled filter would add `q=` to every link and to the remembered state.
+    assert!(
+        html.contains(r#"href="/admin/users?sort=email&amp;page=2""#),
+        "{html}"
+    );
+    assert!(!html.contains("q="), "{html}");
+    assert!(!html.contains(r#"name="q""#), "{html}");
+    assert!(
+        html.contains(r#"<input type="hidden" name="sort" value="email">"#),
+        "{html}"
+    );
+}
+
+#[pagetop::test]
 async fn without_a_window_every_page_number_is_shown() {
     let mut pager = Pager::new()
         .with_base_path("/list")

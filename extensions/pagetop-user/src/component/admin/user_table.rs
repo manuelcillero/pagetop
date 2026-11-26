@@ -69,7 +69,7 @@ impl Component for UserTable {
 
         let new_href = cx.route(util::join!(ADMIN_USERS_PATH.as_str(), "/new"));
 
-        let mut list = ListView::new().with_id("user-table-wrapper").with_action(
+        let mut list = ListView::new().with_id("user-list").with_action(
             Button::anchor(Lc::t("btn-create-user", &LOCALES_USER), new_href.clone())
                 .with_style(button::Style::Solid(Intent::Primary)),
         );
@@ -85,9 +85,13 @@ impl Component for UserTable {
                 .with_style(button::Style::Solid(Intent::Neutral)),
             );
         }
+        // La búsqueda (`user-filter`, ver `handlers::admin::users`) conserva el orden de la tabla.
         let mut list = list
             .with_table(table)
-            .with_pager(hx_pager::boost(pager, "#user-table-wrapper"));
+            .with_pager(hx_pager::boost(pager, "#user-list"))
+            .with_filter_id("user-filter")
+            .with_filter_param("sort", self.sort().as_str())
+            .with_filter_param("dir", self.dir().as_str());
         Ok(list.render(cx).await)
     }
 }
@@ -154,7 +158,7 @@ impl UserTable {
 
         table::Column::new(Lc::t(label_key, &LOCALES_USER)).with_sort(sort_link(
             route,
-            "#user-table-wrapper",
+            "#user-list",
             active,
         ))
     }
