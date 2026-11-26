@@ -70,13 +70,11 @@
   margin: 0 0.25rem;
 }
 
-// Form field with consistent bottom margin.
+// Form field with consistent bottom margin. The last one keeps it too: in a form it sets the form
+// apart from what follows (the buttons may be outside it); only a box with its own padding drops it
+// (see `fieldset`).
 .form-field {
   margin-bottom: 1rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 }
 
 // Space below each block (Block), from Bootstrap's spacing unit, so consecutive blocks (and what
@@ -95,6 +93,11 @@ fieldset {
   box-shadow: 0 1px 3px rgba(0, 0, 0, .10), 0 4px 8px -2px rgba(0, 0, 0, .22);
   padding: 2rem 1rem 1rem;
   margin: 2rem 0 1rem;
+
+  // Its padding already leaves room below the last field.
+  > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 fieldset > legend {

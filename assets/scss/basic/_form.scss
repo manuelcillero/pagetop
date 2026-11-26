@@ -4,12 +4,10 @@
 }
 
 // Fields are spaced below, as in Bootsier, so the first one of a form or a fieldset starts right
-// at its top; the last one leaves no gap.
+// at its top. The last one keeps its margin too: in a form it sets the form apart from what follows
+// (the buttons may be outside it); only a box with its own padding drops it (see `fieldset`).
 .form-field {
     margin-bottom: 1rem;
-}
-.form-field:last-child {
-    margin-bottom: 0;
 }
 
 .form-label {
@@ -36,6 +34,10 @@ fieldset {
     margin: 0 0 1rem;
     background: var(--val-color--bg);
 }
+// Its padding already leaves room below the last field.
+fieldset > :last-child {
+    margin-bottom: 0;
+}
 fieldset > legend {
     background-color: var(--val-color--bg);
     border: 2px groove threedface;
@@ -48,6 +50,10 @@ fieldset > legend {
     align-items: center;
     gap: 0.25rem 0.5rem;
     min-height: 1.5rem;
+}
+// Options of a group are close together; a single check is a field of its own and keeps the margin
+// of the fields.
+.form-check:not(.form-field) {
     margin-bottom: 0.25rem;
 }
 .form-check-inline {
