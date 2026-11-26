@@ -112,7 +112,7 @@ procesa lo que dejó la anterior y nunca coinciden dos.
 
 | Método                  | Uso                                                           |
 |-------------------------|---------------------------------------------------------------|
-| [`with_title()`]        | Título descriptivo, traducible, para listados y paneles.      |
+| [`with_title()`]        | Título descriptivo, localizado, para listados y paneles.      |
 | [`with_timeout()`]      | Tiempo máximo de cada ejecución; si lo supera, se cancela.    |
 | [`with_overlap()`]      | Qué hacer si la ejecución anterior sigue en curso ([`Overlap`]). |
 | [`with_timezone()`]     | Zona horaria propia para su expresión cron.                   |

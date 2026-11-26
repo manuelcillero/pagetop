@@ -208,7 +208,7 @@ pub trait Contextual {
         self
     }
 
-    /// Establece el título del documento como un valor traducible.
+    /// Establece el título del documento como un texto localizado.
     ///
     /// Además de usarse en el `<head>`, lo ven las plantillas y los componentes al renderizarse,
     /// como el marco de las páginas del panel de administración ([`AdminFrame`]), que lo muestra
@@ -220,7 +220,7 @@ pub trait Contextual {
         self
     }
 
-    /// Establece la descripción del documento como un valor traducible.
+    /// Establece la descripción del documento como un texto localizado.
     ///
     /// Se usa en la etiqueta `<meta name="description">` del `<head>`.
     fn with_description(self, description: Lc) -> Self {

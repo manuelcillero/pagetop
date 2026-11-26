@@ -167,7 +167,7 @@ pub trait Component: AnyInfo + ComponentClone + ComponentRender + Send + Sync {
     /// depender de los detalles internos.
     ///
     /// Los campos que representen contenido no deben almacenar [`Markup`] ya generado, sino que
-    /// guardarán el dato en bruto, por ejemplo [`Lc`] para textos traducibles, o un componente
+    /// guardarán el dato en bruto, por ejemplo [`Lc`] para textos localizados, o un componente
     /// anidado como [`Html`], o cualquier otro `Component`, normalmente a través de [`Embed`] o
     /// [`Child`]; y será este método quien lo convierta en HTML en el momento del renderizado, no
     /// quien construye la instancia.

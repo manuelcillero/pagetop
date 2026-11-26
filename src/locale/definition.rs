@@ -139,7 +139,7 @@ impl Locale {
         }
     }
 
-    /// Devuelve los idiomas soportados por PageTop con su nombre traducible, ordenados por
+    /// Devuelve los idiomas soportados por PageTop con su nombre localizado, ordenados por
     /// identificador.
     ///
     /// Incluye una entrada por identificador canónico (p. ej. `"es-ES"`), sin los alias de idioma

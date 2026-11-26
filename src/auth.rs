@@ -223,7 +223,7 @@ pub trait Permission: Send + Sync {
     /// Descripción breve para humanos (p. ej. en una pantalla de asignación de permisos a roles).
     ///
     /// Por defecto devuelve la propia clave; una extensión que declare sus permisos en el catálogo
-    /// ([`DeclarePermissions`]) debería sobrescribirlo con un texto traducible.
+    /// ([`DeclarePermissions`]) debería sobrescribirlo con un texto localizado.
     fn label(&self) -> Lc {
         Lc::n(self.key())
     }
@@ -234,7 +234,7 @@ pub trait Permission: Send + Sync {
         ""
     }
 
-    /// Título traducible de [`group()`](Self::group), mostrado en la UI de administración.
+    /// Título localizado de [`group()`](Self::group), mostrado en la UI de administración.
     ///
     /// Por defecto reutiliza el propio identificador del grupo como texto fijo.
     fn group_label(&self) -> Lc {
@@ -418,7 +418,7 @@ fn trace_denied(request: &HttpRequest) {
 #[derive(AutoDefault)]
 pub struct PermissionRegistry {
     permissions: Vec<PermissionRef>,
-    // `(identificador de grupo, título traducible)`, en orden de primer registro.
+    // `(identificador de grupo, título localizado)`, en orden de primer registro.
     groups: Vec<(&'static str, Lc)>,
 }
 

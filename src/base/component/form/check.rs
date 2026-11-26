@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 /// Casilla de verificación individual de un [`Field`].
 ///
-/// Representa cada casilla de un grupo de casillas de verificación, con una etiqueta localizable
+/// Representa cada casilla de un grupo de casillas de verificación, con una etiqueta localizada
 /// visible. Puede marcarse como seleccionada o deshabilitada de forma independiente al resto.
 ///
 /// # Ejemplo

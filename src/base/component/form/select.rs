@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// Elemento individual de [`form::select::Field`] o de [`form::select::Group`].
 ///
 /// Representa un elemento dentro de una lista de selección o de un grupo de elementos de la lista.
-/// Cada elemento tiene un valor que se envía al servidor y una etiqueta localizable visible para el
+/// Cada elemento tiene un valor que se envía al servidor y una etiqueta localizada visible para el
 /// usuario.
 ///
 /// Puede marcarse como seleccionado por defecto con [`with_selected()`](Self::with_selected) o

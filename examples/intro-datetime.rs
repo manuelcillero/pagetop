@@ -26,7 +26,7 @@ async fn intro_datetime(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .await
 }
 
-// Zonas IANA de la demostración, con la clave de su etiqueta traducible.
+// Zonas IANA de la demostración, con la clave de traducción de su etiqueta.
 const ZONES: [(&str, &str); 4] = [
     ("datetime_zone_utc", "UTC"),
     ("datetime_zone_madrid", "Europe/Madrid"),

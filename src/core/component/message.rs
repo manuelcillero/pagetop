@@ -27,7 +27,7 @@ pub enum MessageLevel {
 ///
 /// ```rust,no_run
 /// # use pagetop::prelude::*;
-/// // Mensaje informativo con clave traducible.
+/// // Mensaje informativo con clave de traducción.
 /// let info = StatusMessage::new(MessageLevel::Info, Lc::l("saved-successfully"));
 ///
 /// // Aviso con texto literal sin traducción.

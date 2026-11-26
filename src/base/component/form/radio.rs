@@ -7,7 +7,7 @@ use crate::prelude::*;
 /// Botón de opción individual de un [`Field`].
 ///
 /// Representa cada opción de un grupo de opciones exclusivas entre sí, con un valor (el que se
-/// envía al servidor), una etiqueta localizable visible y puede marcarse como seleccionada o
+/// envía al servidor), una etiqueta localizada visible y puede marcarse como seleccionada o
 /// inicialmente deshabilitada de forma independiente.
 ///
 /// # Ejemplo

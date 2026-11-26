@@ -3,8 +3,8 @@ use crate::prelude::*;
 /// Representa una celda de datos (`<td>`) de una [`table::Row`].
 ///
 /// El contenido es una lista [`Children`] para admitir cualquier número de componentes.
-/// [`Cell::new()`] añade un componente como contenido inicial, normalmente un [`Lc`] con texto
-/// literal ([`Lc::n()`]) o traducible (con [`Lc::l()`]/[`Lc::t()`]).
+/// [`Cell::new()`] añade un componente como contenido inicial, normalmente un [`Lc`] con un
+/// texto fijo ([`Lc::n()`]) o con una clave de traducción ([`Lc::l()`]/[`Lc::t()`]).
 ///
 /// Un `&str`, un `String` o un [`Lc`] se convierten directamente en `Cell`; para estos tipos no
 /// sería necesario llamar a [`Cell::new()`] de forma explícita.
@@ -103,7 +103,7 @@ impl From<String> for Cell {
 }
 
 impl From<Lc> for Cell {
-    /// Convierte un [`Lc`] en una celda traducible; equivale a `Cell::new(label)`.
+    /// Convierte un [`Lc`] en una celda con texto localizado; equivale a `Cell::new(label)`.
     fn from(label: Lc) -> Self {
         Cell::new(label)
     }

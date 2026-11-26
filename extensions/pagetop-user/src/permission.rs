@@ -104,7 +104,7 @@ impl Permission for UserPermission {
 const GROUP_USERS: &str = "users";
 const GROUP_ADMINISTRATION: &str = "administration";
 
-// Título traducible de un grupo de permisos integrado.
+// Título localizado de un grupo de permisos integrado.
 fn builtin_group_label(group: &str) -> Lc {
     let key = match group {
         GROUP_USERS => "group-users",

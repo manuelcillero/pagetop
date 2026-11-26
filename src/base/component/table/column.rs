@@ -116,7 +116,7 @@ impl From<String> for Column {
 }
 
 impl From<Lc> for Column {
-    /// Convierte un [`Lc`] en una cabecera de texto traducible; equivale a `Column::new(label)`.
+    /// Convierte un [`Lc`] en una cabecera de texto localizado; equivale a `Column::new(label)`.
     fn from(label: Lc) -> Self {
         Column::new(label)
     }

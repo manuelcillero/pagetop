@@ -5,7 +5,7 @@
 //! desplegables [`Dropdown`].
 //!
 //! Los ítems pueden estar activos, deshabilitados o abrirse en nueva ventana según su contexto y
-//! configuración, y permiten incluir etiquetas localizables usando [`Lc`].
+//! configuración, y permiten incluir etiquetas localizadas usando [`Lc`].
 
 use pagetop::prelude::*;
 
