@@ -27,8 +27,6 @@ impl Extension for Welcome {
 }
 
 async fn home(request: HttpRequest) -> Result<Markup, ErrorPage> {
-    let app = &global::SETTINGS.app.name;
-
     Page::new(request)
         .with_title(Lc::l("welcome_title"))
         .with_child(
@@ -49,14 +47,14 @@ async fn home(request: HttpRequest) -> Result<Markup, ErrorPage> {
                 )
                 .with_child(
                     Block::new()
-                        .with_title(Lc::l("welcome_support_title"))
-                        .with_child(Html::with(move |cx| {
+                        .with_title(Lc::l("welcome_start_title"))
+                        .with_child(Html::with(|cx| {
                             html! {
                                 p class="intro-text-lead" {
-                                    (Lc::l("welcome_support_1").using(cx))
+                                    (Lc::l("welcome_start_1").using(cx))
                                 }
                                 p class="intro-text-lead" {
-                                    (Lc::l("welcome_support_2").with_arg("app", app).using(cx))
+                                    (Lc::l("welcome_start_2").using(cx))
                                 }
                             }
                         })),
