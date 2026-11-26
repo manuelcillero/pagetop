@@ -34,6 +34,10 @@ use pagetop::prelude::*;
 /// }
 /// ```
 ///
+/// El patrón vale también al volver atrás o adelante por el historial del navegador: la extensión
+/// hace que esa petición llegue sin `HX-Request`, así que se responde con la página completa (ver
+/// [Historial del navegador](crate#historial-del-navegador)).
+///
 /// Los nombres de cabecera como constantes están en [`crate::hx::request`].
 pub trait HtmxRequestExt {
     /// Devuelve `true` si la petición proviene de HTMX (`HX-Request: true`).
@@ -44,15 +48,19 @@ pub trait HtmxRequestExt {
 
     /// Devuelve `true` si la petición proviene de un enlace o formulario con `hx-boost`.
     ///
-    /// Las peticiones boosted son HTMX pero conservan la semántica de navegación completa: el
-    /// objetivo por defecto es `<body>`. Puede ser útil para no devolver un fragmento parcial en
-    /// este caso.
+    /// Sin `hx-target`, HTMX coloca la respuesta en el `<body>`, como una navegación completa, y el
+    /// *handler* debe devolver la página entera. Con `hx-target`, como en
+    /// [`hx_filter::boost()`](crate::hx_filter::boost), sólo el elemento de destino, igual que en
+    /// cualquier otra petición de HTMX. Para distinguir los dos casos sirve
+    /// [`hx_target()`](Self::hx_target), que lleva el `id` del destino si lo tiene.
     fn is_boosted(&self) -> bool;
 
     /// Devuelve `true` si la petición es una restauración del historial del navegador.
     ///
-    /// Ocurre cuando el usuario navega hacia atrás o adelante y HTMX necesita restaurar el estado
-    /// de la página. En este caso conviene devolver la página completa.
+    /// HTMX la hace cuando el usuario vuelve atrás o adelante a una entrada del historial que
+    /// gestiona él (las que añade con `hx-push-url`, por ejemplo). Con esta extensión llega sin
+    /// `HX-Request`, así que [`is_htmx()`](Self::is_htmx) devuelve `false` y basta con responder
+    /// con la página completa (ver [Historial del navegador](crate#historial-del-navegador)).
     fn is_history_restore(&self) -> bool;
 
     /// URL de la página activa en el navegador en el momento de la petición (`HX-Current-URL`).

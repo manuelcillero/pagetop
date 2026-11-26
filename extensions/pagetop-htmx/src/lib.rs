@@ -88,6 +88,27 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
         .render().await
 }
 ```
+
+## Historial del navegador
+
+Cuando HTMX añade entradas al historial del navegador (`hx-push-url`, como hacen las ayudas de los
+listados), es él quien resuelve los pasos atrás y adelante entre ellas. La extensión lo configura
+(`<meta name="htmx-config">`) para que pida siempre al servidor la página completa en lugar de
+restaurar una copia guardada: no guarda copias de las páginas (`historyCacheSize: 0`) y esa
+petición no lleva la cabecera `HX-Request` (`historyRestoreAsHxRequest: false`). Así:
+
+- Un *handler* que responde con un fragmento cuando la petición viene de HTMX
+  ([`is_htmx()`](crate::request::HtmxRequestExt::is_htmx)) devuelve la página entera al volver
+  atrás, sin comprobar nada más. La petición sí lleva `HX-History-Restore-Request`
+  ([`is_history_restore()`](crate::request::HtmxRequestExt::is_history_restore)).
+- La página muestra los datos actuales, y los formularios, los valores que les corresponden; una
+  copia guardada mostraría lo que tenían al salir de ella.
+- El contenido de las páginas no queda guardado en el navegador (`sessionStorage`).
+
+A cambio, cada uno de esos pasos cuesta una petición, como en una web sin JavaScript. HTMX sólo lee
+la primera `<meta name="htmx-config">` de la página. Una que declare la aplicación al construir la
+página (`with_metadata()`) va antes que la de la extensión y la sustituye, así que debe incluir esos
+dos valores para conservar este comportamiento.
 */
 
 use pagetop::prelude::*;
@@ -119,7 +140,9 @@ pub mod prelude {
 ///
 /// Poner esta extensión en [`dependencies()`](pagetop::core::extension::Extension::dependencies)
 /// hace que todas las páginas de la aplicación incluyan automáticamente el script de HTMX mediante
-/// un atributo [`defer`](pagetop::html::JavaScript::defer); las que tienen algún listado
+/// un atributo [`defer`](pagetop::html::JavaScript::defer), con la configuración que hace que volver
+/// atrás pida la página completa al servidor (ver
+/// [Historial del navegador](crate#historial-del-navegador)); las que tienen algún listado
 /// ([`ListView`]), los estilos con los que se atenúa mientras se actualiza; y las que tienen algún
 /// diálogo de [`hx_confirm`], su script. No es necesaria ninguna configuración adicional.
 ///
@@ -167,7 +190,12 @@ impl Extension for Htmx {
     }
 }
 
+// Sin copias de las páginas en el navegador, volver atrás siempre pide la página al servidor, y sin
+// `HX-Request` el *handler* la devuelve entera (ver "Historial del navegador" en la doc del crate).
+const HTMX_CONFIG: &str = r#"{"historyCacheSize":0,"historyRestoreAsHxRequest":false}"#;
+
 fn add_htmx_script(page: &mut Page) {
+    page.alter_metadata("htmx-config", HTMX_CONFIG);
     page.alter_assets(JavaScript::defer("/htmx/js/htmx.min.js").with_version("2.0.10"));
 }
 

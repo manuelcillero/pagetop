@@ -88,6 +88,26 @@ async fn homepage(request: HttpRequest) -> Result<Markup, ErrorPage> {
 }
 ```
 
+## Historial del navegador
+
+Cuando HTMX añade entradas al historial del navegador (`hx-push-url`, como hacen las ayudas de los
+listados), es él quien resuelve los pasos atrás y adelante entre ellas. La extensión lo configura
+(`<meta name="htmx-config">`) para que pida siempre al servidor la página completa en lugar de
+restaurar una copia guardada: no guarda copias de las páginas (`historyCacheSize: 0`) y esa
+petición no lleva la cabecera `HX-Request` (`historyRestoreAsHxRequest: false`). Así:
+
+- Un *handler* que responde con un fragmento cuando la petición viene de HTMX (`is_htmx()`)
+  devuelve la página entera al volver atrás, sin comprobar nada más. La petición sí lleva
+  `HX-History-Restore-Request` (`is_history_restore()`).
+- La página muestra los datos actuales, y los formularios, los valores que les corresponden; una
+  copia guardada mostraría lo que tenían al salir de ella.
+- El contenido de las páginas no queda guardado en el navegador (`sessionStorage`).
+
+A cambio, cada uno de esos pasos cuesta una petición, como en una web sin JavaScript. HTMX sólo lee
+la primera `<meta name="htmx-config">` de la página. Una que declare la aplicación al construir la
+página (`with_metadata()`) va antes que la de la extensión y la sustituye, así que debe incluir esos
+dos valores para conservar este comportamiento.
+
 ## Créditos
 
 Este *crate* integra la biblioteca [HTMX 2.0.10](https://htmx.org), distribuida bajo licencia

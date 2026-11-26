@@ -98,6 +98,23 @@ async fn rendered_pages_automatically_include_the_pinned_htmx_script_tag() {
     assert!(body.contains("<p>hello</p>"));
 }
 
+#[pagetop::test]
+async fn rendered_pages_make_history_navigation_request_the_full_page() {
+    let app = web::test::init_router(Application::prepare(&TestApp).await.test());
+
+    let req = web::test::TestRequest::get().uri("/page").to_request();
+    let body = web::test::read_body_text(web::test::send_request(&app, req).await).await;
+
+    // No page snapshots in the browser, and history restores without `HX-Request`, so handlers
+    // that answer HTMX with a fragment answer going back with the whole page.
+    assert!(
+        body.contains(
+            r#"<meta name="htmx-config" content="{&quot;historyCacheSize&quot;:0,&quot;historyRestoreAsHxRequest&quot;:false}">"#
+        ),
+        "{body}"
+    );
+}
+
 // **< List loading styles >************************************************************************
 
 #[pagetop::test]
