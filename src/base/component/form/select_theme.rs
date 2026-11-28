@@ -119,8 +119,8 @@ impl SelectTheme {
     }
 
     /// Establece el texto de ayuda del campo.
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.field.alter_help_text(help_text);
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.field.alter_help(help);
         self
     }
 

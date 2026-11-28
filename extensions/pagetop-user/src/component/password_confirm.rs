@@ -39,7 +39,7 @@ impl Component for PasswordConfirm {
         let mut password = form::input::Field::password()
             .with_name("password")
             .with_label(self.password_label().clone())
-            .with_help_text(
+            .with_help(
                 Lc::t("help-password-min-length", &LOCALES_USER)
                     .with_number("n", u32::try_from(min_length).unwrap_or(u32::MAX)),
             )

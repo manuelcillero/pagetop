@@ -45,7 +45,7 @@ select_france = France
 select_portugal = Portugal
 
 fieldset_checkbox = Checkboxes and switches
-desc_checkbox = This group shows standard checkboxes, inline checkboxes, reverse-aligned options, and toggle switches for binary choices.
+help_fieldset_checkbox = This group shows standard checkboxes, inline checkboxes, reverse-aligned options, and toggle switches for binary choices.
 label_terms = I accept the terms and conditions
 label_marketing = Commercial emails (inline)
 label_newsletter = Newsletter (inline)

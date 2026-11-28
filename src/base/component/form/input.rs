@@ -163,7 +163,7 @@ pub struct Field {
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve la longitud mínima permitida en caracteres.
     #[getters(copy)]
     minlength: Option<u16>,
@@ -220,7 +220,7 @@ impl Component for Field {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-        let help = form::parts::Help::new(self.help_text(), input_id.as_deref());
+        let help = form::parts::Help::new(self.help(), input_id.as_deref());
         let label = form::parts::Label::new(self.label(), input_id.as_deref())
             .with_required(*self.required());
         let input_class = if *self.plaintext() {
@@ -415,8 +415,8 @@ impl Field {
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.help_text = help_text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

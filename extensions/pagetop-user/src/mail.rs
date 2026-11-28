@@ -216,22 +216,24 @@ pub(crate) fn send_external_password_notice(
     request: &HttpRequest,
     user: &user::Model,
     provider_label: Lc,
-    help: Option<HelpLink>,
+    help_link: Option<HelpLink>,
 ) {
     let cx = user_context(request, user);
     let (username, to) = recipient(user);
-    external_notice_email(&cx, provider_label, help, username, to).send_later();
+    external_notice_email(&cx, provider_label, help_link, username, to).send_later();
 }
 
 // Compone el aviso de `send_external_password_notice()`.
 fn external_notice_email(
     cx: &Context,
     provider_label: Lc,
-    help: Option<HelpLink>,
+    help_link: Option<HelpLink>,
     username: Option<String>,
     to: Mailbox,
 ) -> Email {
-    let link = help.map(|help| help.url().to_owned()).unwrap_or_default();
+    let link = help_link
+        .map(|help_link| help_link.url().to_owned())
+        .unwrap_or_default();
     let mut template = UserMail::notice(Notice::PasswordManagedExternally, username, link);
     template.provider = Some(provider_label.lookup(cx).unwrap_or_default());
     Email::from_template(&template, cx).with_to(to)

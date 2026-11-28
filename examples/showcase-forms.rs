@@ -35,7 +35,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                 .with_child(
                                     form::Fieldset::new()
                                         .with_legend(Lc::t("fieldset_checkbox", &LOC))
-                                        .with_description(Lc::t("desc_checkbox", &LOC))
+                                        .with_help(Lc::t("help_fieldset_checkbox", &LOC))
                                         .with_child(
                                             form::Checkbox::new()
                                                 .with_name("accept_terms")
@@ -77,7 +77,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                             form::check::Field::new()
                                                 .with_name("interests")
                                                 .with_label(Lc::t("label_interests", &LOC))
-                                                .with_help_text(Lc::t("help_interests", &LOC))
+                                                .with_help(Lc::t("help_interests", &LOC))
                                                 .with_item(
                                                     form::check::Item::new(
                                                         "rust",
@@ -175,7 +175,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_name("name")
                                                 .with_label(Lc::t("label_name", &LOC))
                                                 .with_placeholder(Lc::t("placeholder_name", &LOC))
-                                                .with_help_text(Lc::t("help_name", &LOC))
+                                                .with_help(Lc::t("help_name", &LOC))
                                                 .with_required(true),
                                         )
                                         .with_child(
@@ -183,7 +183,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_name("email")
                                                 .with_label(Lc::t("label_email", &LOC))
                                                 .with_placeholder(Lc::t("placeholder_email", &LOC))
-                                                .with_help_text(Lc::t("help_email", &LOC))
+                                                .with_help(Lc::t("help_email", &LOC))
                                                 .with_autocomplete(
                                                     Some(form::Autocomplete::email()),
                                                 )
@@ -233,7 +233,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                     &LOC,
                                                 ))
                                                 .with_rows(Some(4))
-                                                .with_help_text(Lc::t("help_comment", &LOC)),
+                                                .with_help(Lc::t("help_comment", &LOC)),
                                         ),
                                 )
                                 // Control deslizante (form::Range).
@@ -248,7 +248,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_max(Some(10.0))
                                                 .with_step(Some(1.0))
                                                 .with_value(Some(5.0))
-                                                .with_help_text(Lc::t("help_rating", &LOC)),
+                                                .with_help(Lc::t("help_rating", &LOC)),
                                         ),
                                 )
                                 // Selección de archivos (form::File).
@@ -260,7 +260,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_name("photo")
                                                 .with_label(Lc::t("label_photo", &LOC))
                                                 .with_accept("image/jpeg,image/png")
-                                                .with_help_text(Lc::t("help_photo", &LOC)),
+                                                .with_help(Lc::t("help_photo", &LOC)),
                                         )
                                         .with_child(
                                             form::File::new()
@@ -268,7 +268,7 @@ async fn showcase_forms(request: HttpRequest) -> Result<Markup, ErrorPage> {
                                                 .with_label(Lc::t("label_attachments", &LOC))
                                                 .with_accept(".pdf")
                                                 .with_multiple(true)
-                                                .with_help_text(Lc::t("help_attachments", &LOC)),
+                                                .with_help(Lc::t("help_attachments", &LOC)),
                                         ),
                                 )
                                 // Campo oculto (form::Hidden).
@@ -396,7 +396,7 @@ fn form_lists() -> Form {
                         .with_item(form::select::Item::new("typescript", Lc::n("TypeScript")))
                         .with_multiple(true)
                         .with_rows(Some(4))
-                        .with_help_text(Lc::t("help_technologies", &LOC)),
+                        .with_help(Lc::t("help_technologies", &LOC)),
                 ),
         );
 

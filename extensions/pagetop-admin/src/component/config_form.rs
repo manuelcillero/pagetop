@@ -72,6 +72,7 @@ impl Component for ConfigForm {
             form class="admin-config-form" method="post" action=(action) {
                 @for (i, field) in schema.fields().iter().enumerate() {
                     @let pf = &prepared[i];
+                    @let help = form::parts::Help::new(field.help(), Some(field.name()));
                     div class="admin-form-field" {
                         label class="admin-form-label" for=(field.name()) {
                             (field.label().using(cx))
@@ -82,6 +83,7 @@ impl Component for ConfigForm {
                                     input class="admin-form-input"
                                         type="text"
                                         id=(field.name())
+                                        aria-describedby=[help.id()]
                                         name=(field.name())
                                         value=(&pf.raw_val)
                                         maxlength=(max)
@@ -90,6 +92,7 @@ impl Component for ConfigForm {
                                     input class="admin-form-input"
                                         type="text"
                                         id=(field.name())
+                                        aria-describedby=[help.id()]
                                         name=(field.name())
                                         value=(&pf.raw_val)
                                         required[*field.required()];
@@ -100,6 +103,7 @@ impl Component for ConfigForm {
                                     input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
+                                        aria-describedby=[help.id()]
                                         name=(field.name())
                                         value=(&pf.raw_val)
                                         min=(lo)
@@ -109,6 +113,7 @@ impl Component for ConfigForm {
                                     input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
+                                        aria-describedby=[help.id()]
                                         name=(field.name())
                                         value=(&pf.raw_val)
                                         min=(lo)
@@ -117,6 +122,7 @@ impl Component for ConfigForm {
                                     input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
+                                        aria-describedby=[help.id()]
                                         name=(field.name())
                                         value=(&pf.raw_val)
                                         max=(hi)
@@ -125,6 +131,7 @@ impl Component for ConfigForm {
                                     input class="admin-form-input"
                                         type="number"
                                         id=(field.name())
+                                        aria-describedby=[help.id()]
                                         name=(field.name())
                                         value=(&pf.raw_val)
                                         required[*field.required()];
@@ -134,6 +141,7 @@ impl Component for ConfigForm {
                                 input class="admin-form-checkbox"
                                     type="checkbox"
                                     id=(field.name())
+                                    aria-describedby=[help.id()]
                                     name=(field.name())
                                     value="true"
                                     checked[pf.checked];
@@ -141,6 +149,7 @@ impl Component for ConfigForm {
                             SettingFieldType::Select { options } => {
                                 select class="admin-form-select"
                                     id=(field.name())
+                                    aria-describedby=[help.id()]
                                     name=(field.name())
                                     required[*field.required()]
                                 {
@@ -154,9 +163,7 @@ impl Component for ConfigForm {
                                 }
                             }
                         }
-                        @if !field.help_text().is_none() {
-                            small class="admin-form-help" { (field.help_text().using(cx)) }
-                        }
+                        (help.render(cx))
                     }
                 }
                 div class="admin-form-actions" {

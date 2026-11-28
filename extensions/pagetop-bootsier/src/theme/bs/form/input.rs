@@ -55,7 +55,7 @@ pub(crate) fn setup(field: &mut Field) {
 pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
     let container_id = field.id();
     let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-    let help = form::parts::Help::new(field.help_text(), input_id.as_deref());
+    let help = form::parts::Help::new(field.help(), input_id.as_deref());
     let input_class = if *field.plaintext() {
         "form-control-plaintext"
     } else {

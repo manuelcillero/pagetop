@@ -20,7 +20,7 @@ pub struct LoginForm {
     /// Mensaje de error sobre el formulario.
     error: Option<Lc>,
     /// Enlace de ayuda junto al error (p. ej. dónde cambiar una contraseña caducada).
-    help: Option<HelpLink>,
+    help_link: Option<HelpLink>,
     /// Usuario o email con el que se rellena el campo.
     username: String,
     /// Página a la que volver tras iniciar sesión.
@@ -67,7 +67,7 @@ impl Component for LoginForm {
             .with_action(action)
             .with_method(form::Method::Post)
             .with_child(error_banner(self.error().cloned()))
-            .with_child(help_link(self.help().cloned()))
+            .with_child(help_link(self.help_link().cloned()))
             .with_child(username)
             .with_child(password);
         if provider::any_allows_remember() {
@@ -75,7 +75,7 @@ impl Component for LoginForm {
                 form::Checkbox::check()
                     .with_name("remember")
                     .with_label(Lc::t("field-remember-me", &LOCALES_USER))
-                    .with_help_text(Lc::t("help-remember-me", &LOCALES_USER)),
+                    .with_help(Lc::t("help-remember-me", &LOCALES_USER)),
             );
         }
         form = form
@@ -165,8 +165,8 @@ impl LoginForm {
     }
 
     /// Enlace de ayuda junto al error.
-    pub fn with_help(mut self, help: impl Into<Option<HelpLink>>) -> Self {
-        self.help = help.into();
+    pub fn with_help_link(mut self, help_link: impl Into<Option<HelpLink>>) -> Self {
+        self.help_link = help_link.into();
         self
     }
 

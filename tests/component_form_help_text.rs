@@ -20,42 +20,27 @@ fn help() -> Lc {
 async fn single_controls_point_to_their_help_text() {
     let cases: [(String, &str); 6] = [
         (
-            render(
-                &mut form::input::Field::text()
-                    .with_name("a")
-                    .with_help_text(help()),
-            )
-            .await,
+            render(&mut form::input::Field::text().with_name("a").with_help(help())).await,
             "edit-a-input-help",
         ),
         (
-            render(&mut form::Number::new().with_name("b").with_help_text(help())).await,
+            render(&mut form::Number::new().with_name("b").with_help(help())).await,
             "edit-b-input-help",
         ),
         (
-            render(&mut form::Range::new().with_name("c").with_help_text(help())).await,
+            render(&mut form::Range::new().with_name("c").with_help(help())).await,
             "edit-c-range-help",
         ),
         (
-            render(&mut form::Textarea::new().with_name("d").with_help_text(help())).await,
+            render(&mut form::Textarea::new().with_name("d").with_help(help())).await,
             "edit-d-textarea-help",
         ),
         (
-            render(
-                &mut form::select::Field::new()
-                    .with_name("e")
-                    .with_help_text(help()),
-            )
-            .await,
+            render(&mut form::select::Field::new().with_name("e").with_help(help())).await,
             "edit-e-select-help",
         ),
         (
-            render(
-                &mut form::Checkbox::check()
-                    .with_name("g")
-                    .with_help_text(help()),
-            )
-            .await,
+            render(&mut form::Checkbox::check().with_name("g").with_help(help())).await,
             "edit-g-checkbox-help",
         ),
     ];
@@ -79,12 +64,7 @@ async fn without_help_text_there_is_no_aria_describedby() {
 
 #[pagetop::test]
 async fn date_fields_point_to_their_format_and_their_help_text() {
-    let html = render(
-        &mut form::date::Field::date()
-            .with_name("f")
-            .with_help_text(help()),
-    )
-    .await;
+    let html = render(&mut form::date::Field::date().with_name("f").with_help(help())).await;
     assert!(html.contains(r#"aria-describedby="edit-f-input-format edit-f-input-help""#));
     assert!(html.contains(r#"<div id="edit-f-input-help" class="form-text">Help</div>"#));
 }
@@ -95,7 +75,7 @@ async fn checks_and_radios_are_labelled_groups_with_help_text() {
         &mut form::check::Field::new()
             .with_name("g")
             .with_label(Lc::n("Options"))
-            .with_help_text(help())
+            .with_help(help())
             .with_item(form::check::Item::new("1", Lc::n("One"))),
     )
     .await;
@@ -103,7 +83,7 @@ async fn checks_and_radios_are_labelled_groups_with_help_text() {
         &mut form::radio::Field::new()
             .with_name("h")
             .with_label(Lc::n("Choice"))
-            .with_help_text(help())
+            .with_help(help())
             .with_item(form::radio::Item::new("1", Lc::n("One"))),
     )
     .await;
@@ -126,6 +106,39 @@ async fn checks_and_radios_are_labelled_groups_with_help_text() {
             "{html}"
         );
     }
+}
+
+#[pagetop::test]
+async fn fieldsets_point_to_their_help_text() {
+    let field = || form::input::Field::text().with_name("a");
+
+    // With its own id, the help text derives from it.
+    let html = render(
+        &mut form::Fieldset::new()
+            .with_id("contact")
+            .with_legend(Lc::n("Contact"))
+            .with_help(help())
+            .with_child(field()),
+    )
+    .await;
+    assert!(html.contains(r#"id="contact""#));
+    assert!(html.contains(r#"aria-describedby="contact-help""#));
+    assert!(html.contains(r#"<div id="contact-help" class="form-text fieldset-help">Help</div>"#));
+    // The help text goes after the legend and before the controls.
+    let legend = html.find("<legend>").unwrap();
+    let help_at = html.find("contact-help\" class").unwrap();
+    assert!(legend < help_at && help_at < html.find("<input").unwrap());
+
+    // Without one, it gets a unique id to link the help text.
+    let html = render(&mut form::Fieldset::new().with_help(help()).with_child(field())).await;
+    assert!(html.contains(r#"id="fieldset-1""#));
+    assert!(html.contains(r#"aria-describedby="fieldset-1-help""#));
+    assert!(html.contains(r#"<div id="fieldset-1-help""#));
+
+    // Without help text, neither the id nor `aria-describedby` are added.
+    let html = render(&mut form::Fieldset::new().with_child(field())).await;
+    assert!(html.starts_with("<fieldset>"));
+    assert!(!html.contains("aria-describedby"));
 }
 
 // **< form::parts::Help >**************************************************************************

@@ -40,7 +40,7 @@ pub struct Number {
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve el valor mínimo permitido.
     #[getters(copy)]
     min: Option<u64>,
@@ -85,7 +85,7 @@ impl Component for Number {
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let container_id = self.id();
         let input_id = container_id.as_deref().map(|id| util::join!(id, "-input"));
-        let help = form::parts::Help::new(self.help_text(), input_id.as_deref());
+        let help = form::parts::Help::new(self.help(), input_id.as_deref());
         let label = form::parts::Label::new(self.label(), input_id.as_deref())
             .with_required(*self.required());
         Ok(html! {
@@ -149,8 +149,8 @@ impl Number {
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.help_text = help_text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

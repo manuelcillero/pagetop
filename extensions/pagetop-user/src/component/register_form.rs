@@ -37,7 +37,7 @@ impl Component for RegisterForm {
                     .with_name("username")
                     .with_value(&self.username)
                     .with_label(Lc::t("field-username-admin", &LOCALES_USER))
-                    .with_help_text(username_help(config::SETTINGS.identity_policy))
+                    .with_help(username_help(config::SETTINGS.identity_policy))
                     .with_minlength(USERNAME_MIN_CHARS)
                     .with_maxlength(username_max_chars(config::SETTINGS.identity_policy))
                     .with_autocomplete(Some(form::Autocomplete::username()))

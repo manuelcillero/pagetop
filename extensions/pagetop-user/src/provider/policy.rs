@@ -68,7 +68,7 @@ pub enum ResetPolicy {
     /// recibe por correo un aviso, con el enlace de ayuda si lo hay.
     Forbidden {
         /// Enlace de ayuda que se incluye en el aviso, si lo hay.
-        help: Option<HelpLink>,
+        help_link: Option<HelpLink>,
     },
 }
 
@@ -131,7 +131,7 @@ pub struct AccountPolicy {
     /// Recuperación de la contraseña por correo.
     password_reset: ResetPolicy,
     /// Enlace de ayuda para el usuario.
-    help: Option<HelpLink>,
+    help_link: Option<HelpLink>,
 }
 
 #[builder_impl]
@@ -146,7 +146,7 @@ impl AccountPolicy {
             managed_fields: Vec::new(),
             managed_roles: Vec::new(),
             password_reset: ResetPolicy::Allowed,
-            help: None,
+            help_link: None,
         }
     }
 
@@ -187,8 +187,8 @@ impl AccountPolicy {
     }
 
     /// Enlace de ayuda para el usuario.
-    pub fn with_help(mut self, help: Option<HelpLink>) -> Self {
-        self.help = help;
+    pub fn with_help_link(mut self, help_link: Option<HelpLink>) -> Self {
+        self.help_link = help_link;
         self
     }
 

@@ -45,7 +45,7 @@ impl Component for RoleForm {
                 .with_name("machine_name")
                 .with_value(self.machine_name())
                 .with_label(Lc::t("field-machine-name", &LOCALES_USER))
-                .with_help_text(Lc::t("help-machine-name-immutable", &LOCALES_USER))
+                .with_help(Lc::t("help-machine-name-immutable", &LOCALES_USER))
                 .with_required(true)
                 .with_maxlength(ROLE_MACHINE_NAME_MAX_CHARS),
             RoleFormMode::Edit => form::input::Field::text()

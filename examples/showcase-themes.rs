@@ -137,7 +137,7 @@ fn fields_block() -> Block {
                 .with_name("name")
                 .with_label(Lc::t("showcase_name", &LOC))
                 .with_value("Ana García")
-                .with_help_text(Lc::t("showcase_name_help", &LOC))
+                .with_help(Lc::t("showcase_name_help", &LOC))
                 .with_required(true),
         )
         .with_child(
@@ -284,7 +284,7 @@ fn checks_block() -> Block {
                                     )
                                     .with_disabled(true),
                                 )
-                                .with_help_text(Lc::t("showcase_options_help", &LOC)),
+                                .with_help(Lc::t("showcase_options_help", &LOC)),
                         ),
                 ),
         )

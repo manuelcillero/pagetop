@@ -102,7 +102,7 @@ pub struct Field {
     /// Devuelve la etiqueta del grupo.
     label: Lc,
     /// Devuelve el texto de ayuda del grupo.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve las opciones del grupo.
     items: Vec<Item>,
     /// Devuelve si la selección de alguna opción del grupo es obligatoria.
@@ -145,7 +145,7 @@ impl Component for Field {
         // El contenedor agrupa las opciones: su etiqueta y su texto de ayuda describen al grupo.
         let label =
             form::parts::Label::group(self.label(), &container_id).with_required(*self.required());
-        let help = form::parts::Help::new(self.help_text(), Some(&container_id));
+        let help = form::parts::Help::new(self.help(), Some(&container_id));
 
         Ok(html! {
             div
@@ -226,8 +226,8 @@ impl Field {
     }
 
     /// Establece el texto de ayuda del grupo (usa [`Lc::none()`] para quitarlo).
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.help_text = help_text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

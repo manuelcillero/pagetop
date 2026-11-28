@@ -140,7 +140,7 @@ pub async fn login_post(
                     RejectReason::NotRegistered => "error-login-not-registered",
                     RejectReason::AwaitingApproval => "error-account-awaiting-approval",
                     RejectReason::Conflict => "error-login-conflict",
-                    RejectReason::PasswordExpired { help: link } => {
+                    RejectReason::PasswordExpired { help_link: link } => {
                         help = link.clone();
                         "error-password-expired"
                     }
@@ -153,7 +153,7 @@ pub async fn login_post(
                     LoginForm::new()
                         .with_username(form.username)
                         .with_error(Lc::t(error_key, &LOCALES_USER))
-                        .with_help(help)
+                        .with_help_link(help)
                         .with_waypoint(waypoint),
                 )
                 .render()
@@ -308,8 +308,8 @@ pub async fn password_reset_post(
         // límite de solicitudes por cuenta.
         let forbidden = match provider::account_policy(&user_model).await {
             Some(policy) => match policy.password_reset() {
-                ResetPolicy::Forbidden { help } => {
-                    Some((policy.provider_label().clone(), help.clone()))
+                ResetPolicy::Forbidden { help_link } => {
+                    Some((policy.provider_label().clone(), help_link.clone()))
                 }
                 ResetPolicy::Allowed => None,
             },

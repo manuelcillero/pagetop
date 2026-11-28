@@ -38,7 +38,7 @@ async fn help_text_is_absent_by_default() {
 
 #[pagetop::test]
 async fn help_text_is_rendered_when_set() {
-    let mut field = form::input::Field::text().with_help_text(Lc::n("We never share your data."));
+    let mut field = form::input::Field::text().with_help(Lc::n("We never share your data."));
     let html = field.render(&mut Context::default()).await.into_string();
 
     assert!(html.contains(r#"class="form-text""#));

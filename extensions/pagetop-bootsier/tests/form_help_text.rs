@@ -20,7 +20,7 @@ async fn bootsier_fields_point_to_their_help_text() {
             render(
                 &mut bs::form::input::Field::text()
                     .with_name("a")
-                    .with_help_text(help()),
+                    .with_help(help()),
             )
             .await,
             "edit-a-input-help",
@@ -29,18 +29,13 @@ async fn bootsier_fields_point_to_their_help_text() {
             render(
                 &mut bs::form::select::Field::new()
                     .with_name("b")
-                    .with_help_text(help()),
+                    .with_help(help()),
             )
             .await,
             "edit-b-select-help",
         ),
         (
-            render(
-                &mut bs::form::Textarea::new()
-                    .with_name("c")
-                    .with_help_text(help()),
-            )
-            .await,
+            render(&mut bs::form::Textarea::new().with_name("c").with_help(help())).await,
             "edit-c-textarea-help",
         ),
     ];

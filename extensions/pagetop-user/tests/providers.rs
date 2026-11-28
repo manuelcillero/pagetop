@@ -140,7 +140,7 @@ impl AuthProvider for Fake {
                 .with_managed_fields(vec![UserField::DisplayName])
                 .with_managed_roles(if staff > 0 { vec![staff] } else { vec![] })
                 .with_password_reset(ResetPolicy::Forbidden {
-                    help: HelpLink::new("https://help.example.com/password", Lc::none()),
+                    help_link: HelpLink::new("https://help.example.com/password", Lc::none()),
                 }),
         )
     }

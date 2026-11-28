@@ -107,7 +107,7 @@ pub struct Field {
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve la configuración de autocompletado del campo; sin ella, se desactiva (`off`).
     autocomplete: Option<form::Autocomplete>,
     /// Devuelve si el campo recibe el foco automáticamente al cargar la página.
@@ -163,7 +163,7 @@ impl Component for Field {
         };
         let format = Lc::l("input_format_help").with_arg("format", hint.clone());
         let format = form::parts::Help::suffixed(&format, input_id.as_deref(), "-format");
-        let help = form::parts::Help::new(self.help_text(), input_id.as_deref());
+        let help = form::parts::Help::new(self.help(), input_id.as_deref());
         let label = form::parts::Label::new(self.label(), input_id.as_deref())
             .with_required(*self.required());
         // El formato y, si lo hay, el texto de ayuda describen el campo, en ese orden.
@@ -295,8 +295,8 @@ impl Field {
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.help_text = help_text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

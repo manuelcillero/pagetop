@@ -61,7 +61,7 @@ pub(crate) fn render(field: &Textarea, cx: &mut Context) -> Result<Markup, Compo
     let textarea_id = container_id
         .as_deref()
         .map(|id| util::join!(id, "-textarea"));
-    let help = form::parts::Help::new(field.help_text(), textarea_id.as_deref());
+    let help = form::parts::Help::new(field.help(), textarea_id.as_deref());
     let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
     // La etiqueta flotante requiere `placeholder` para animar la etiqueta; si no está definido se
     // fuerza `placeholder=""`.

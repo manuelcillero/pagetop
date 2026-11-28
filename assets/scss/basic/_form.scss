@@ -14,8 +14,10 @@
     display: block;
 }
 
+// Help text a little apart from its field, as in Bootsier.
 .form-text {
-    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-size: 0.90625rem;
     font-style: italic;
     line-height: 1.3;
     color: var(--val-color--text--muted);
@@ -38,6 +40,8 @@ form > .flex-buttons {
 
 fieldset {
     margin: 0 0 1rem;
+    // Above, as much room as below: the content starts right under the legend.
+    padding-top: 0.75rem;
     background: var(--val-color--bg);
 }
 // Its padding already leaves room below the last field.
@@ -48,6 +52,14 @@ fieldset > legend {
     background-color: var(--val-color--bg);
     border: 2px groove threedface;
     padding: 0 0.5em;
+}
+// Help text of a fieldset: styled as the help of a field (`.form-text`), above the controls and at
+// the size of the text, since it explains the whole group.
+.fieldset-help {
+    font-size: 1em;
+    line-height: 1.45;
+    margin-top: 0;
+    margin-bottom: 1rem;
 }
 
 .form-check {

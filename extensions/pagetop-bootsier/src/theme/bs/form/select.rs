@@ -62,7 +62,7 @@ pub(crate) fn setup(field: &mut Field) {
 pub(crate) fn render(field: &Field, cx: &mut Context) -> Result<Markup, ComponentError> {
     let container_id = field.id();
     let select_id = container_id.as_deref().map(|id| util::join!(id, "-select"));
-    let help = form::parts::Help::new(field.help_text(), select_id.as_deref());
+    let help = form::parts::Help::new(field.help(), select_id.as_deref());
     let floating = field.props().extra_or(EXTRA_FLOATING_LABEL, false);
     let label = form::parts::Label::new(field.label(), select_id.as_deref())
         .with_required(*field.required());

@@ -97,7 +97,7 @@ impl Component for UserForm {
                     .with_name("username")
                     .with_value(self.username())
                     .with_label(Lc::t("field-username-admin", &LOCALES_USER))
-                    .with_help_text(if username_managed {
+                    .with_help(if username_managed {
                         managed_help.clone()
                     } else if username_readonly {
                         Lc::none()
@@ -114,7 +114,7 @@ impl Component for UserForm {
                     .with_name("email")
                     .with_value(self.email())
                     .with_label(Lc::t("field-email", &LOCALES_USER))
-                    .with_help_text(if email_managed {
+                    .with_help(if email_managed {
                         managed_help.clone()
                     } else if email_readonly {
                         Lc::t("help-email-readonly", &LOCALES_USER)
@@ -130,7 +130,7 @@ impl Component for UserForm {
                     .with_name("display_name")
                     .with_value(self.display_name())
                     .with_label(Lc::t("field-display-name", &LOCALES_USER))
-                    .with_help_text(help(managed(UserField::DisplayName)))
+                    .with_help(help(managed(UserField::DisplayName)))
                     .with_readonly(managed(UserField::DisplayName))
                     .with_maxlength(DISPLAY_NAME_MAX_CHARS),
             );
@@ -186,7 +186,7 @@ impl Component for UserForm {
                         .with_name("about")
                         .with_value(self.about())
                         .with_label(Lc::t("field-about", &LOCALES_USER))
-                        .with_help_text(help(managed(UserField::About)))
+                        .with_help(help(managed(UserField::About)))
                         .with_readonly(managed(UserField::About))
                         .with_rows(Some(5))
                         .with_maxlength(Some(ABOUT_MAX_CHARS)),

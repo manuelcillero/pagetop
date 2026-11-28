@@ -42,7 +42,7 @@ pub struct Textarea {
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve el número de filas visibles del área de texto.
     #[getters(copy)]
     rows: Option<u16>,
@@ -93,7 +93,7 @@ impl Component for Textarea {
         let textarea_id = container_id
             .as_deref()
             .map(|id| util::join!(id, "-textarea"));
-        let help = form::parts::Help::new(self.help_text(), textarea_id.as_deref());
+        let help = form::parts::Help::new(self.help(), textarea_id.as_deref());
         let label = form::parts::Label::new(self.label(), textarea_id.as_deref())
             .with_required(*self.required());
 
@@ -163,8 +163,8 @@ impl Textarea {
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.help_text = help_text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

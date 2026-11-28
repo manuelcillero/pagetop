@@ -188,7 +188,7 @@ pub enum RejectReason {
     /// La contraseña ha caducado y debe cambiarse fuera de la aplicación.
     PasswordExpired {
         /// Enlace a la página donde se cambia, si lo hay.
-        help: Option<HelpLink>,
+        help_link: Option<HelpLink>,
     },
 }
 

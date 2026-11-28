@@ -197,7 +197,7 @@ pub struct Field {
     /// Devuelve la etiqueta del campo.
     label: Lc,
     /// Devuelve el texto de ayuda del campo.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve las entradas de la lista (elementos individuales y grupos de elementos).
     entries: Vec<Entry>,
     /// Devuelve si la lista permite selección múltiple.
@@ -236,7 +236,7 @@ impl Component for Field {
 
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let select_id = self.select_id();
-        let help = form::parts::Help::new(self.help_text(), select_id.as_deref());
+        let help = form::parts::Help::new(self.help(), select_id.as_deref());
         let label = form::parts::Label::new(self.label(), select_id.as_deref())
             .with_required(*self.required());
 
@@ -323,8 +323,8 @@ impl Field {
     }
 
     /// Establece el texto de ayuda del campo (usa [`Lc::none()`] para quitarlo).
-    pub fn with_help_text(mut self, help_text: Lc) -> Self {
-        self.help_text = help_text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

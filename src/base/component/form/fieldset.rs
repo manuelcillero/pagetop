@@ -2,10 +2,12 @@ use crate::prelude::*;
 
 /// Componente para crear un **grupo de controles relacionados** en un formulario.
 ///
-/// Renderiza un `<fieldset>` con una leyenda opcional que sirve de encabezado y una descripción
-/// también opcional que aparece justo antes de los controles. Es un elemento semántico que mejora
-/// la accesibilidad porque los lectores de pantalla anuncian la leyenda antes de leer cada control
-/// del contenido.
+/// Renderiza un `<fieldset>` con una leyenda opcional que sirve de encabezado y un texto de ayuda
+/// también opcional que explica el grupo y aparece justo antes de los controles. Es un elemento
+/// semántico que mejora la accesibilidad porque los lectores de pantalla anuncian la leyenda antes
+/// de leer cada control del contenido. El texto de ayuda se pinta como el de los campos
+/// ([`form::parts::Help`]) y el `fieldset` lo enlaza con `aria-describedby`; para ello, si no tiene
+/// identificador, se le asigna uno único.
 ///
 /// Los componentes del grupo se añaden con [`with_child()`](Fieldset::with_child). Si no hay
 /// contenido para renderizar, el `fieldset` no se genera. Si está deshabilitado, todos sus
@@ -18,7 +20,7 @@ use crate::prelude::*;
 ///
 /// let personal_data = form::Fieldset::new()
 ///     .with_legend(Lc::n("Personal data"))
-///     .with_description(Lc::n("Enter your full name and contact email."))
+///     .with_help(Lc::n("Enter your full name and contact email."))
 ///     .with_child(form::input::Field::text().with_name("name").with_label(Lc::n("Full name")))
 ///     .with_child(form::input::Field::email().with_name("email").with_label(Lc::n("Email")));
 /// ```
@@ -28,8 +30,8 @@ pub struct Fieldset {
     props: Props,
     /// Devuelve la leyenda del `fieldset`.
     legend: Lc,
-    /// Devuelve la descripción del `fieldset`.
-    description: Lc,
+    /// Devuelve el texto de ayuda del `fieldset`.
+    help: Lc,
     /// Devuelve si el `fieldset` está deshabilitado.
     disabled: bool,
     /// Devuelve la lista de componentes del `fieldset`.
@@ -46,6 +48,14 @@ impl Component for Fieldset {
         self.props.get_id()
     }
 
+    fn setup(&mut self, cx: &mut Context) {
+        // El texto de ayuda se enlaza con `aria-describedby`, que necesita el identificador.
+        if !self.help().is_none() {
+            let id = cx.required_id::<Self>(self.id(), 1);
+            self.alter_prop(PropsOp::ensure_id(id));
+        }
+    }
+
     async fn prepare(&self, cx: &mut Context) -> Result<Markup, ComponentError> {
         let children = self.children().render(cx).await;
 
@@ -53,14 +63,20 @@ impl Component for Fieldset {
             return Ok(html! {});
         }
 
+        let id = self.id();
+        let help = form::parts::Help::new(self.help(), id.as_deref())
+            .with_class("form-text fieldset-help");
+
         Ok(html! {
-            fieldset (self.props().unpack(cx)) disabled[*self.disabled()] {
+            fieldset
+                (self.props().unpack(cx))
+                disabled[*self.disabled()]
+                aria-describedby=[help.id()]
+            {
                 @if let Some(legend) = self.legend().lookup(cx) {
                     legend { (legend) }
                 }
-                @if let Some(description) = self.description().lookup(cx) {
-                    p class="fieldset-description" { (description) }
-                }
+                (help.render(cx))
                 (children)
             }
         })
@@ -89,9 +105,10 @@ impl Fieldset {
         self
     }
 
-    /// Establece la descripción del `fieldset` (usa [`Lc::none()`] para quitarla).
-    pub fn with_description(mut self, description: Lc) -> Self {
-        self.description = description;
+    /// Establece el texto de ayuda del `fieldset`, que explica el grupo antes de sus controles (usa
+    /// [`Lc::none()`] para quitarlo).
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

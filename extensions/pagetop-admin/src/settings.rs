@@ -115,7 +115,7 @@ pub struct SettingField {
     /// Devuelve si el campo es obligatorio.
     required: bool,
     /// Devuelve el texto de ayuda bajo el campo, o [`Lc::none()`] si no tiene.
-    help_text: Lc,
+    help: Lc,
     /// Devuelve el valor por defecto, como texto, igual que guarda el formulario los valores.
     default_value: Option<String>,
 }
@@ -129,7 +129,7 @@ impl SettingField {
             label,
             field_type: SettingFieldType::Text { max_length: None },
             required: false,
-            help_text: Lc::none(),
+            help: Lc::none(),
             default_value: None,
         }
     }
@@ -144,7 +144,7 @@ impl SettingField {
                 max: None,
             },
             required: false,
-            help_text: Lc::none(),
+            help: Lc::none(),
             default_value: None,
         }
     }
@@ -156,7 +156,7 @@ impl SettingField {
             label,
             field_type: SettingFieldType::Boolean,
             required: false,
-            help_text: Lc::none(),
+            help: Lc::none(),
             default_value: None,
         }
     }
@@ -168,7 +168,7 @@ impl SettingField {
             label,
             field_type: SettingFieldType::Select { options },
             required: false,
-            help_text: Lc::none(),
+            help: Lc::none(),
             default_value: None,
         }
     }
@@ -180,8 +180,8 @@ impl SettingField {
     }
 
     /// Añade texto de ayuda bajo el campo.
-    pub fn with_help(mut self, text: Lc) -> Self {
-        self.help_text = text;
+    pub fn with_help(mut self, help: Lc) -> Self {
+        self.help = help;
         self
     }
 

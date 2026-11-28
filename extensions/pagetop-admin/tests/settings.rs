@@ -17,7 +17,7 @@ async fn defaults_are_kept_as_the_form_saves_values() {
 #[pagetop::test]
 async fn a_field_without_help_has_none() {
     let field = SettingField::text("notice", Lc::n("Notice"));
-    assert!(field.help_text().is_none());
+    assert!(field.help().is_none());
     let field = field.with_help(Lc::n("Shown on the home page."));
-    assert!(!field.help_text().is_none());
+    assert!(!field.help().is_none());
 }

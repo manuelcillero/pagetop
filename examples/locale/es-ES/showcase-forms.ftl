@@ -45,7 +45,7 @@ select_france = Francia
 select_portugal = Portugal
 
 fieldset_checkbox = Casillas e interruptores
-desc_checkbox = Este grupo muestra casillas de verificación estándar, casillas en línea, opciones alineadas a la derecha e interruptores para elecciones binarias.
+help_fieldset_checkbox = Este grupo muestra casillas de verificación estándar, casillas en línea, opciones alineadas a la derecha e interruptores para elecciones binarias.
 label_terms = Acepto los términos y condiciones
 label_marketing = Emails comerciales (en línea)
 label_newsletter = Boletín (en línea)

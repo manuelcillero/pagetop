@@ -136,7 +136,7 @@ pub(crate) async fn profile_get(request: HttpRequest) -> Response {
 // Nota «Tu cuenta se gestiona en ...», con el enlace de ayuda del proveedor si lo hay. Sin
 // proveedor, no pinta nada.
 fn managed_note(policy: Option<&AccountPolicy>) -> Html {
-    let note = policy.map(|p| (p.provider_label().clone(), p.help().cloned()));
+    let note = policy.map(|p| (p.provider_label().clone(), p.help_link().cloned()));
     Html::with(move |cx| {
         let Some((label, help)) = &note else {
             return html! {};

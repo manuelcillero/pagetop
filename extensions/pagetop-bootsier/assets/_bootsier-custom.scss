@@ -133,8 +133,13 @@ fieldset > legend {
   text-overflow: ellipsis;
 }
 
-.fieldset-description {
-  margin-bottom: 1rem;
+// Help text of a fieldset: styled as the help of a field (`.form-text`), but above the controls, so
+// spaced below instead of above, and at the size of the text, since it explains the whole group.
+.fieldset-help {
+  font-size: 1em;
+  line-height: 1.5;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 // Labels start a little inside, clear of the rounded corner of their field.
