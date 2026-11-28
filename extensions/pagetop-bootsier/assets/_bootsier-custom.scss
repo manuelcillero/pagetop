@@ -77,6 +77,12 @@
   margin-bottom: 1rem;
 }
 
+// The buttons of a form (`Flex::buttons()`) a little further from the last field or fieldset; the
+// margin collapses with the bottom one of what comes before.
+form > .flex-buttons {
+  margin-top: 2.15rem;
+}
+
 // Space below each block (Block), from Bootstrap's spacing unit, so consecutive blocks (and what
 // follows them) do not sit right together. Twice $spacer, as the 2rem of the Basic theme.
 .block {
@@ -90,13 +96,19 @@ fieldset {
   background-color: var(--bootsier-fieldset-bg);
   border-radius: var(--bs-border-radius);
   // Offset down with a negative spread: strongest below, softer at the sides, faintest on top.
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .10), 0 4px 8px -2px rgba(0, 0, 0, .22);
-  padding: 2rem 1rem 1rem;
+  // Thin, so that it outlines the fieldset without weighing on it.
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 2px 4px -1px rgba(0, 0, 0, .18);
+  padding: 1rem;
   margin: 2rem 0 1rem;
 
   // Its padding already leaves room below the last field.
   > :last-child {
     margin-bottom: 0;
+  }
+
+  // Room above for the lower half of the floating legend.
+  &:has(> legend) {
+    padding-top: 2rem;
   }
 }
 

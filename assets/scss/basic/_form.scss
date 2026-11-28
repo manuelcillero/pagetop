@@ -30,6 +30,12 @@
     width: 100%;
 }
 
+// The buttons of a form (`Flex::buttons()`) a little further from the last field or fieldset; the
+// margin collapses with the bottom one of what comes before.
+form > .flex-buttons {
+    margin-top: 1.5rem;
+}
+
 fieldset {
     margin: 0 0 1rem;
     background: var(--val-color--bg);

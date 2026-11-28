@@ -151,10 +151,12 @@ impl Flex {
     /// Crea una **fila de botones**: un [`Flex::new()`] cuyos elementos pasan a la línea siguiente
     /// cuando no caben, centrados en vertical y separados `0.5rem`.
     ///
-    /// Es la fila de acciones de un formulario, de una ficha o de una celda de una tabla. Admite
-    /// cualquier componente, no sólo botones (un formulario con su botón, una insignia...). Como
-    /// cualquier `Flex`, no se renderiza si ninguno de sus hijos genera marcado (por ejemplo, si
-    /// todos son enlaces a rutas sin acceso), así que no hace falta comprobarlo antes de añadirla:
+    /// Es la fila de acciones de un formulario, de una ficha o de una celda de una tabla. Lleva la
+    /// clase `flex-buttons`, con la que los temas la separan de los campos cuando es la botonera de
+    /// un formulario. Admite cualquier componente, no sólo botones (un formulario con su botón, una
+    /// insignia...). Como cualquier `Flex`, no se renderiza si ninguno de sus hijos genera marcado
+    /// (por ejemplo, si todos son enlaces a rutas sin acceso), así que no hace falta comprobarlo
+    /// antes de añadirla:
     ///
     /// ```rust,no_run
     /// # use pagetop::prelude::*;
@@ -165,6 +167,7 @@ impl Flex {
     /// ```
     pub fn buttons() -> Self {
         Self::new()
+            .with_prop(PropsOp::add_classes("flex-buttons"))
             .with_wrap(Behavior::Wrap)
             .with_align(align::Items::Center)
             .with_gap(align::Gap::Both(UnitValue::RelRem(0.5)))

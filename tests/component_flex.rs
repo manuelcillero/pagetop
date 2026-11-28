@@ -94,8 +94,8 @@ async fn gap_both_adds_a_single_gap_style() {
     assert!(assets.contains("_flex-gap_0_5rem_{gap:0.5rem}"));
 }
 
-// A row of buttons wraps, centres its items vertically and spaces them out, and it can still be
-// adjusted like any other Flex.
+// A row of buttons is marked for the themes, wraps, centres its items vertically and spaces them
+// out, and it can still be adjusted like any other Flex.
 #[pagetop::test]
 async fn buttons_is_a_wrapping_centred_row_with_a_gap() {
     let mut cx = Context::default();
@@ -105,6 +105,7 @@ async fn buttons_is_a_wrapping_centred_row_with_a_gap() {
     let html = row.render(&mut cx).await.into_string();
     let assets = cx.render_assets().into_string();
 
+    assert!(html.contains("flex-buttons"), "{html}");
     assert!(html.contains("_flex_"), "{html}");
     assert!(html.contains("_flex-wrap_wrap_"), "{html}");
     assert!(html.contains("_flex-align-items_center_"), "{html}");
