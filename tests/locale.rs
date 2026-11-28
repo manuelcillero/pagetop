@@ -184,3 +184,68 @@ async fn collation_key_sorts_the_resolved_translation() {
     let key_es = lc.collation_key(&Locale::resolve("es-ES"));
     assert_ne!(key_en, key_es);
 }
+
+// A nested localized text is translated in the language of the text that contains it.
+#[pagetop::test]
+async fn nested_lc_uses_the_same_language() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_user").with_lc("userName", Lc::l("test_hello_world"));
+    assert_eq!(
+        lc.lookup(&Locale::resolve("es-ES")),
+        Some("¡Hola, ¡Hola mundo!!".to_string())
+    );
+    assert_eq!(
+        lc.lookup(&Locale::resolve("en-US")),
+        Some("Hello, Hello world!!".to_string())
+    );
+}
+
+// A nested fixed text is escaped by `using()` like any other text argument.
+#[pagetop::test]
+async fn using_escapes_nested_fixed_text() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_user").with_lc("userName", Lc::n("<b>Ana</b>"));
+    assert_eq!(
+        lc.using(&Locale::resolve("es-ES")).into_string(),
+        "¡Hola, &lt;b&gt;Ana&lt;/b&gt;!"
+    );
+}
+
+// Without escaping (`lookup()`), a nested fixed text is kept as it is.
+#[pagetop::test]
+async fn lookup_keeps_nested_fixed_text() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_user").with_lc("userName", Lc::n("<b>Ana</b>"));
+    assert_eq!(
+        lc.lookup(&Locale::resolve("es-ES")),
+        Some("¡Hola, <b>Ana</b>!".to_string())
+    );
+}
+
+// A nested translation is trusted text, but `using()` still escapes its own text arguments.
+#[pagetop::test]
+async fn using_escapes_the_arguments_of_a_nested_translation() {
+    setup().await;
+
+    let inner = Lc::l("test_hello_user").with_arg("userName", "<i>Ana</i>");
+    let lc = Lc::l("test_hello_user").with_lc("userName", inner);
+    assert_eq!(
+        lc.using(&Locale::resolve("es-ES")).into_string(),
+        "¡Hola, ¡Hola, &lt;i&gt;Ana&lt;/i&gt;!!"
+    );
+}
+
+// A nested empty text (`Lc::none()`) leaves the argument empty.
+#[pagetop::test]
+async fn nested_none_is_an_empty_argument() {
+    setup().await;
+
+    let lc = Lc::l("test_hello_user").with_lc("userName", Lc::none());
+    assert_eq!(
+        lc.lookup(&Locale::resolve("es-ES")),
+        Some("¡Hola, !".to_string())
+    );
+}

@@ -35,23 +35,38 @@ enum LcKind {
 // `Text` resuelve a `FluentValue::String` para interpolar cualquier texto; pero no aplica el
 // selector de plural de Fluent (`{ $n -> [one] ... *[other] ... }`). Para eso está `Number`, que
 // resuelve a `FluentValue::Number` y es el único tipo con el que Fluent consulta las reglas de
-// plural del idioma. `Markup` es marcado HTML de confianza, que `using()` no escapa.
+// plural del idioma. `Markup` es marcado HTML de confianza, que `using()` no escapa. `Lc` es otro
+// texto localizado, que se resuelve en el mismo idioma que el que lo contiene.
 #[derive(Clone, Debug)]
 enum LcArg {
     Text(CowStr),
     Number(u32),
     Markup(String),
+    Lc(Box<Lc>),
 }
 
 impl LcArg {
     // Valor para Fluent. Con `escape`, el texto se escapa para insertarse en marcado HTML.
-    fn to_fluent(&self, escape: bool) -> FluentValue<'_> {
+    fn to_fluent(&self, language: &impl LangId, escape: bool) -> FluentValue<'_> {
         match self {
-            LcArg::Text(s) if escape && needs_escape(s) => s.as_ref().render().into_string().into(),
-            LcArg::Text(s) => s.as_ref().into(),
+            LcArg::Text(s) => text_value(s, escape),
             LcArg::Number(n) => (*n).into(),
             LcArg::Markup(s) => s.as_str().into(),
+            LcArg::Lc(lc) => match &lc.op {
+                // Un texto fijo no pasa por Fluent: se trata como `Text`, sin copiarlo.
+                LcKind::Text(s) => text_value(s, escape),
+                _ => lc.resolve(language, escape).unwrap_or_default().into(),
+            },
         }
+    }
+}
+
+// Valor para Fluent de un argumento de texto: prestado o, si hace falta, escapado.
+fn text_value(text: &str, escape: bool) -> FluentValue<'_> {
+    if escape && needs_escape(text) {
+        text.render().into_string().into()
+    } else {
+        text.into()
     }
 }
 
@@ -248,6 +263,28 @@ impl Lc {
         self
     }
 
+    /// Añade un argumento `{$arg}` => `lc` con otro texto localizado, que se traduce en el mismo
+    /// idioma que éste al resolverlo.
+    ///
+    /// Sirve para componer un texto con otro que todavía no se puede traducir porque aún no se
+    /// conoce el idioma, como una etiqueta formada con el título de un elemento que declara otra
+    /// extensión. Con [`using()`](Self::using) se trata como si se insertara por sí solo: un texto
+    /// fijo (`n()`) se escapa, como los argumentos de [`with_arg()`](Self::with_arg), y una
+    /// traducción se inserta como texto de confianza, con sus propios argumentos escapados.
+    ///
+    /// # Ejemplo
+    ///
+    /// ```rust,no_run
+    /// # use pagetop::prelude::*;
+    /// let title = Lc::l("language");
+    /// let label = Lc::l("greeting").with_lc("name", title);
+    /// let text = label.lookup(&Locale::resolve("es"));
+    /// ```
+    pub fn with_lc(mut self, arg: impl Into<CowStr>, lc: Lc) -> Self {
+        self.args.push((arg.into(), LcArg::Lc(Box::new(lc))));
+        self
+    }
+
     // **< Lc GETTERS >*****************************************************************************
 
     /// Indica si la instancia está **sin contenido** ([`Lc::none()`]).
@@ -347,7 +384,7 @@ impl Lc {
                 let args = (!self.args.is_empty()).then(|| {
                     let mut args = HashMap::with_capacity(self.args.len());
                     for (k, v) in self.args.iter() {
-                        args.insert(k.clone(), v.to_fluent(escape));
+                        args.insert(k.clone(), v.to_fluent(language, escape));
                     }
                     args
                 });
