@@ -197,12 +197,12 @@ pub trait MigratorBase {
 #[pagetop::async_trait]
 impl<M: MigratorTrait> MigratorBase for M {
     async fn run_up() -> Result<(), DbError> {
-        let conn = SchemaManagerConnection::Connection(super::db::dbconn());
+        let conn = SchemaManagerConnection::Connection(crate::migration_conn());
         Self::up(conn, None).await.map_err(DbError::Migration)
     }
 
     async fn run_down() -> Result<(), DbError> {
-        let conn = SchemaManagerConnection::Connection(super::db::dbconn());
+        let conn = SchemaManagerConnection::Connection(crate::migration_conn());
         Self::down(conn, None).await.map_err(DbError::Migration)
     }
 }

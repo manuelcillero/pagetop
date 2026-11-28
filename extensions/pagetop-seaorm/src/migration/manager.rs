@@ -1,11 +1,12 @@
 use super::{IntoSchemaManagerConnection, SchemaManagerConnection};
+use sea_orm::sea_query::IntoIden;
 use sea_orm::sea_query::{
     ForeignKeyCreateStatement, ForeignKeyDropStatement, IndexCreateStatement, IndexDropStatement,
     SelectStatement, TableAlterStatement, TableCreateStatement, TableDropStatement,
     TableRenameStatement, TableTruncateStatement,
     extension::postgres::{TypeAlterStatement, TypeCreateStatement, TypeDropStatement},
 };
-use sea_orm::{ConnectionTrait, DbBackend, DbErr, StatementBuilder};
+use sea_orm::{ConnectionTrait, DbBackend, DbErr, Statement, StatementBuilder};
 #[allow(unused_imports)]
 use sea_schema::probe::SchemaProbe;
 
@@ -93,6 +94,102 @@ impl SchemaManager<'_> {
     pub async fn drop_type(&self, stmt: TypeDropStatement) -> Result<(), DbErr> {
         self.exec_stmt(stmt).await
     }
+}
+
+/// Permissions.
+impl SchemaManager<'_> {
+    /// Deja la tabla en sólo inserción para el usuario de la aplicación: podrá leer y añadir filas,
+    /// pero no modificarlas ni borrarlas. Es lo que exige, por ejemplo, una pista de auditoría.
+    ///
+    /// Se llama en la migración que crea la tabla, después de crearla. La protección la da la base
+    /// de datos, así que vale también frente a un error del código o una consulta inyectada.
+    ///
+    /// Sólo tiene efecto en **PostgreSQL** y con un usuario de migración propio
+    /// ([`migration_user`](crate::config::DatabaseSettings::migration_user)): quita a `db_user`
+    /// los permisos `UPDATE`, `DELETE`, `TRUNCATE` y `TRIGGER` sobre la tabla (con un disparador
+    /// podría alterar las filas que se van a insertar). Los permisos se retiran a `db_user`, así
+    /// que deben habérsele concedido a él, no a un rol del que sea miembro ni a `PUBLIC`; si
+    /// después de retirarlos aún conserva alguno, avisa en las trazas. Si la aplicación se conecta
+    /// con el mismo usuario que creó las tablas, éste puede volver a concederse cualquier permiso,
+    /// así que no hace nada y también avisa. En MySQL tampoco: allí un permiso concedido para toda
+    /// la base de datos no se puede retirar tabla a tabla.
+    ///
+    /// ```rust,no_run
+    /// use pagetop_seaorm::migration::*;
+    ///
+    /// # async fn up(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
+    /// manager
+    ///     .create_table(
+    ///         Table::create()
+    ///             .table(AuditLog::Table)
+    ///             .col(pk_uuid(AuditLog::Id))
+    ///             .col(text(AuditLog::Detail))
+    ///             .to_owned(),
+    ///     )
+    ///     .await?;
+    /// manager.append_only(AuditLog::Table).await
+    /// # }
+    /// #[derive(DeriveIden)]
+    /// enum AuditLog {
+    ///     Table,
+    ///     Id,
+    ///     Detail,
+    /// }
+    /// ```
+    pub async fn append_only(&self, table: impl IntoIden) -> Result<(), DbErr> {
+        let table = table.into_iden().to_string();
+        let settings = &*crate::config::SETTINGS;
+        if self.get_database_backend() != DbBackend::Postgres || !settings.has_migration_user() {
+            pagetop::trace::warn!(
+                "Table \"{table}\" is not protected against updates and deletes: it needs \
+                 PostgreSQL and a migration_user different from db_user"
+            );
+            return Ok(());
+        }
+        let quoted = quote_pg(&table);
+        let sql = format!(
+            "REVOKE {PROTECTED} ON {quoted} FROM {}",
+            quote_pg(&settings.db_user)
+        );
+        self.conn.execute_unprepared(&sql).await?;
+
+        // Un permiso que le llega por un rol o por `PUBLIC` no se retira con el `REVOKE` anterior.
+        let still = self
+            .conn
+            .query_one(Statement::from_sql_and_values(
+                DbBackend::Postgres,
+                "SELECT has_table_privilege($1, $2, $3) AS still",
+                [
+                    settings.db_user.as_str().into(),
+                    quoted.into(),
+                    PROTECTED.into(),
+                ],
+            ))
+            .await?
+            .map(|row| row.try_get::<bool>("", "still"))
+            .transpose()?
+            .unwrap_or(false);
+        if still {
+            pagetop::trace::warn!(
+                "Table \"{table}\" is not protected against updates and deletes: \"{}\" keeps \
+                 some of {PROTECTED} through a role or PUBLIC",
+                settings.db_user
+            );
+        }
+        Ok(())
+    }
+}
+
+// Permisos que `append_only()` retira al usuario de la aplicación.
+const PROTECTED: &str = "UPDATE, DELETE, TRUNCATE, TRIGGER";
+
+// Identificador entre comillas dobles para PostgreSQL, con las comillas internas duplicadas.
+fn quote_pg(ident: &str) -> String {
+    let mut quoted = String::with_capacity(ident.len() + 2);
+    quoted.push('"');
+    quoted.push_str(&ident.replace('"', "\"\""));
+    quoted.push('"');
+    quoted
 }
 
 /// Schema Inspection.
@@ -183,4 +280,15 @@ where
         .ok_or_else(|| DbErr::Custom("Failed to check table exists".to_owned()))?;
 
     res.try_get("", "has_table")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::quote_pg;
+
+    #[test]
+    fn quote_pg_doubles_inner_quotes() {
+        assert_eq!(quote_pg("audit_log"), "\"audit_log\"");
+        assert_eq!(quote_pg("we\"ird"), "\"we\"\"ird\"");
+    }
 }

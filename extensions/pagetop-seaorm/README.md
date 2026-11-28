@@ -58,7 +58,10 @@ max_pool_size = 5
 ```
 
 Para MySQL o PostgreSQL añade también `db_user`, `db_pass` y `db_host`. El campo `db_port` es
-opcional; si se omite se usa el puerto predeterminado del motor.
+opcional; si se omite se usa el puerto predeterminado del motor. Con `migration_user` y
+`migration_pass`, las migraciones se aplican con otro usuario, dueño de las tablas, y la aplicación
+puede conectarse con uno que sólo tenga acceso a los datos; si se omiten, se usan `db_user` y
+`db_pass`.
 
 **Declara la extensión** en tu aplicación o en la extensión que la requiera:
 

@@ -59,7 +59,10 @@ max_pool_size = 5
 ```
 
 Para MySQL o PostgreSQL añade también `db_user`, `db_pass` y `db_host`. El campo `db_port` es
-opcional; si se omite se usa el puerto predeterminado del motor.
+opcional; si se omite se usa el puerto predeterminado del motor. Con `migration_user` y
+`migration_pass`, las migraciones se aplican con otro usuario, dueño de las tablas, y la aplicación
+puede conectarse con uno que sólo tenga acceso a los datos; si se omiten, se usan `db_user` y
+`db_pass`.
 
 **Declara la extensión** en tu aplicación o en la extensión que la requiera:
 
@@ -181,6 +184,7 @@ use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use url::Url;
 
 use std::sync::OnceLock;
+use std::time::Duration;
 
 pub mod config;
 
@@ -189,6 +193,9 @@ pub mod db;
 pub mod migration;
 
 static DBCONN: OnceLock<DatabaseConnection> = OnceLock::new();
+
+// Conexión para aplicar las migraciones, sólo si se configura un usuario propio para ellas.
+static MIGRATION_CONN: OnceLock<DatabaseConnection> = OnceLock::new();
 
 /// Errores que detienen el arranque de la aplicación.
 ///
@@ -235,19 +242,56 @@ impl Extension for SeaORM {
     async fn initialize(&self) -> Result<(), BoxError> {
         // Preparar la aplicación varias veces en el mismo proceso (las pruebas lo hacen) reutiliza
         // la conexión ya abierta.
+        let settings = &*config::SETTINGS;
         if DBCONN.get().is_none() {
-            let conn = connect().await?;
+            trace::info!(
+                "Connecting to database \"{}\" using a pool of {} connections",
+                settings.db_name,
+                settings.max_pool_size
+            );
+            let mut options =
+                ConnectOptions::new(db_uri(&settings.db_user, settings.db_pass.expose())?);
+            options.max_connections(settings.max_pool_size);
             // Si otra preparación simultánea se adelanta, se queda la suya y se descarta ésta.
-            let _ = DBCONN.set(conn);
+            let _ = DBCONN.set(connect(options).await?);
+        }
+        if settings.has_migration_user() && MIGRATION_CONN.get().is_none() {
+            let user = settings
+                .migration_user
+                .as_deref()
+                .and_then(util::non_blank)
+                .unwrap_or_default();
+            trace::info!(
+                "Applying migrations to database \"{}\" as user \"{user}\"",
+                settings.db_name
+            );
+            let pass = settings
+                .migration_pass
+                .as_ref()
+                .map_or("", util::SecretStr::expose);
+            // Una sola conexión, que se cierra sola cuando las migraciones terminan: la aplicación
+            // no conserva abierta una conexión con los permisos del dueño de las tablas.
+            let mut options = ConnectOptions::new(db_uri(user, pass)?);
+            options
+                .max_connections(1)
+                .min_connections(0)
+                .idle_timeout(Duration::from_secs(30));
+            let _ = MIGRATION_CONN.set(connect(options).await?);
         }
         Ok(())
     }
 }
 
-// Abre el pool de conexiones con los ajustes de la sección `[database]`.
-async fn connect() -> Result<DatabaseConnection, DbError> {
+// Conexión con la que se aplican las migraciones: la del usuario de migración si se configura, si
+// no, la de la aplicación.
+pub(crate) fn migration_conn() -> &'static DatabaseConnection {
+    MIGRATION_CONN.get().unwrap_or_else(|| db::dbconn())
+}
+
+// URL de conexión con los ajustes de la sección `[database]` y el usuario indicado.
+fn db_uri(user: &str, pass: &str) -> Result<String, DbError> {
     let settings = &*config::SETTINGS;
-    let db_uri: String = match settings.db_type {
+    Ok(match settings.db_type {
         config::DbType::Unset => return Err(DbError::TypeNotConfigured),
         config::DbType::Mysql | config::DbType::Postgres => {
             let scheme = if matches!(settings.db_type, config::DbType::Mysql) {
@@ -262,10 +306,9 @@ async fn connect() -> Result<DatabaseConnection, DbError> {
             .map_err(|_| DbError::InvalidUrl)?;
             // Sin servidor en la URL (p. ej. con `db_host` vacío) no se pueden fijar el usuario,
             // la contraseña ni el puerto.
-            uri.set_username(&settings.db_user)
-                .map_err(|()| DbError::InvalidUrl)?;
+            uri.set_username(user).map_err(|()| DbError::InvalidUrl)?;
             // https://github.com/launchbadge/sqlx/issues/1624
-            uri.set_password(Some(settings.db_pass.expose()))
+            uri.set_password(Some(pass))
                 .map_err(|()| DbError::InvalidUrl)?;
             if let Some(port) = settings.db_port {
                 uri.set_port(Some(port)).map_err(|()| DbError::InvalidUrl)?;
@@ -273,15 +316,11 @@ async fn connect() -> Result<DatabaseConnection, DbError> {
             uri.to_string()
         }
         config::DbType::Sqlite => format!("sqlite://{}", settings.db_name),
-    };
+    })
+}
 
-    trace::info!(
-        "Connecting to database \"{}\" using a pool of {} connections",
-        settings.db_name,
-        settings.max_pool_size
-    );
-    let mut options = ConnectOptions::new(db_uri);
-    options.max_connections(settings.max_pool_size);
+async fn connect(options: ConnectOptions) -> Result<DatabaseConnection, DbError> {
+    let settings = &*config::SETTINGS;
     Database::connect(options)
         .await
         .map_err(|source| DbError::Connection {

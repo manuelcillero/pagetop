@@ -149,15 +149,19 @@ max_files        = 20                  # Número máximo de archivos de un mismo
 # **< pagetop-seaorm >******************************************************************************
 
 [database]
-db_type       = ""                     # Motor: "mysql" (o "mariadb"), "postgres" (o "postgresql")
+db_type         = ""                   # Motor: "mysql" (o "mariadb"), "postgres" (o "postgresql")
                                        # o "sqlite". Obligatorio: sin él la aplicación no arranca.
-db_name       = ""                     # Nombre (mysql/postgres) o referencia (sqlite) de la BD.
-db_user       = ""                     # Usuario de conexión (mysql/postgres).
-db_pass       = ""                     # Contraseña de conexión (mysql/postgres).
-db_host       = "localhost"            # Servidor de la base de datos (mysql/postgres).
-#db_port      = 5432                   # Puerto (mysql/postgres). Sin valor -> 3306 para MySQL y
+db_name         = ""                   # Nombre (mysql/postgres) o referencia (sqlite) de la BD.
+db_user         = ""                   # Usuario de conexión (mysql/postgres).
+db_pass         = ""                   # Contraseña de conexión (mysql/postgres).
+#migration_user = "owner"              # Usuario que aplica las migraciones (mysql/postgres),
+                                       # dueño de las tablas. Sin valor -> db_user y db_pass. Así
+                                       # db_user sólo tiene los permisos que necesita.
+#migration_pass = ""                   # Contraseña de migration_user.
+db_host         = "localhost"          # Servidor de la base de datos (mysql/postgres).
+#db_port        = 5432                 # Puerto (mysql/postgres). Sin valor -> 3306 para MySQL y
                                        # 5432 para PostgreSQL.
-max_pool_size = 5                      # Número máximo de conexiones simultáneas.
+max_pool_size   = 5                    # Número máximo de conexiones simultáneas.
 
 
 # **< pagetop-mail >********************************************************************************

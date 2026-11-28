@@ -8,6 +8,9 @@
 //! db_name = "db"
 //! db_user = "user"
 //! db_pass = "password"
+//! # Opcional: un usuario distinto, dueño de las tablas, para aplicar las migraciones.
+//! migration_user = "owner"
+//! migration_pass = "owner-password"
 //! db_host = "localhost"
 //! db_port = 5432
 //! max_pool_size = 5
@@ -47,6 +50,19 @@ pub struct DatabaseSettings {
     pub db_user: String,
     /// Contraseña para la conexión a la base de datos (para mysql/postgres).
     pub db_pass: util::SecretStr,
+    /// Usuario con el que se aplican las migraciones (para mysql/postgres). Sin valor, se usan
+    /// `db_user` y `db_pass`.
+    ///
+    /// Con un usuario propio, dueño de las tablas, la aplicación puede conectarse con un usuario
+    /// que sólo tenga los permisos que necesita. Es lo que permite, por ejemplo, que una tabla de
+    /// auditoría no se pueda modificar desde la aplicación (ver
+    /// [`SchemaManager::append_only()`](crate::migration::SchemaManager::append_only)). Las tablas
+    /// que crea este usuario deben quedar accesibles para `db_user`; en PostgreSQL, con
+    /// `ALTER DEFAULT PRIVILEGES` al crear la base de datos.
+    pub migration_user: Option<String>,
+    /// Contraseña de `migration_user`. Sólo se usa si `migration_user` tiene valor; sin valor,
+    /// vacía.
+    pub migration_pass: Option<util::SecretStr>,
     /// Servidor de conexión a la base de datos (para mysql/postgres).
     #[default = "localhost"]
     pub db_host: String,
@@ -56,6 +72,21 @@ pub struct DatabaseSettings {
     /// Número máximo de conexiones habilitadas.
     #[default = 5]
     pub max_pool_size: u32,
+}
+
+impl DatabaseSettings {
+    /// Si las migraciones se aplican con un usuario distinto del de la aplicación.
+    ///
+    /// Sólo en MySQL y PostgreSQL, con `migration_user` definido, no vacío y distinto de
+    /// `db_user`.
+    pub fn has_migration_user(&self) -> bool {
+        matches!(self.db_type, DbType::Mysql | DbType::Postgres)
+            && self
+                .migration_user
+                .as_deref()
+                .and_then(util::non_blank)
+                .is_some_and(|user| user != self.db_user)
+    }
 }
 
 /// Motor de base de datos. Usado en [`DatabaseSettings::db_type`].
