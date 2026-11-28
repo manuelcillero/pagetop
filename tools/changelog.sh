@@ -85,6 +85,10 @@ case "$CRATE" in
         CHANGELOG_FILE="extensions/pagetop-bootsier/CHANGELOG.md"
         PATH_FLAGS=(--include-path "extensions/pagetop-bootsier/**/*")
         ;;
+    pagetop-catalog)
+        CHANGELOG_FILE="extensions/pagetop-catalog/CHANGELOG.md"
+        PATH_FLAGS=(--include-path "extensions/pagetop-catalog/**/*")
+        ;;
     pagetop-cron)
         CHANGELOG_FILE="extensions/pagetop-cron/CHANGELOG.md"
         PATH_FLAGS=(--include-path "extensions/pagetop-cron/**/*")

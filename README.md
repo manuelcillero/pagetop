@@ -112,6 +112,11 @@ El código se organiza en un *workspace* donde actualmente se incluyen los sigui
     tema basado en [Bootstrap](https://getbootstrap.com) para integrar su catálogo de estilos y
     componentes flexibles.
 
+  * **[pagetop-catalog](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-catalog)**,
+    genera la administración de los catálogos de una aplicación (listado, alta, edición,
+    desactivación, borrado protegido, historial y exportación e importación en CSV) a partir de su
+    definición.
+
   * **[pagetop-cron](https://git.cillero.es/manuelcillero/pagetop/src/branch/main/extensions/pagetop-cron)**,
     programa trabajos periódicos con expresiones cron o intervalos, y los ejecuta también bajo
     demanda.

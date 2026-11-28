@@ -1,0 +1,33 @@
+[package]
+name = "pagetop-catalog"
+version = "0.1.0"
+
+description = """
+    Catálogos administrables para aplicaciones PageTop: listado, alta, edición, desactivación,
+    borrado protegido, historial, CSV y permisos generados a partir de su definición.
+"""
+categories = ["web-programming", "database"]
+keywords = ["pagetop", "catalog", "crud", "admin", "ssr"]
+
+repository.workspace = true
+homepage.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+pagetop.workspace = true
+pagetop-htmx.workspace = true
+pagetop-seaorm.workspace = true
+# Sólo para habilitar las columnas `JSON` (traducciones de los nombres); la API se usa a través de
+# `pagetop_seaorm::db`.
+sea-orm = { workspace = true, features = ["with-json"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+# Las pruebas necesitan un motor real: SQLite en memoria. Sólo con `path` (sin versión), para que
+# `cargo publish` la quite.
+pagetop-seaorm = { path = "../pagetop-seaorm", features = ["sqlite"] }

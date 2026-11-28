@@ -1,0 +1,16 @@
+# Configuración para las pruebas de este crate: base de datos SQLite en memoria.
+
+[app]
+language = "en-US"
+
+# Nueva en cada ejecución, con una sola conexión para que todas las consultas la compartan.
+[database]
+db_type       = "sqlite"
+db_name       = "catalog-tests?mode=memory"
+max_pool_size = 1
+
+# Listados cortos, para probar la paginación con pocos registros.
+[catalog]
+list_page_size = 3
+# Un tope pequeño, para probar que un CSV importado no lo puede superar.
+import_max_size = 65536

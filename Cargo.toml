@@ -9,6 +9,7 @@ members = [
     # Extensions
     "extensions/pagetop-aliner",
     "extensions/pagetop-bootsier",
+    "extensions/pagetop-catalog",
     "extensions/pagetop-htmx",
     "extensions/pagetop-admin",
     "extensions/pagetop-cron",
@@ -81,6 +82,7 @@ pagetop-statics = { version = "0.1", path = "helpers/pagetop-statics" }
 pagetop-admin    = { version = "0.1", path = "extensions/pagetop-admin" }
 pagetop-aliner   = { version = "0.1", path = "extensions/pagetop-aliner" }
 pagetop-bootsier = { version = "0.1", path = "extensions/pagetop-bootsier" }
+pagetop-catalog  = { version = "0.1", path = "extensions/pagetop-catalog" }
 pagetop-cron     = { version = "0.1", path = "extensions/pagetop-cron" }
 pagetop-htmx     = { version = "0.1", path = "extensions/pagetop-htmx" }
 pagetop-mail     = { version = "0.1", path = "extensions/pagetop-mail" }

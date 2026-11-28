@@ -401,6 +401,20 @@ list_page_size = 20                    # Filas por página en los listados de ad
                                        # (usuarios, roles...).
 
 
+# **< pagetop-catalog >*****************************************************************************
+
+[catalog]
+list_page_size  = 25                   # Registros por página en el listado de cada catálogo.
+csv_separator   = ","                  # Separador de los CSV que se exportan: "," o ";" (el que
+                                       # espera Excel en España, Francia...). Al importar se
+                                       # detecta en la cabecera.
+import_max_rows = 5000                 # Filas que admite como mucho un CSV importado.
+import_max_size = 4_194_304            # Tamaño máximo en bytes de un CSV importado (4 MiB), al
+                                       # subirlo y al confirmarlo. 0 -> sin límite propio. No
+                                       # debe superar 'upload.max_request_size' (si lo supera,
+                                       # avisa al arrancar).
+
+
 # **< pagetop-bootsier >****************************************************************************
 
 [bootsier]
