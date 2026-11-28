@@ -297,6 +297,32 @@ fn starts_with_ignore_ascii_case(text: &str, prefix: &str) -> bool {
         .is_some_and(|head| head.eq_ignore_ascii_case(prefix))
 }
 
+/// Escribe un tamaño en bytes para mostrarlo, con unidades binarias: en MiB si es un múltiplo
+/// exacto, si no en KiB redondeados hacia abajo, y en bytes si no llega a 1 KiB.
+///
+/// Pensada para anunciar límites (de subida, de importación...): al redondear hacia abajo nunca
+/// anuncia uno mayor que el real. El número va sin separador de miles.
+///
+/// ```rust
+/// # use pagetop::prelude::*;
+/// assert_eq!(util::format_size(8 * 1024 * 1024), "8 MiB");
+/// assert_eq!(util::format_size(1536 * 1024), "1536 KiB");
+/// assert_eq!(util::format_size(1_500_000), "1464 KiB");
+/// assert_eq!(util::format_size(2048), "2 KiB");
+/// assert_eq!(util::format_size(500), "500 B");
+/// ```
+pub fn format_size(bytes: u64) -> String {
+    const KIB: u64 = 1024;
+    const MIB: u64 = 1024 * KIB;
+    if bytes >= MIB && bytes.is_multiple_of(MIB) {
+        join!((bytes / MIB).to_string(), " MiB")
+    } else if bytes >= KIB {
+        join!((bytes / KIB).to_string(), " KiB")
+    } else {
+        join!(bytes.to_string(), " B")
+    }
+}
+
 /// Resuelve y valida la ruta de un directorio existente, devolviendo una ruta absoluta.
 ///
 /// - Si la ruta es relativa, se resuelve respecto al directorio del proyecto según la variable de

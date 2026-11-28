@@ -120,14 +120,14 @@ impl UploadError {
         match self {
             Self::TooLarge { file, limit } => Lc::l("upload_too_large")
                 .with_arg("file", file.clone())
-                .with_arg("size", format_size(*limit)),
+                .with_arg("size", util::format_size(*limit)),
             Self::ExtensionNotAllowed { file, allowed } => Lc::l("upload_extension_not_allowed")
                 .with_arg("file", file.clone())
                 .with_arg("allowed", allowed.join(", ")),
             Self::TooManyFiles { limit } => Lc::l("upload_too_many_files")
                 .with_number("limit", u32::try_from(*limit).unwrap_or(u32::MAX)),
             Self::FieldsTooLarge { limit } => {
-                Lc::l("upload_fields_too_large").with_arg("size", format_size(*limit as u64))
+                Lc::l("upload_fields_too_large").with_arg("size", util::format_size(*limit as u64))
             }
             Self::NotFound(_) => Lc::l("upload_not_found"),
             Self::Multipart(err)
@@ -136,7 +136,7 @@ impl UploadError {
             {
                 Lc::l("upload_body_too_large").with_arg(
                     "size",
-                    format_size(global::SETTINGS.upload.max_request_size as u64),
+                    util::format_size(global::SETTINGS.upload.max_request_size as u64),
                 )
             }
             err if err.is_client_error() => Lc::l("upload_invalid"),
@@ -758,20 +758,6 @@ pub(crate) fn push_percent_encoded(out: &mut String, value: impl AsRef<[u8]>) {
     }
 }
 
-// Tamaño legible para los mensajes: en MiB si es un múltiplo exacto y, si no, en KiB redondeados
-// hacia abajo, para no anunciar nunca un límite mayor que el real.
-fn format_size(bytes: u64) -> String {
-    const KIB: u64 = 1024;
-    const MIB: u64 = 1024 * KIB;
-    if bytes >= MIB && bytes.is_multiple_of(MIB) {
-        util::join!((bytes / MIB).to_string(), " MiB")
-    } else if bytes >= KIB {
-        util::join!((bytes / KIB).to_string(), " KiB")
-    } else {
-        util::join!(bytes.to_string(), " B")
-    }
-}
-
 // Nombre aleatorio de 16 cifras hexadecimales. `RandomState` toma sus claves de la aleatoriedad del
 // sistema, así que los nombres no se pueden deducir aunque se conozcan la hora y el contador.
 fn random_name() -> String {
@@ -821,8 +807,8 @@ async fn create_unique(
 #[cfg(test)]
 mod tests {
     use super::{
-        MAX_NAME_CHARS, PartialFile, checked_relative, file_extension, format_size,
-        push_percent_encoded, random_name, sanitize_file_name,
+        MAX_NAME_CHARS, PartialFile, checked_relative, file_extension, push_percent_encoded,
+        random_name, sanitize_file_name,
     };
     use std::path::Path;
     use tokio::io::BufWriter;
@@ -904,13 +890,5 @@ mod tests {
         let mut out = String::new();
         push_percent_encoded(&mut out, "tags[]=a b&ñ~._-");
         assert_eq!(out, "tags%5B%5D%3Da%20b%26%C3%B1~._-");
-    }
-
-    #[test]
-    fn sizes_never_overstate_the_limit() {
-        assert_eq!(format_size(8 * 1024 * 1024), "8 MiB");
-        assert_eq!(format_size(1_500_000), "1464 KiB");
-        assert_eq!(format_size(2048), "2 KiB");
-        assert_eq!(format_size(500), "500 B");
     }
 }
