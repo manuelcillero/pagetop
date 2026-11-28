@@ -21,6 +21,8 @@ help-translations = Opcional. El nombre en otros idiomas; donde esté vacío, se
 
 value-yes = Sí
 value-no = No
+# Un registro desactivado, que sólo se ofrece porque ya lo usa el registro que se edita.
+option-inactive = { $name } (inactivo)
 
 # **< Listado >*************************************************************************************
 filter-search = Buscar

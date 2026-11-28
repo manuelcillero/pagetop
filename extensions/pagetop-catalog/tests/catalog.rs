@@ -451,6 +451,7 @@ async fn catalog_administration() {
     a_csv_is_exported_and_imported(&client).await;
     a_catalog_without_code_works_by_its_unique_columns(&client).await;
     the_history_lists_the_changes(&client).await;
+    an_inactive_reference_is_kept_but_not_offered(&client).await;
 }
 
 async fn permissions_are_derived_from_the_catalog(client: &Client) {
@@ -1021,4 +1022,28 @@ async fn a_catalog_without_code_works_by_its_unique_columns(client: &Client) {
         .await;
     assert_eq!(reply.status, Status::SEE_OTHER, "{}", reply.body);
     assert!(changes().contains(&"sizes import Small inches".to_owned()));
+}
+
+// A deactivated family is not offered for a new color, but the color that already has it keeps
+// it, marked as inactive.
+async fn an_inactive_reference_is_kept_but_not_offered(client: &Client) {
+    let warm = id_of(client, "/admin/tests/families", "WARM").await;
+    let red = id_of(client, "/admin/tests/colors", "RED").await;
+    let reply = client
+        .htmx_post(
+            &format!("/admin/tests/families/{warm}/deactivate"),
+            "manager",
+        )
+        .await;
+    assert!(reply.body.contains("The record has been deactivated."));
+    let option = format!(r#"<option value="{warm}""#);
+
+    let new = client.get("/admin/tests/colors/new", "manager").await;
+    assert!(!new.body.contains(&option), "{}", new.body);
+
+    let edit = client
+        .get(&format!("/admin/tests/colors/{red}/edit"), "manager")
+        .await;
+    assert!(edit.body.contains(&option), "{}", edit.body);
+    assert!(edit.body.contains("Warm (inactive)"), "{}", edit.body);
 }

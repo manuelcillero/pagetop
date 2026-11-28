@@ -21,6 +21,8 @@ help-translations = Optional. The name in other languages; where it is empty, th
 
 value-yes = Yes
 value-no = No
+# A deactivated record, only offered because the record being edited already uses it.
+option-inactive = { $name } (inactive)
 
 # **< List >****************************************************************************************
 filter-search = Search

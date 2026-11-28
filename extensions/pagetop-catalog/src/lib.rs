@@ -39,7 +39,8 @@ genera el resto:
   validación. El código no cambia una vez creado. Dos usuarios que editan a la vez no se pisan: la
   versión del registro (`row_version`) rechaza el cambio que llega en segundo lugar.
 - **Desactivar y reactivar**: un registro inactivo no se ofrece para registros nuevos, pero sigue
-  valiendo en los que ya lo usan.
+  valiendo en los que ya lo usan: su formulario lo ofrece marcado como inactivo y lo acepta sin
+  cambiar; una vez cambiado, ya no se puede volver a elegir.
 - **Borrado protegido**: sólo se borra un registro que nadie usa, lo que garantizan las claves
   foráneas de la base de datos también frente a extensiones que el catálogo no conoce.
 - **Salvaguardas** ([`DeclareDeactivationGuards`]): reglas de otras extensiones que impiden

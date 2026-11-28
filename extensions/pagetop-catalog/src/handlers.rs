@@ -627,7 +627,7 @@ pub(crate) async fn delete_post(
 fn field_control(
     field: &Field,
     value: &FieldValue,
-    options: &HashMap<&'static str, Vec<(String, String)>>,
+    options: &HashMap<&'static str, Vec<(String, String, bool)>>,
 ) -> ChildOp {
     let name = field.column();
     let label = field.label().clone();
@@ -700,10 +700,14 @@ fn field_control(
                 .with_item(
                     form::select::Item::new("", Lc::n("-")).with_selected(current.is_empty()),
                 );
-            for (id, text) in options.get(target).into_iter().flatten() {
+            for (id, text, active) in options.get(target).into_iter().flatten() {
+                let text = if *active {
+                    Lc::n(text.clone())
+                } else {
+                    t("option-inactive").with_arg("name", text.clone())
+                };
                 select = select.with_item(
-                    form::select::Item::new(id.clone(), Lc::n(text.clone()))
-                        .with_selected(*id == current),
+                    form::select::Item::new(id.clone(), text).with_selected(*id == current),
                 );
             }
             select.into()
@@ -711,14 +715,15 @@ fn field_control(
     }
 }
 
-// Opciones de los campos que se refieren a otros catálogos: sus registros activos y, si el valor
-// actual es uno inactivo, también ése, para no perderlo al guardar.
+// Opciones de los campos que se refieren a otros catálogos, `(id, texto, activo)`: sus registros
+// activos y, si el valor actual es uno inactivo, también ése (marcado como inactivo al pintarlo),
+// para no perderlo al guardar.
 async fn reference_options(
     catalog: &Catalog,
     input: &Input,
     cx: &Context,
-) -> Result<HashMap<&'static str, Vec<(String, String)>>, CatalogError> {
-    let mut options: HashMap<&'static str, Vec<(String, String)>> = HashMap::new();
+) -> Result<HashMap<&'static str, Vec<(String, String, bool)>>, CatalogError> {
+    let mut options: HashMap<&'static str, Vec<(String, String, bool)>> = HashMap::new();
     for (index, field) in catalog.fields().iter().enumerate() {
         let FieldKind::Reference(target) = field.kind() else {
             continue;
@@ -729,8 +734,9 @@ async fn reference_options(
         let current = input.values[index].as_int();
         let entry = options.entry(*target).or_default();
         for (id, label, active) in labels(target_catalog, cx).await? {
-            if (active || current == Some(id)) && !entry.iter().any(|(v, _)| *v == id.to_string()) {
-                entry.push((id.to_string(), label));
+            if (active || current == Some(id)) && !entry.iter().any(|(v, ..)| *v == id.to_string())
+            {
+                entry.push((id.to_string(), label, active));
             }
         }
     }
